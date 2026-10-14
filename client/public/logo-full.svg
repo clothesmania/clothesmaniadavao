@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="80" viewBox="0 0 400 80" fill="none">
+  <rect x="0" y="0" width="80" height="80" rx="18" fill="#f59e0b"/>
+  <text x="40" y="45" dominant-baseline="middle" text-anchor="middle" font-family="Outfit, Inter, sans-serif" font-weight="800" font-size="30" fill="#08101a">CM</text>
+  <text x="120" y="48" font-family="Outfit, Inter, sans-serif" font-weight="800" font-size="28" fill="#0f172a">Clothes Mania</text>
+  <text x="120" y="65" font-family="Inter, sans-serif" font-weight="600" font-size="12" fill="#6b7280">Davao POS</text>
+</svg>
