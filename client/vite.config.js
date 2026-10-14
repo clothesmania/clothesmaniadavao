@@ -43,5 +43,6 @@ self.addEventListener('fetch', event => {
 }
 
 export default defineConfig({
+  esbuild: { jsx: 'automatic' },
   plugins: [offlineAppShell()]
 })
