@@ -351,10 +351,14 @@
                 <button onclick="toggleMobileSidebar()" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" id="mobileSidebarToggle" class="md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white text-lg"><i class="fa-solid fa-bars"></i></button>
             </div>
 
-            <div class="flex items-center space-x-3">
-                <div id="cloudSyncStatus" role="status" aria-live="polite" class="hidden md:inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+            <div class="flex min-w-0 items-center gap-1.5 sm:gap-3">
+                <div id="localSaveStatus" role="status" aria-live="polite" title="Checking local save" class="inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-2 sm:px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <i id="localSaveIcon" class="fa-solid fa-hard-drive" aria-hidden="true"></i>
+                    <span id="localSaveLabel" class="hidden sm:inline">Checking local save…</span>
+                </div>
+                <div id="cloudSyncStatus" role="status" aria-live="polite" title="Cloud sync status" class="inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-2 sm:px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
                     <i id="cloudSyncIcon" class="fa-solid fa-cloud text-gray-400" aria-hidden="true"></i>
-                    <span id="cloudSyncLabel">Cloud sync: checking</span>
+                    <span id="cloudSyncLabel" class="hidden sm:inline">Cloud: checking</span>
                     <button id="cloudSyncRetry" type="button" class="hidden font-semibold text-amber-700 underline underline-offset-2 dark:text-amber-300" onclick="retryCloudSync()">Retry</button>
                 </div>
                 <!-- Live date and time -->
@@ -1590,10 +1594,31 @@
         async function persistDB() {
             try {
                 await dexie.kv.put({ key: 'db', value: db });
+                updateLocalSaveStatus('saved');
+                return true;
             } catch (e) {
                 console.error('Dexie persist error', e);
-                updateCloudSyncStatus('error', 'Could not save locally');
+                updateLocalSaveStatus('error', 'IndexedDB could not save');
+                return false;
             }
+        }
+
+        function updateLocalSaveStatus(state, message = '') {
+            const label = document.getElementById('localSaveLabel');
+            const icon = document.getElementById('localSaveIcon');
+            const container = document.getElementById('localSaveStatus');
+            if (!label || !icon || !container) return;
+            const status = {
+                saving: ['Saving on this device…', 'fa-solid fa-floppy-disk', 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'],
+                saved: ['Saved on this device', 'fa-solid fa-hard-drive', 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300'],
+                fallback: ['Saved in browser storage', 'fa-solid fa-hard-drive', 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'],
+                error: [message || 'Local save failed', 'fa-solid fa-triangle-exclamation', 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/30 dark:text-rose-300']
+            }[state] || ['Local save status unavailable', 'fa-solid fa-hard-drive', 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300'];
+            label.textContent = status[0];
+            icon.className = status[1];
+            container.className = `inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border px-2 sm:px-2.5 text-xs font-medium shadow-sm ${status[2]}`;
+            container.title = message || status[0];
+            container.setAttribute('aria-label', status[0]);
         }
 
         function readCloudSyncMeta() {
@@ -1630,17 +1655,18 @@
             if (!label || !icon || !retry || !container) return;
             const status = {
                 checking: ['Cloud: checking', 'fa-solid fa-cloud text-gray-400'],
-                offline: ['Offline · saved on device', 'fa-solid fa-cloud-arrow-down text-amber-600'],
+                offline: ['Cloud: offline · queued', 'fa-solid fa-cloud-arrow-down text-amber-600'],
                 syncing: ['Cloud: syncing…', 'fa-solid fa-rotate fa-spin text-blue-600'],
                 synced: ['Cloud: synced', 'fa-solid fa-cloud-check text-emerald-600'],
                 conflict: ['Cloud: choose a copy', 'fa-solid fa-triangle-exclamation text-amber-600'],
-                error: [message || 'Cloud sync needs attention', 'fa-solid fa-cloud-bolt text-rose-600'],
+                error: ['Cloud: needs attention', 'fa-solid fa-cloud-bolt text-rose-600'],
                 signedOut: ['Cloud: sign in required', 'fa-solid fa-cloud text-gray-400']
             }[state] || ['Cloud: checking', 'fa-solid fa-cloud text-gray-400'];
             label.textContent = status[0];
             icon.className = status[1];
             retry.classList.toggle('hidden', state !== 'error');
             container.title = message || status[0];
+            container.setAttribute('aria-label', message ? `${status[0]}: ${message}` : status[0]);
         }
 
         function queueCloudSnapshotSync() {
@@ -1866,9 +1892,19 @@
         }
 
         function saveToLocalStorage() {
-            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(error) { console.error('Could not save the local workspace snapshot.', error); }
-            // persist asynchronously to IndexedDB
-            localPersistPromise = persistDB();
+            updateLocalSaveStatus('saving');
+            let localStorageSaved = false;
+            try {
+                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
+                localStorageSaved = true;
+            } catch(error) {
+                console.error('Could not save the local workspace snapshot.', error);
+            }
+            localPersistPromise = persistDB().then(indexedDbSaved => {
+                if (!indexedDbSaved && localStorageSaved) updateLocalSaveStatus('fallback');
+                else if (!indexedDbSaved) updateLocalSaveStatus('error', 'Could not save locally');
+                return indexedDbSaved || localStorageSaved;
+            });
             refreshAllUI();
             queueCloudSnapshotSync();
         }

@@ -82,3 +82,4 @@ Resume file: None
 | 2026-10-12 | Report export and historical import | Complete |
 | 2026-10-14 | Login and sign-out progress modals | Complete |
 | 2026-10-14 | Responsive POS layout | Complete |
+| 2026-10-14 | Local save and cloud sync status indicators | Complete |
