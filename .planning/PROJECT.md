@@ -2,7 +2,7 @@
 
 ## What This Is
 
-Clothes Mania Davao POS is a fast, offline-first point-of-sale and inventory app for a live-selling clothing business. It is designed for one admin/host working on one primary device, with local data storage, quick order entry, payment tracking, and removable-media backups. Supabase receives queued changes when the device is online, but internet access is never a runtime dependency for core selling workflows.
+Clothes Mania Davao POS is a fast, offline-first point-of-sale and inventory app for a live-selling clothing business. Up to five admins can share the same inventory and sales workspace across devices. Each device keeps a local working copy for offline operations and safely synchronizes when online.
 
 ## Core Value
 
@@ -13,7 +13,7 @@ The host can reliably record every mine, payment, and stock change at live-selli
 - **Customer**: Clothes Mania Davao; the admin/host operates the system during and after live sales.
 - **Revenue model**: Retail clothing sales through social live-selling and related channels.
 - **Success metric**: No lost or oversold orders, with accurate stock, collected cash, and outstanding balances at end of day.
-- **Strategy notes**: Single-device workflow first; local records are committed first and sync to Supabase in the background. Cloud sync supports online persistence and recovery, not concurrent multi-device operations.
+- **Strategy notes**: Each admin uses an individual account; local records commit first and sync to Supabase in the background. Online edits across devices are supported with stale-copy detection and explicit conflict protection.
 
 ## Requirements
 
@@ -39,7 +39,6 @@ The host can reliably record every mine, payment, and stock change at live-selli
 
 ### Out of Scope
 
-- Simultaneous multi-device or multi-user editing — the agreed operating model is one admin/host on one primary device; backups are for recovery, not collaboration.
 - Cloud-only source of truth or cloud-required selling — live selling must continue offline and local data is committed first.
 - Direct Facebook or TikTok comment/order integrations — the current workflow is manual fast entry; no platform API integration has been requested.
 
@@ -57,7 +56,7 @@ The host can reliably record every mine, payment, and stock change at live-selli
 
 - **Offline operation**: Core workflows and required application assets must work without an internet connection — live-stream selling cannot depend on connectivity.
 - **Local-first storage**: The primary working copy remains on the user's device; queued Supabase synchronization is required when online but must not become a requirement to operate.
-- **Single operator/device**: Optimize for one admin/host and a fast laptop/tablet workflow; no concurrent editing or conflict resolution in the initial scope.
+- **Multi-admin access**: Support up to five full-access admin accounts sharing one store workspace, with conflict detection and no silent overwrite.
 - **Data safety**: Backups and restore must preserve products, inventory, orders, payment history, cancellations, refunds, and identifiers; restore must avoid silently replacing current data.
 - **Sensitive records**: Customer and payment-reference data are stored locally and in Supabase; access, encryption, row-level policies, and backup-key recovery need deliberate design.
 - **Existing codebase**: Preserve useful behavior while resolving the competing root and React implementations and their incompatible shared storage schema.
@@ -67,8 +66,8 @@ The host can reliably record every mine, payment, and stock change at live-selli
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
 | Offline-first, local-authoritative app | Internet interruptions must not slow or stop live selling. | — Pending |
-| One primary device and one admin/host | Matches the stated operating workflow and avoids unnecessary sync conflicts. | — Pending |
-| Optional cloud backup is recovery-only | Provides an additional safety net without making cloud access part of normal operation. | — Pending |
+| Up to five admins share one store workspace | Supports access from the laptop and phone with individual accounts and audit attribution. | — Pending |
+| Local-first sync with conflict safeguards | Keeps offline sales available while protecting concurrent edits from silent overwrite. | — Pending |
 | Keep an auditable order/payment/refund history | Cancellations, installments, and refunds must reconcile stock and actual cash. | — Pending |
 
 ## Evolution

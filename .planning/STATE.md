@@ -2,7 +2,7 @@
 gsd_state_version: '1.0'
 status: planning
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -16,14 +16,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-10-10)
 
 **Core value:** Reliably record mines, payments, and stock changes at live-selling speed offline, with recoverable records.
-**Current focus:** Phase 1 — Clickable UI Prototype
+**Current focus:** Phase 7 — Shared multi-admin workspace and password recovery
 
 ## Current Position
 
-Phase: 1 of 6 (Clickable UI Prototype)
+Phase: 7 of 7 (Shared multi-admin workspace and password recovery)
 Plan: Not yet created
-Status: Ready to plan
-Last activity: 2026-10-10 — User approved the six-phase vertical MVP roadmap.
+Status: Implementation in progress; database migration, SMTP setup, and deployed verification remain.
+Last activity: 2026-10-14 — User approved five full-access shared admins and concurrent edits with safeguards.
 
 Progress: ░░░░░░░░░░ 0%
 
@@ -48,6 +48,9 @@ Progress: ░░░░░░░░░░ 0%
 
 ### Decisions
 
+- Phase 7: Support one shared store workspace with up to five full-access admin accounts across devices.
+- Phase 7: Provide Supabase Auth password-reset email flow.
+
 - Phase 1: Build an isolated clickable prototype with resettable sample data before production data wiring.
 - Project: Deliver later production screens incrementally with their real local data and behavior.
 - Project: Use vertical MVP phases, offline-first local storage, and one primary device.
@@ -55,6 +58,10 @@ Progress: ░░░░░░░░░░ 0%
 ### Pending Todos
 
 None yet.
+
+### Roadmap Evolution
+
+- Phase 7 added: Shared multi-admin workspace and password recovery.
 
 ### Blockers/Concerns
 
@@ -66,7 +73,6 @@ None yet.
 
 | Category | Item | Status | Deferred At | Milestone |
 |----------|------|--------|-------------|-----------|
-| Scope | Concurrent multi-device editing | Deferred to v2 | 2026-10-10 | v1 |
 | Scope | Direct Facebook/TikTok integrations | Out of scope | 2026-10-10 | v1 |
 
 ## Session Continuity

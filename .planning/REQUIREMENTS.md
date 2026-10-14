@@ -16,6 +16,7 @@
 - [ ] **OFFL-01**: The admin/host can open the app and use core POS screens with the network disconnected after the app has been installed/loaded on its supported origin.
 - [ ] **SYNC-01**: Every successful local business write is durably queued and synchronized to Supabase in the background when online, using stable IDs and idempotent retries; pending/failed state is visible and never blocks offline work.
 - [ ] **SYNC-02**: Supabase Auth and row-level security restrict business data to authorized accounts; browser code contains no service-role key, and remote sync status/last success are visible.
+- [ ] **SYNC-03**: Up to five separately authenticated admins share one business workspace across devices; clean devices refresh online changes, offline changes queue locally, and stale concurrent snapshots are never silently overwritten.
 - [ ] **DEP-01**: The production build deploys to Vercel with configured Supabase public client settings, secure redirect policies, and verified offline workflows after initial installation/load.
 - [ ] **DATA-01**: The app stores operational records locally in a versioned schema and migrates supported prior data without silent loss.
 - [ ] **DATA-02**: The app reports persistence failures and does not present an unsuccessful write as saved.
@@ -49,17 +50,18 @@
 
 - [ ] **BKP-01**: The admin/host can export a complete versioned local backup containing products, stock, orders, payments, cancellations, and refunds.
 - [ ] **BKP-02**: Before restoring, the app validates backup structure and relationships, displays a preview, preserves the current data in a backup, and requires explicit confirmation.
-- [ ] **BKP-03**: A verified Supabase copy can support device recovery without making cloud connectivity necessary for normal operation or enabling concurrent multi-device editing; restore previews and preserves existing local data.
+- [ ] **BKP-03**: A verified Supabase copy can support device recovery without making cloud connectivity necessary for normal operation; restore previews and preserves existing local data, while concurrent multi-device edits are protected by conflict detection.
 
 ### Security
 
 - [ ] **SEC-01**: The app safely renders stored and imported customer/product values so they cannot execute as markup or script.
+- [ ] **AUTH-01**: An existing admin can invite up to four additional full-access admins using email-bound expiring codes, and Supabase enforces five total workspace members including pending invitations.
+- [ ] **AUTH-02**: An admin can request a password reset by email, follow a Supabase recovery link back to the app, and set a new password without losing business records.
 
 ## v2 Requirements
 
 ### Deferred
 
-- Multi-device concurrent editing and automatic conflict resolution — the agreed workflow is one admin/host on one primary device.
 - Direct Facebook/TikTok comment or order integrations — manual fast entry is the v1 workflow.
 - Multi-branch inventory and accounting-system integrations — not required for the initial single-store workflow.
 
@@ -81,6 +83,7 @@
 | PAY-01–PAY-02, CANC-01, REF-01, FIN-01–FIN-03 | Phase 4 | Pending |
 | OFFL-01, BKP-01–BKP-02, EXP-01–EXP-02 | Phase 5 | Pending |
 | BKP-03, SYNC-02, DEP-01 | Phase 6 | Pending |
+| SYNC-03, AUTH-01–AUTH-02 | Phase 7 | Pending |
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
@@ -91,10 +94,11 @@
 | FIN-01–FIN-03, EXP-01–EXP-02 | Pending roadmap | Pending |
 | BKP-01–BKP-03, DEP-01 | Pending roadmap | Pending |
 | SEC-01 | Pending roadmap | Pending |
+| AUTH-01–AUTH-02, SYNC-03 | Phase 7 | Pending |
 
 **Coverage:**
-- v1 requirements: 29 total
-- Mapped to phases: 25
+- v1 requirements: 32 total
+- Mapped to phases: 28
 - Unmapped: 0
 
 ---

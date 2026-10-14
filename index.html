@@ -392,6 +392,7 @@
                             <button type="button" role="menuitem" onclick="closeAdminMenu(); switchTab('dashboard')" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-chart-pie w-4 text-center text-gray-500"></i> Dashboard</button>
                             <button type="button" role="menuitem" onclick="closeAdminMenu(); switchTab('products')" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-shirt w-4 text-center text-gray-500"></i> Products &amp; Inventory</button>
                             <button type="button" role="menuitem" onclick="closeAdminMenu(); exportJSONBackup()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-download w-4 text-center text-gray-500"></i> Export data backup</button>
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); openAdminAccessModal()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-user-group w-4 text-center text-gray-500"></i> Manage admins</button>
                         </div>
                         <div class="menu-divider"></div>
                         <div class="p-1.5">
@@ -1408,6 +1409,7 @@
                         <input id="localLoginEmail" name="email" type="email" autocomplete="username" required class="auth-field text-sm" placeholder="you@example.com">
                         <div class="flex items-center justify-between gap-3">
                             <label for="localLoginPassword" class="text-sm font-medium text-foreground">Password</label>
+                            <button type="button" onclick="showLocalSessionScreen('forgot-password')" class="text-xs font-medium text-amber-700 underline underline-offset-2 hover:text-amber-800 dark:text-amber-300">Forgot password?</button>
                         </div>
                         <input id="localLoginPassword" name="password" type="password" autocomplete="current-password" required class="auth-field text-sm" placeholder="Enter your password">
                         <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground"><input id="localRememberMe" type="checkbox" checked class="h-4 w-4 rounded border-border accent-amber-500">Allow this device to reopen the workspace offline</label>
@@ -1418,16 +1420,29 @@
                 <form id="localSignUpForm" class="hidden space-y-4" onsubmit="handleLocalSignUp(event)">
                     <div class="space-y-1.5">
                         <h2 id="localSignUpTitle" class="text-2xl font-bold tracking-tight text-foreground">Create your account</h2>
-                        <p id="localSignUpDescription" class="text-sm leading-6 text-muted-foreground">Create a secure account for your Clothes Mania workspace.</p>
+                        <p id="localSignUpDescription" class="text-sm leading-6 text-muted-foreground">Enter the invitation code from an existing admin to join the shared workspace.</p>
                     </div>
                     <div class="space-y-3">
                         <div><label for="localSignUpName" class="mb-1.5 block text-sm font-medium text-foreground">Full name</label><input id="localSignUpName" name="name" type="text" autocomplete="name" required maxlength="80" class="auth-field text-sm" placeholder="Your name"></div>
                         <div><label for="localSignUpEmail" class="mb-1.5 block text-sm font-medium text-foreground">Email</label><input id="localSignUpEmail" name="email" type="email" autocomplete="email" required maxlength="254" class="auth-field text-sm" placeholder="you@example.com"></div>
+                        <div><label for="localSignUpInviteCode" class="mb-1.5 block text-sm font-medium text-foreground">Admin invitation code</label><input id="localSignUpInviteCode" name="inviteCode" type="text" autocomplete="off" required minlength="40" maxlength="40" pattern="[a-fA-F0-9]{40}" class="auth-field font-mono text-sm" placeholder="40-character code"></div>
                         <div><label for="localSignUpPassword" class="mb-1.5 block text-sm font-medium text-foreground">Password</label><input id="localSignUpPassword" name="password" type="password" autocomplete="new-password" required minlength="12" class="auth-field text-sm" placeholder="At least 12 characters"><p class="mt-1 text-xs text-muted-foreground">Use at least 12 characters.</p></div>
                         <div><label for="localSignUpConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm password</label><input id="localSignUpConfirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="12" class="auth-field text-sm" placeholder="Re-enter your password"></div>
                     </div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create account</button>
                     <p class="text-center text-sm text-muted-foreground">Already have an account? <button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Sign in</button></p>
+                </form>
+                <form id="localForgotPasswordForm" class="hidden space-y-5" onsubmit="handlePasswordResetRequest(event)">
+                    <div class="space-y-1.5"><h2 id="localForgotPasswordTitle" class="text-2xl font-bold tracking-tight text-foreground">Reset your password</h2><p id="localForgotPasswordDescription" class="text-sm leading-6 text-muted-foreground">We’ll email a secure password-reset link to your account.</p></div>
+                    <div><label for="localResetEmail" class="mb-1.5 block text-sm font-medium text-foreground">Email</label><input id="localResetEmail" name="email" type="email" autocomplete="email" required class="auth-field text-sm" placeholder="you@example.com"></div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900"><i class="fa-solid fa-envelope" aria-hidden="true"></i>Send reset link</button>
+                    <p class="text-center text-sm text-muted-foreground"><button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4">Back to sign in</button></p>
+                </form>
+                <form id="localPasswordRecoveryForm" class="hidden space-y-5" onsubmit="handlePasswordRecovery(event)">
+                    <div class="space-y-1.5"><h2 id="localPasswordRecoveryTitle" class="text-2xl font-bold tracking-tight text-foreground">Choose a new password</h2><p id="localPasswordRecoveryDescription" class="text-sm leading-6 text-muted-foreground">Use at least 12 characters for your new password.</p></div>
+                    <div><label for="localNewPassword" class="mb-1.5 block text-sm font-medium text-foreground">New password</label><input id="localNewPassword" name="password" type="password" autocomplete="new-password" minlength="12" required class="auth-field text-sm" placeholder="At least 12 characters"></div>
+                    <div><label for="localNewPasswordConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm new password</label><input id="localNewPasswordConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" required class="auth-field text-sm" placeholder="Re-enter your password"></div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900">Update password</button>
                 </form>
                 <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>First sign-in needs internet. Business records save on this device first and sync securely when online.</p>
             </div>
@@ -1444,14 +1459,25 @@
         </section>
     </div>
 
+    <div id="adminAccessModal" class="hidden fixed inset-0 z-[115] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="adminAccessTitle">
+        <section class="w-full max-w-xl rounded-2xl border border-border bg-background p-5 text-foreground shadow-2xl sm:p-6">
+            <div class="flex items-start justify-between gap-4"><div><h2 id="adminAccessTitle" class="text-lg font-bold">Manage admin access</h2><p class="mt-1 text-sm text-muted-foreground">Share this store with up to five admin accounts, including the owner. Every admin can view and edit all records.</p></div><button type="button" onclick="closeAdminAccessModal()" aria-label="Close" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground hover:bg-muted"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+            <p id="adminAccessMessage" class="mt-4 hidden rounded-lg px-3 py-2 text-sm" role="status" aria-live="polite"></p>
+            <div id="adminAccessList" class="mt-4 divide-y divide-border rounded-xl border border-border"></div>
+            <form class="mt-5 space-y-3" onsubmit="createAdminInvitation(event)"><label for="newAdminEmail" class="block text-sm font-medium">Invite admin by email</label><div class="flex flex-col gap-2 sm:flex-row"><input id="newAdminEmail" type="email" required maxlength="254" class="auth-field text-sm" placeholder="admin@example.com"><button id="createAdminInviteButton" type="submit" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 text-sm font-semibold text-black hover:bg-amber-600"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create invite</button></div></form>
+            <div id="adminInviteResult" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20"><p class="text-sm font-semibold">Share this one-time code with the invited admin</p><p class="mt-1 text-xs text-muted-foreground">It expires in 24 hours and only works with the email you invited.</p><div class="mt-3 flex gap-2"><input id="adminInviteCode" readonly class="auth-field font-mono text-xs"><button type="button" onclick="copyAdminInviteCode()" class="btn-outline shrink-0 px-3 text-xs"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copy</button></div></div>
+            <div class="mt-5 flex justify-end"><button type="button" onclick="closeAdminAccessModal()" class="btn-outline px-4 py-2.5 text-sm">Done</button></div>
+        </section>
+    </div>
+
     <div id="cloudConflictModal" class="hidden fixed inset-0 z-[105] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="cloudConflictTitle" aria-describedby="cloudConflictDescription">
         <section class="w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"><i class="fa-solid fa-code-branch" aria-hidden="true"></i></div>
             <h2 id="cloudConflictTitle" class="text-lg font-bold">Choose which workspace copy to use</h2>
-            <p id="cloudConflictDescription" class="mt-2 text-sm leading-6 text-muted-foreground">This device and Supabase both have records, and we cannot safely tell which is newer. We will preserve a local backup before applying your choice.</p>
+            <p id="cloudConflictDescription" class="mt-2 text-sm leading-6 text-muted-foreground">This device and the shared store both changed since the last sync. We cannot safely merge these whole-workspace snapshots automatically. Both copies will be backed up on this device before you choose which one to use.</p>
             <div class="mt-6 grid gap-2 sm:grid-cols-2">
-                <button type="button" class="btn-outline rounded-lg px-4 py-3 text-left text-sm font-semibold" onclick="resolveWorkspaceConflict('local')"><span class="block">Keep this device</span><span class="mt-1 block text-xs font-normal text-muted-foreground">Back up the cloud copy, then sync this device.</span></button>
-                <button type="button" class="rounded-lg bg-neutral-900 px-4 py-3 text-left text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900" onclick="resolveWorkspaceConflict('remote')"><span class="block">Restore cloud copy</span><span class="mt-1 block text-xs font-normal text-gray-300 dark:text-gray-600">Back up this device, then restore Supabase.</span></button>
+                <button type="button" class="btn-outline rounded-lg px-4 py-3 text-left text-sm font-semibold" onclick="resolveWorkspaceConflict('local')"><span class="block">Keep this device</span><span class="mt-1 block text-xs font-normal text-muted-foreground">The cloud copy is backed up locally first.</span></button>
+                <button type="button" class="rounded-lg bg-neutral-900 px-4 py-3 text-left text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900" onclick="resolveWorkspaceConflict('remote')"><span class="block">Use shared store</span><span class="mt-1 block text-xs font-normal text-gray-300 dark:text-gray-600">This device is backed up before refresh.</span></button>
             </div>
         </section>
     </div>
@@ -1490,6 +1516,8 @@
         let localPersistPromise = Promise.resolve();
         let applyingCloudSnapshot = false;
         let cloudConflictRemote = null;
+        let cloudWorkspaceOwnerId = null;
+        let passwordRecoveryPending = false;
 
         async function getSupabaseClient() {
             if (supabaseClient) return supabaseClient;
@@ -1501,6 +1529,12 @@
                             autoRefreshToken: true,
                             detectSessionInUrl: true,
                             storageKey: 'cm-pos-supabase-auth-v1'
+                        }
+                    });
+                    supabaseClient.auth.onAuthStateChange(event => {
+                        if (event === 'PASSWORD_RECOVERY') {
+                            passwordRecoveryPending = true;
+                            window.setTimeout(() => showLocalSessionScreen('reset-password'), 0);
                         }
                     });
                     return supabaseClient;
@@ -1632,7 +1666,7 @@
         }
 
         function writeCloudSyncMeta(updatedAt) {
-            const meta = { userId: currentAuthUser?.id || '', remoteUpdatedAt: updatedAt, syncedAt: new Date().toISOString() };
+            const meta = { workspaceOwnerId: cloudWorkspaceOwnerId || '', remoteUpdatedAt: updatedAt, syncedAt: new Date().toISOString() };
             localStorage.setItem('cm_pos_cloud_sync_meta_v1', JSON.stringify(meta));
             localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
             return meta;
@@ -1686,6 +1720,21 @@
             await dexie.kv.put({ key, value: { label, savedAt: new Date().toISOString(), snapshot } });
         }
 
+        async function restoreRemoteWorkspaceSnapshot(remote, label = 'Local workspace before cloud refresh') {
+            await preserveCloudSnapshot(label, db);
+            applyingCloudSnapshot = true;
+            try {
+                db = remote.snapshot;
+                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
+                await dexie.kv.put({ key: 'db', value: db });
+                localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
+                writeCloudSyncMeta(remote.updated_at);
+                refreshAllUI();
+            } finally {
+                applyingCloudSnapshot = false;
+            }
+        }
+
         function showCloudConflict(remote) {
             cloudConflictRemote = remote;
             document.getElementById('cloudConflictModal').classList.remove('hidden');
@@ -1715,19 +1764,31 @@
                 await localPersistPromise;
                 const syncSnapshot = JSON.parse(JSON.stringify(db));
                 const client = await getSupabaseClient();
-                const { data: remote, error: readError } = await client
-                    .from('pos_workspaces')
-                    .select('snapshot, updated_at')
-                    .eq('owner_id', currentAuthUser.id)
-                    .maybeSingle();
+                const { data: workspaceOwnerId, error: ensureError } = await client.rpc('ensure_pos_workspace', {
+                    p_initial_snapshot: syncSnapshot
+                });
+                if (ensureError) throw ensureError;
+                cloudWorkspaceOwnerId = workspaceOwnerId;
+                const { data: remoteRows, error: readError } = await client.rpc('get_pos_workspace_snapshot');
                 if (readError) throw readError;
+                const remoteRow = Array.isArray(remoteRows) ? remoteRows[0] : remoteRows;
+                const remote = remoteRow ? {
+                    workspace_owner_id: remoteRow.workspace_owner_id,
+                    snapshot: remoteRow.snapshot,
+                    updated_at: remoteRow.updated_at
+                } : null;
 
                 const meta = readCloudSyncMeta();
-                if (remote && meta?.userId === currentAuthUser.id && meta.remoteUpdatedAt !== remote.updated_at) {
+                if (remote && meta?.workspaceOwnerId === cloudWorkspaceOwnerId && meta.remoteUpdatedAt !== remote.updated_at) {
+                    if (localStorage.getItem('cm_pos_cloud_sync_dirty_v1') !== 'true') {
+                        await restoreRemoteWorkspaceSnapshot(remote);
+                        updateCloudSyncStatus('synced');
+                        return;
+                    }
                     showCloudConflict(remote);
                     return;
                 }
-                if (remote && meta?.userId !== currentAuthUser.id && !snapshotsMatch(remote.snapshot, syncSnapshot)) {
+                if (remote && meta?.workspaceOwnerId !== cloudWorkspaceOwnerId && !snapshotsMatch(remote.snapshot, syncSnapshot)) {
                     showCloudConflict(remote);
                     return;
                 }
@@ -1746,12 +1807,10 @@
                 });
                 if (writeError) {
                     if (writeError.code === '40001') {
-                        const { data: latest, error: latestError } = await client
-                            .from('pos_workspaces')
-                            .select('snapshot, updated_at')
-                            .eq('owner_id', currentAuthUser.id)
-                            .maybeSingle();
+                        const { data: latestRows, error: latestError } = await client.rpc('get_pos_workspace_snapshot');
                         if (latestError) throw latestError;
+                        const latestRow = Array.isArray(latestRows) ? latestRows[0] : latestRows;
+                        const latest = latestRow ? { snapshot: latestRow.snapshot, updated_at: latestRow.updated_at } : null;
                         if (latest) showCloudConflict(latest);
                         else throw writeError;
                         return;
@@ -1793,21 +1852,12 @@
                     return;
                 }
 
-                await preserveCloudSnapshot('Local workspace before restoring cloud copy', db);
-                applyingCloudSnapshot = true;
-                db = remote.snapshot;
-                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
-                await dexie.kv.put({ key: 'db', value: db });
-                localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
-                writeCloudSyncMeta(remote.updated_at);
-                refreshAllUI();
+                await restoreRemoteWorkspaceSnapshot(remote, 'Local workspace before restoring cloud copy');
                 closeCloudConflict();
                 updateCloudSyncStatus('synced');
             } catch (error) {
                 console.error('Could not resolve the cloud workspace conflict.', error);
                 updateCloudSyncStatus('error', error.message || 'Could not resolve workspace copies');
-            } finally {
-                applyingCloudSnapshot = false;
             }
         }
 
@@ -2250,14 +2300,19 @@
 
         function showLocalSessionScreen(mode = 'signin', message = '', messageType = 'error') {
             const overlay = document.getElementById('localSessionOverlay');
-            const signingUp = mode === 'signup';
-            const signInForm = document.getElementById('localSignInForm');
-            const signUpForm = document.getElementById('localSignUpForm');
+            const screens = {
+                signin: ['localSignInForm', 'localSessionTitle', 'localSessionDescription', 'localLoginEmail'],
+                signup: ['localSignUpForm', 'localSignUpTitle', 'localSignUpDescription', 'localSignUpName'],
+                'forgot-password': ['localForgotPasswordForm', 'localForgotPasswordTitle', 'localForgotPasswordDescription', 'localResetEmail'],
+                'reset-password': ['localPasswordRecoveryForm', 'localPasswordRecoveryTitle', 'localPasswordRecoveryDescription', 'localNewPassword']
+            };
+            const [activeForm, labelledBy, describedBy, focusId] = screens[mode] || screens.signin;
             const messageEl = document.getElementById('localAuthMessage');
-            signInForm.classList.toggle('hidden', signingUp);
-            signUpForm.classList.toggle('hidden', !signingUp);
-            overlay.setAttribute('aria-labelledby', signingUp ? 'localSignUpTitle' : 'localSessionTitle');
-            overlay.setAttribute('aria-describedby', signingUp ? 'localSignUpDescription' : 'localSessionDescription');
+            ['localSignInForm', 'localSignUpForm', 'localForgotPasswordForm', 'localPasswordRecoveryForm'].forEach(id => {
+                document.getElementById(id).classList.toggle('hidden', id !== activeForm);
+            });
+            overlay.setAttribute('aria-labelledby', labelledBy);
+            overlay.setAttribute('aria-describedby', describedBy);
             messageEl.textContent = message;
             messageEl.classList.toggle('hidden', !message);
             messageEl.classList.toggle('bg-rose-50', Boolean(message) && messageType === 'error');
@@ -2272,7 +2327,7 @@
             overlay.classList.add('flex');
             document.getElementById('sidebar').inert = true;
             document.getElementById('mainAppContent').inert = true;
-            document.getElementById(signingUp ? 'localSignUpName' : 'localLoginEmail').focus();
+            document.getElementById(focusId)?.focus();
         }
 
         function finishLocalSignIn(email, remember = false) {
@@ -2334,6 +2389,91 @@
             return new Promise(resolve => window.setTimeout(resolve, milliseconds));
         }
 
+        async function hashInvitationCode(code) {
+            const bytes = new TextEncoder().encode(code.trim().toLowerCase());
+            const digest = await crypto.subtle.digest('SHA-256', bytes);
+            return Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+        }
+
+        async function acceptPendingAdminInvite(client) {
+            let invite;
+            try { invite = JSON.parse(localStorage.getItem('cm_pos_pending_admin_invite_v1') || 'null'); }
+            catch (error) { console.error('Could not read the pending admin invitation.', error); }
+            const tokenHash = invite?.tokenHash || currentAuthUser?.user_metadata?.workspace_invite_hash;
+            if (!tokenHash) return;
+            if (invite?.email && invite.email.toLowerCase() !== (currentAuthUser?.email || '').toLowerCase()) {
+                throw new Error(`This invitation is for ${invite.email}. Sign in using that email address.`);
+            }
+            const { data: existingWorkspaceOwner, error: membershipError } = await client.rpc('current_pos_workspace_owner');
+            if (membershipError) throw membershipError;
+            if (existingWorkspaceOwner) {
+                localStorage.removeItem('cm_pos_pending_admin_invite_v1');
+                await client.auth.updateUser({ data: { workspace_invite_hash: null } });
+                return;
+            }
+            const { error } = await client.rpc('accept_pos_admin_invite', { p_token_hash: tokenHash });
+            if (error) throw error;
+            localStorage.removeItem('cm_pos_pending_admin_invite_v1');
+            const { data, error: metadataError } = await client.auth.updateUser({ data: { workspace_invite_hash: null } });
+            if (!metadataError && data?.user) currentAuthUser = data.user;
+        }
+
+        async function ensureCloudWorkspaceMembership(client) {
+            await acceptPendingAdminInvite(client);
+            const initialSnapshot = JSON.parse(JSON.stringify(db));
+            const { data: workspaceOwnerId, error } = await client.rpc('ensure_pos_workspace', {
+                p_initial_snapshot: initialSnapshot
+            });
+            if (error) throw error;
+            cloudWorkspaceOwnerId = workspaceOwnerId;
+            return workspaceOwnerId;
+        }
+
+        async function handlePasswordResetRequest(event) {
+            event.preventDefault();
+            const email = event.currentTarget.elements.email.value.trim().toLowerCase();
+            try {
+                if (!navigator.onLine) throw new Error('Connect to the internet to request a password reset.');
+                const client = await getSupabaseClient();
+                const { error } = await client.auth.resetPasswordForEmail(email, {
+                    redirectTo: `${window.location.origin}${window.location.pathname}`
+                });
+                if (error) throw error;
+                showLocalSessionScreen('forgot-password', 'If an account exists for that email, a password-reset link has been sent.', 'success');
+            } catch (error) {
+                console.error('Password reset request failed.', error);
+                showLocalSessionScreen('forgot-password', error.message || 'Could not send a reset link. Check your connection and try again.');
+            }
+        }
+
+        async function handlePasswordRecovery(event) {
+            event.preventDefault();
+            const password = event.currentTarget.elements.password.value;
+            const confirmation = event.currentTarget.elements.confirmPassword.value;
+            if (password.length < 12) {
+                showLocalSessionScreen('reset-password', 'Choose a password with at least 12 characters.');
+                return;
+            }
+            if (password !== confirmation) {
+                showLocalSessionScreen('reset-password', 'Those passwords do not match. Please try again.');
+                return;
+            }
+            try {
+                const client = await getSupabaseClient();
+                const { error } = await client.auth.updateUser({ password });
+                if (error) throw error;
+                const { error: signOutError } = await client.auth.signOut();
+                if (signOutError) console.error('Password changed, but the recovery session could not be closed.', signOutError);
+                currentAuthUser = null;
+                passwordRecoveryPending = false;
+                window.history.replaceState({}, document.title, `${window.location.pathname}${window.location.search}`);
+                showLocalSessionScreen('signin', 'Your password has been updated. Sign in with your new password.', 'success');
+            } catch (error) {
+                console.error('Password update failed.', error);
+                showLocalSessionScreen('reset-password', error.message || 'Could not update your password. Request a new reset link.');
+            }
+        }
+
         async function handleLocalSignIn(event) {
             event.preventDefault();
             const form = event.currentTarget;
@@ -2346,6 +2486,7 @@
                 const { data, error } = await client.auth.signInWithPassword({ email, password });
                 if (error) throw error;
                 currentAuthUser = data.user;
+                await ensureCloudWorkspaceMembership(client);
                 await waitFor(5000);
                 hideAuthTransition();
                 finishLocalSignIn(email, document.getElementById('localRememberMe').checked);
@@ -2353,6 +2494,10 @@
             } catch (error) {
                 console.error('Supabase sign-in failed.', error);
                 hideAuthTransition();
+                if (currentAuthUser) {
+                    try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the rejected sign-in.', signOutError); }
+                    currentAuthUser = null;
+                }
                 const message = /invalid login credentials/i.test(error.message || '')
                     ? 'Email or password is incorrect. Device-only accounts were not migrated; register this email if it is not already on Supabase.'
                     : error.message || 'Could not sign in. Check your connection and try again.';
@@ -2367,6 +2512,7 @@
             const email = form.elements.email.value.trim().toLowerCase();
             const password = form.elements.password.value;
             const confirmPassword = form.elements.confirmPassword.value;
+            const inviteCode = form.elements.inviteCode.value.trim().toLowerCase();
             if (password.length < 12) {
                 showLocalSessionScreen('signup', 'Choose a password with at least 12 characters.');
                 return;
@@ -2379,10 +2525,18 @@
                 if (!navigator.onLine) throw new Error('Connect to the internet to create a Supabase account.');
                 showAuthTransition('Creating account', 'Setting up your secure workspace…');
                 const client = await getSupabaseClient();
+                const tokenHash = await hashInvitationCode(inviteCode);
+                const { data: inviteIsValid, error: inviteCheckError } = await client.rpc('validate_pos_admin_invite', {
+                    p_email: email,
+                    p_token_hash: tokenHash
+                });
+                if (inviteCheckError) throw inviteCheckError;
+                if (!inviteIsValid) throw new Error('That invitation is invalid or expired. Ask an admin to create a new one for this email.');
+                localStorage.setItem('cm_pos_pending_admin_invite_v1', JSON.stringify({ tokenHash, email }));
                 const { data, error } = await client.auth.signUp({
                     email,
                     password,
-                    options: { data: { full_name: name } }
+                    options: { data: { full_name: name, workspace_invite_hash: tokenHash } }
                 });
                 if (error) throw error;
                 if (!data.session || !data.user) {
@@ -2391,6 +2545,7 @@
                     return;
                 }
                 currentAuthUser = data.user;
+                await ensureCloudWorkspaceMembership(client);
                 await waitFor(900);
                 hideAuthTransition();
                 finishLocalSignIn(email, true);
@@ -2398,7 +2553,124 @@
             } catch (error) {
                 console.error('Supabase account creation failed.', error);
                 hideAuthTransition();
+                if (currentAuthUser) {
+                    try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the rejected new account session.', signOutError); }
+                    currentAuthUser = null;
+                }
                 showLocalSessionScreen('signup', error.message || 'Could not create the account. Check your connection and try again.');
+            }
+        }
+
+        function showAdminAccessMessage(message, isError = false) {
+            const element = document.getElementById('adminAccessMessage');
+            element.textContent = message;
+            element.classList.remove('hidden', 'bg-rose-50', 'text-rose-700', 'bg-emerald-50', 'text-emerald-800', 'dark:bg-rose-950/30', 'dark:text-rose-200', 'dark:bg-emerald-950/30', 'dark:text-emerald-200');
+            element.classList.add(isError ? 'bg-rose-50' : 'bg-emerald-50', isError ? 'text-rose-700' : 'text-emerald-800', isError ? 'dark:bg-rose-950/30' : 'dark:bg-emerald-950/30', isError ? 'dark:text-rose-200' : 'dark:text-emerald-200');
+        }
+
+        async function refreshAdminAccessList() {
+            const list = document.getElementById('adminAccessList');
+            list.textContent = 'Loading admin accounts…';
+            const client = await getSupabaseClient();
+            const { data, error } = await client.rpc('list_pos_workspace_admins');
+            if (error) throw error;
+            list.replaceChildren();
+            const admins = data || [];
+            const pending = Number(admins[0]?.pending_invites || 0);
+            const capacity = admins.length + pending;
+            admins.forEach(admin => {
+                const row = document.createElement('div');
+                row.className = 'flex items-center justify-between gap-3 px-3 py-3';
+                const identity = document.createElement('div');
+                identity.className = 'min-w-0';
+                const name = document.createElement('p');
+                name.className = 'truncate text-sm font-semibold';
+                name.textContent = admin.full_name || admin.email || 'Admin';
+                const email = document.createElement('p');
+                email.className = 'truncate text-xs text-muted-foreground';
+                email.textContent = admin.email || '';
+                identity.append(name, email);
+                const role = document.createElement('span');
+                role.className = 'shrink-0 rounded-full bg-amber-500/10 px-2.5 py-1 text-xs font-semibold capitalize text-amber-800 dark:text-amber-300';
+                role.textContent = admin.role;
+                row.append(identity, role);
+                list.append(row);
+            });
+            if (pending) {
+                const row = document.createElement('div');
+                row.className = 'px-3 py-2 text-xs text-muted-foreground';
+                row.textContent = `${pending} pending invite${pending === 1 ? '' : 's'} · each reserves one of five seats`;
+                list.append(row);
+            }
+            const capacityLabel = document.createElement('div');
+            capacityLabel.className = 'border-t border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground';
+            capacityLabel.textContent = `${capacity} of 5 admin seats used`;
+            list.append(capacityLabel);
+            document.getElementById('createAdminInviteButton').disabled = capacity >= 5;
+            document.getElementById('createAdminInviteButton').classList.toggle('opacity-50', capacity >= 5);
+        }
+
+        async function openAdminAccessModal() {
+            const modal = document.getElementById('adminAccessModal');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            document.getElementById('adminInviteResult').classList.add('hidden');
+            document.getElementById('adminAccessMessage').classList.add('hidden');
+            try {
+                await refreshAdminAccessList();
+            } catch (error) {
+                console.error('Could not load admin accounts.', error);
+                showAdminAccessMessage(error.message || 'Could not load admin accounts.', true);
+                document.getElementById('adminAccessList').textContent = 'Admin list is unavailable.';
+            }
+            document.getElementById('newAdminEmail').focus();
+        }
+
+        function closeAdminAccessModal() {
+            const modal = document.getElementById('adminAccessModal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.getElementById('adminMenuButton')?.focus();
+        }
+
+        async function createAdminInvitation(event) {
+            event.preventDefault();
+            const email = document.getElementById('newAdminEmail').value.trim().toLowerCase();
+            const button = document.getElementById('createAdminInviteButton');
+            button.disabled = true;
+            try {
+                const bytes = crypto.getRandomValues(new Uint8Array(20));
+                const code = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('');
+                const tokenHash = await hashInvitationCode(code);
+                const client = await getSupabaseClient();
+                const { error } = await client.rpc('create_pos_admin_invite', {
+                    p_email: email,
+                    p_token_hash: tokenHash
+                });
+                if (error) throw error;
+                document.getElementById('adminInviteCode').value = code;
+                document.getElementById('adminInviteResult').classList.remove('hidden');
+                document.getElementById('newAdminEmail').value = '';
+                showAdminAccessMessage(`Invitation created for ${email}. Share the code securely; it expires in 24 hours.`);
+                await refreshAdminAccessList();
+            } catch (error) {
+                console.error('Could not create admin invitation.', error);
+                showAdminAccessMessage(error.message || 'Could not create the invitation.', true);
+                try { await refreshAdminAccessList(); } catch (refreshError) { console.error('Could not refresh admin accounts.', refreshError); }
+            } finally {
+                button.disabled = false;
+                if (Number(document.querySelector('#adminAccessList .border-t')?.textContent.match(/^(\d+)/)?.[1] || 0) >= 5) button.disabled = true;
+            }
+        }
+
+        async function copyAdminInviteCode() {
+            const code = document.getElementById('adminInviteCode').value;
+            try {
+                await navigator.clipboard.writeText(code);
+                showAdminAccessMessage('Invitation code copied. Share it only with the invited admin.');
+            } catch (error) {
+                console.error('Could not copy the invitation code.', error);
+                showAdminAccessMessage('Copy is unavailable in this browser. Select and copy the code manually.', true);
             }
         }
 
@@ -4870,6 +5142,7 @@
             initTheme();
             startHeaderClock();
             initSidebar();
+            passwordRecoveryPending = /(?:^|[&#])type=recovery(?:&|$)/i.test(window.location.hash);
             await loadFromLocalStorage();
             initializeLiveSessionState();
             seedProductsFromShirts();
@@ -4905,6 +5178,28 @@
                 }
             }
 
+            if (passwordRecoveryPending) {
+                showLocalSessionScreen('reset-password');
+                updateCloudSyncStatus('signedOut');
+                registerOfflineAppShell();
+                return;
+            }
+
+            if (currentAuthUser && navigator.onLine) {
+                try {
+                    const client = await getSupabaseClient();
+                    await ensureCloudWorkspaceMembership(client);
+                } catch (error) {
+                    console.error('The signed-in account is not authorized for this workspace.', error);
+                    currentAuthUser = null;
+                    try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the unauthorized session.', signOutError); }
+                    updateCloudSyncStatus('signedOut');
+                    showLocalSessionScreen('signin', error.message || 'This account is not connected to the shared workspace. Ask an admin for an invitation.');
+                    registerOfflineAppShell();
+                    return;
+                }
+            }
+
             if (!currentAuthUser && !navigator.onLine && cachedOfflineUser?.id) currentAuthUser = cachedOfflineUser;
             if (currentAuthUser) {
                 const allowOffline = localStorage.getItem('cm_pos_offline_session_allowed_v1') === 'true';
@@ -4930,6 +5225,15 @@
                     updateCloudSyncStatus('offline');
                 }
             });
+            window.addEventListener('focus', () => {
+                if (currentAuthUser && navigator.onLine) syncCloudWorkspace();
+            });
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden && currentAuthUser && navigator.onLine) syncCloudWorkspace();
+            });
+            window.setInterval(() => {
+                if (!document.hidden && currentAuthUser && navigator.onLine) syncCloudWorkspace();
+            }, 15000);
             registerOfflineAppShell();
         }
 
