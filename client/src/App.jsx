@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import Logo from '../public/logo.svg'
+import BrandLogo from '../public/logo-full.svg'
 import { resolveLocalAuthState } from './lib/auth-state'
 import { addOrderPayment, bindLocalWorkspaceToUser, cancelOrder, createOrder, getFinancialSummary, getInventorySummary, getSyncSummary, importLegacySnapshot, listAuditLogs, listOrderDetails, listProducts, localDb, previewLegacyMigration, receiveStock, recordOrderRefund, saveProduct, unwrapLegacySnapshot } from './lib/local-db'
 import { isSupabaseConfigured, supabase, syncPendingChanges } from './lib/supabase-sync'
@@ -104,21 +105,41 @@ function AuthScreen({ onSignedIn, notice }) {
       setWorking(false)
     }
   }
-  return <main className="grid min-h-screen place-items-center bg-[#f5f5f4] p-5">
-    <section className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5">
-      <img src={Logo} alt="Clothes Mania Davao" className="mb-8 h-12 w-auto object-contain object-left" />
-      <h1 className="text-2xl font-bold tracking-tight text-slate-900">{mode === 'sign-in' ? 'Sign in' : 'Create an account'}</h1>
-      <p className="mt-2 text-sm leading-6 text-slate-500">{mode === 'sign-in' ? 'Sign in online once. This device keeps its authorized local workspace available offline.' : 'Each account has a separate workspace. This browser profile stays bound to the first account used with it.'}</p>
-      {notice && <p role="alert" className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{notice}</p>}
-      <form onSubmit={submit} className="mt-7 space-y-4">
-        <label className="field-label">Email<input className="field-input" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} /></label>
-        <label className="field-label">Password<input className="field-input" type="password" autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'} minLength="8" required value={password} onChange={event => setPassword(event.target.value)} /></label>
-        {message && <p role="alert" className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{message}</p>}
-        <button className="button-primary w-full" disabled={working}>{working ? 'Please wait…' : mode === 'sign-in' ? 'Sign in' : 'Create account'}</button>
-      </form>
-      <button className="mt-5 w-full text-center text-sm font-semibold text-slate-600 hover:text-amber-800" onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setMessage('') }}>
-        {mode === 'sign-in' ? 'Create an account' : 'Back to sign in'}
-      </button>
+  return <main className="auth-page grid min-h-screen place-items-center p-4 sm:p-8">
+    <section className="auth-card grid w-full max-w-5xl overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-2xl shadow-slate-900/10 md:grid-cols-[1fr_0.92fr]">
+      <div className="px-6 py-8 sm:px-10 sm:py-11 lg:px-12">
+        <img src={BrandLogo} alt="Clothes Mania Davao POS" className="mb-9 h-10 w-[200px] object-contain object-left" />
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[11px] font-semibold text-amber-900"><span className="h-1.5 w-1.5 rounded-full bg-amber-500" />SECURE POS WORKSPACE</div>
+        <h1 className="text-[28px] font-bold tracking-tight text-slate-950 sm:text-3xl">{mode === 'sign-in' ? 'Welcome back, Admin' : 'Create your account'}</h1>
+        <p className="mt-2 max-w-md text-sm leading-6 text-slate-500">{mode === 'sign-in' ? 'Sign in to manage your inventory, live orders, and daily sales.' : 'Set up an account for your Clothes Mania workspace.'}</p>
+        {notice && <p role="alert" className="mt-5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-800">{notice}</p>}
+        <form onSubmit={submit} className="mt-7 space-y-4">
+          <label className="field-label">Email<input className="field-input !h-11" type="email" autoComplete="email" required value={email} onChange={event => setEmail(event.target.value)} placeholder="you@example.com" /></label>
+          <label className="field-label">Password<input className="field-input !h-11" type="password" autoComplete={mode === 'sign-in' ? 'current-password' : 'new-password'} minLength="8" required value={password} onChange={event => setPassword(event.target.value)} placeholder={mode === 'sign-in' ? 'Enter your password' : 'At least 8 characters'} /></label>
+          {message && <p role="alert" className="rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-800">{message}</p>}
+          <button className="button-primary !mt-6 w-full !min-h-11" disabled={working}>{working ? 'Please wait…' : mode === 'sign-in' ? 'Sign in' : 'Create account'}</button>
+        </form>
+        <p className="mt-6 text-center text-sm text-slate-500">{mode === 'sign-in' ? 'New to the workspace?' : 'Already have an account?'} <button type="button" className="font-semibold text-slate-900 underline decoration-slate-300 underline-offset-4 hover:text-amber-800" onClick={() => { setMode(mode === 'sign-in' ? 'sign-up' : 'sign-in'); setMessage('') }}>{mode === 'sign-in' ? 'Create an account' : 'Sign in instead'}</button></p>
+        <p className="mt-8 border-t border-slate-100 pt-4 text-center text-[11px] leading-5 text-slate-400">Sign in online once. Your authorized local workspace remains available offline.</p>
+      </div>
+      <aside className="auth-story relative hidden flex-col justify-between overflow-hidden p-9 md:flex lg:p-11">
+        <div className="auth-glow auth-glow-top" />
+        <div className="auth-glow auth-glow-bottom" />
+        <div className="relative">
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-800">Clothes Mania Davao</p>
+          <h2 className="mt-5 max-w-sm text-3xl font-bold leading-tight tracking-tight text-slate-950">Every live sale, in one clear view.</h2>
+          <p className="mt-4 max-w-sm text-sm leading-6 text-slate-600">Keep products, stock, orders, and payments organized while you sell.</p>
+        </div>
+        <div className="auth-preview relative my-9 rounded-2xl border border-white/80 bg-white/80 p-5 shadow-xl shadow-slate-900/5 backdrop-blur-sm">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4"><div><p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Workspace snapshot</p><p className="mt-1 font-bold text-slate-900">Inventory overview</p></div><span className="rounded-full bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700">Ready</span></div>
+          <div className="mt-4 space-y-3">
+            <div className="flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-medium text-slate-600"><span className="grid h-7 w-7 place-items-center rounded-lg bg-amber-100 text-amber-800"><Icon name="box" size={14}/></span>Products & stock</span><span className="text-xs font-semibold text-slate-800">Tracked</span></div>
+            <div className="flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-medium text-slate-600"><span className="grid h-7 w-7 place-items-center rounded-lg bg-sky-100 text-sky-800"><Icon name="grid" size={14}/></span>Live orders</span><span className="text-xs font-semibold text-slate-800">In one place</span></div>
+            <div className="flex items-center justify-between"><span className="flex items-center gap-2 text-xs font-medium text-slate-600"><span className="grid h-7 w-7 place-items-center rounded-lg bg-emerald-100 text-emerald-800"><Icon name="cloud" size={14}/></span>Local-first workflow</span><span className="text-xs font-semibold text-emerald-700">Offline ready</span></div>
+          </div>
+        </div>
+        <p className="relative text-xs text-slate-500">Built for busy selling days in Davao.</p>
+      </aside>
     </section>
   </main>
 }
