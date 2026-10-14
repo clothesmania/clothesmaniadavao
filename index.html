@@ -267,7 +267,7 @@
             #adminMenu { width: min(18rem, calc(100vw - 1.5rem)); }
         }
         @media (max-height: 520px) and (max-width: 900px) {
-            #localSessionOverlay, #signOutConfirmModal, #authTransitionModal { align-items: flex-start; overflow-y: auto; }
+            #localSessionOverlay, #signOutConfirmModal, #authTransitionModal, #cloudConflictModal { align-items: flex-start; overflow-y: auto; }
             #localSessionOverlay { padding-top: max(0.5rem, env(safe-area-inset-top)); padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
             .auth-shell { min-height: 0; }
         }
@@ -352,6 +352,11 @@
             </div>
 
             <div class="flex items-center space-x-3">
+                <div id="cloudSyncStatus" role="status" aria-live="polite" class="hidden md:inline-flex h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <i id="cloudSyncIcon" class="fa-solid fa-cloud text-gray-400" aria-hidden="true"></i>
+                    <span id="cloudSyncLabel">Cloud sync: checking</span>
+                    <button id="cloudSyncRetry" type="button" class="hidden font-semibold text-amber-700 underline underline-offset-2 dark:text-amber-300" onclick="retryCloudSync()">Retry</button>
+                </div>
                 <!-- Live date and time -->
                 <div title="Current date and time" class="hidden h-9 lg:inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
                     <i class="fa-regular fa-calendar text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
@@ -373,10 +378,10 @@
                         <div class="flex items-center gap-3 p-4">
                             <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></span>
                             <span class="min-w-0 flex-1">
-                                <span class="block truncate text-sm font-semibold text-gray-900 dark:text-white">Admin</span>
-                                <span class="block truncate text-xs text-gray-500 dark:text-gray-400">Clothes Mania Davao</span>
+                                <span id="adminAccountName" class="block truncate text-sm font-semibold text-gray-900 dark:text-white">Admin</span>
+                                <span id="adminAccountEmail" class="block truncate text-xs text-gray-500 dark:text-gray-400">Clothes Mania Davao</span>
                             </span>
-                            <span class="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">LOCAL</span>
+                            <span id="adminAccountBadge" class="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">CLOUD</span>
                         </div>
                         <div class="menu-divider"></div>
                         <div class="p-1.5">
@@ -1392,7 +1397,7 @@
                 <form id="localSignInForm" class="space-y-5" onsubmit="handleLocalSignIn(event)">
                     <div class="space-y-1.5">
                         <h2 id="localSessionTitle" class="text-2xl font-bold tracking-tight text-foreground">Welcome back, Admin</h2>
-                        <p id="localSessionDescription" class="text-sm leading-6 text-muted-foreground">Sign in to continue to your Clothes Mania workspace.</p>
+                        <p id="localSessionDescription" class="text-sm leading-6 text-muted-foreground">Sign in with your Clothes Mania account. Your authorized workspace stays available offline on this device.</p>
                     </div>
                     <div class="space-y-3">
                         <label for="localLoginEmail" class="block text-sm font-medium text-foreground">Email</label>
@@ -1401,7 +1406,7 @@
                             <label for="localLoginPassword" class="text-sm font-medium text-foreground">Password</label>
                         </div>
                         <input id="localLoginPassword" name="password" type="password" autocomplete="current-password" required class="auth-field text-sm" placeholder="Enter your password">
-                        <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground"><input id="localRememberMe" type="checkbox" class="h-4 w-4 rounded border-border accent-amber-500">Keep me signed in on this device</label>
+                        <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground"><input id="localRememberMe" type="checkbox" checked class="h-4 w-4 rounded border-border accent-amber-500">Allow this device to reopen the workspace offline</label>
                     </div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>Sign in</button>
                     <p class="text-center text-sm text-muted-foreground">New to Clothes Mania? <button type="button" onclick="showLocalSessionScreen('signup')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Create an account</button></p>
@@ -1409,7 +1414,7 @@
                 <form id="localSignUpForm" class="hidden space-y-4" onsubmit="handleLocalSignUp(event)">
                     <div class="space-y-1.5">
                         <h2 id="localSignUpTitle" class="text-2xl font-bold tracking-tight text-foreground">Create your account</h2>
-                        <p id="localSignUpDescription" class="text-sm leading-6 text-muted-foreground">Set up a local account for this device.</p>
+                        <p id="localSignUpDescription" class="text-sm leading-6 text-muted-foreground">Create a secure account for your Clothes Mania workspace.</p>
                     </div>
                     <div class="space-y-3">
                         <div><label for="localSignUpName" class="mb-1.5 block text-sm font-medium text-foreground">Full name</label><input id="localSignUpName" name="name" type="text" autocomplete="name" required maxlength="80" class="auth-field text-sm" placeholder="Your name"></div>
@@ -1420,7 +1425,7 @@
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create account</button>
                     <p class="text-center text-sm text-muted-foreground">Already have an account? <button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Sign in</button></p>
                 </form>
-                <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-laptop mr-1" aria-hidden="true"></i>Accounts stay in this browser on this device. This local sign-in is not server-backed security.</p>
+                <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>First sign-in needs internet. Business records save on this device first and sync securely when online.</p>
             </div>
             <aside class="auth-story-panel text-foreground">
                 <div class="mb-7 flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl border border-border bg-background shadow-sm"><img src="images/profile.jpg" alt="Clothes Mania Davao logo" class="h-full w-full object-cover"></div>
@@ -1432,6 +1437,18 @@
                     <li class="flex items-center gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>Review sales and daily reports</li>
                 </ul>
             </aside>
+        </section>
+    </div>
+
+    <div id="cloudConflictModal" class="hidden fixed inset-0 z-[105] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="cloudConflictTitle" aria-describedby="cloudConflictDescription">
+        <section class="w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"><i class="fa-solid fa-code-branch" aria-hidden="true"></i></div>
+            <h2 id="cloudConflictTitle" class="text-lg font-bold">Choose which workspace copy to use</h2>
+            <p id="cloudConflictDescription" class="mt-2 text-sm leading-6 text-muted-foreground">This device and Supabase both have records, and we cannot safely tell which is newer. We will preserve a local backup before applying your choice.</p>
+            <div class="mt-6 grid gap-2 sm:grid-cols-2">
+                <button type="button" class="btn-outline rounded-lg px-4 py-3 text-left text-sm font-semibold" onclick="resolveWorkspaceConflict('local')"><span class="block">Keep this device</span><span class="mt-1 block text-xs font-normal text-muted-foreground">Back up the cloud copy, then sync this device.</span></button>
+                <button type="button" class="rounded-lg bg-neutral-900 px-4 py-3 text-left text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900" onclick="resolveWorkspaceConflict('remote')"><span class="block">Restore cloud copy</span><span class="mt-1 block text-xs font-normal text-gray-300 dark:text-gray-600">Back up this device, then restore Supabase.</span></button>
+            </div>
         </section>
     </div>
 
@@ -1459,6 +1476,38 @@
     <!-- Preview button removed -->
 
     <script>
+        const SUPABASE_URL = 'https://eluuznfpkxjrduscwfvj.supabase.co';
+        const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_LNWXd2AED2yk_31OJIi5Fg_hy0SGWBw';
+        let supabaseClient = null;
+        let supabaseClientPromise = null;
+        let currentAuthUser = null;
+        let cloudSyncTimer = null;
+        let cloudSyncInProgress = false;
+        let localPersistPromise = Promise.resolve();
+        let applyingCloudSnapshot = false;
+        let cloudConflictRemote = null;
+
+        async function getSupabaseClient() {
+            if (supabaseClient) return supabaseClient;
+            if (!supabaseClientPromise) {
+                supabaseClientPromise = import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.0/+esm').then(({ createClient }) => {
+                    supabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+                        auth: {
+                            persistSession: true,
+                            autoRefreshToken: true,
+                            detectSessionInUrl: true,
+                            storageKey: 'cm-pos-supabase-auth-v1'
+                        }
+                    });
+                    return supabaseClient;
+                }).catch(error => {
+                    supabaseClientPromise = null;
+                    throw error;
+                });
+            }
+            return supabaseClientPromise;
+        }
+
         // System Application State (expanded dummy data)
         let db = {
             mines: [
@@ -1543,7 +1592,209 @@
                 await dexie.kv.put({ key: 'db', value: db });
             } catch (e) {
                 console.error('Dexie persist error', e);
+                updateCloudSyncStatus('error', 'Could not save locally');
             }
+        }
+
+        function readCloudSyncMeta() {
+            try {
+                const value = localStorage.getItem('cm_pos_cloud_sync_meta_v1');
+                return value ? JSON.parse(value) : null;
+            } catch (error) {
+                console.error('Could not read cloud sync metadata.', error);
+                return null;
+            }
+        }
+
+        function writeCloudSyncMeta(updatedAt) {
+            const meta = { userId: currentAuthUser?.id || '', remoteUpdatedAt: updatedAt, syncedAt: new Date().toISOString() };
+            localStorage.setItem('cm_pos_cloud_sync_meta_v1', JSON.stringify(meta));
+            localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
+            return meta;
+        }
+
+        function snapshotsMatch(left, right) {
+            const normalize = value => {
+                if (Array.isArray(value)) return value.map(normalize);
+                if (value && typeof value === 'object') return Object.fromEntries(Object.keys(value).sort().map(key => [key, normalize(value[key])]));
+                return value;
+            };
+            return JSON.stringify(normalize(left)) === JSON.stringify(normalize(right));
+        }
+
+        function updateCloudSyncStatus(state, message = '') {
+            const label = document.getElementById('cloudSyncLabel');
+            const icon = document.getElementById('cloudSyncIcon');
+            const retry = document.getElementById('cloudSyncRetry');
+            const container = document.getElementById('cloudSyncStatus');
+            if (!label || !icon || !retry || !container) return;
+            const status = {
+                checking: ['Cloud: checking', 'fa-solid fa-cloud text-gray-400'],
+                offline: ['Offline · saved on device', 'fa-solid fa-cloud-arrow-down text-amber-600'],
+                syncing: ['Cloud: syncing…', 'fa-solid fa-rotate fa-spin text-blue-600'],
+                synced: ['Cloud: synced', 'fa-solid fa-cloud-check text-emerald-600'],
+                conflict: ['Cloud: choose a copy', 'fa-solid fa-triangle-exclamation text-amber-600'],
+                error: [message || 'Cloud sync needs attention', 'fa-solid fa-cloud-bolt text-rose-600'],
+                signedOut: ['Cloud: sign in required', 'fa-solid fa-cloud text-gray-400']
+            }[state] || ['Cloud: checking', 'fa-solid fa-cloud text-gray-400'];
+            label.textContent = status[0];
+            icon.className = status[1];
+            retry.classList.toggle('hidden', state !== 'error');
+            container.title = message || status[0];
+        }
+
+        function queueCloudSnapshotSync() {
+            if (applyingCloudSnapshot || !currentAuthUser) return;
+            try { localStorage.setItem('cm_pos_cloud_sync_dirty_v1', 'true'); } catch (error) { console.error('Could not mark local changes for sync.', error); }
+            if (!navigator.onLine) {
+                updateCloudSyncStatus('offline');
+                return;
+            }
+            updateCloudSyncStatus('syncing');
+            window.clearTimeout(cloudSyncTimer);
+            cloudSyncTimer = window.setTimeout(() => syncCloudWorkspace(), 900);
+        }
+
+        async function preserveCloudSnapshot(label, snapshot) {
+            const key = `cloud-backup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+            await dexie.kv.put({ key, value: { label, savedAt: new Date().toISOString(), snapshot } });
+        }
+
+        function showCloudConflict(remote) {
+            cloudConflictRemote = remote;
+            document.getElementById('cloudConflictModal').classList.remove('hidden');
+            document.getElementById('cloudConflictModal').classList.add('flex');
+            document.getElementById('sidebar').inert = true;
+            document.getElementById('mainAppContent').inert = true;
+            updateCloudSyncStatus('conflict');
+        }
+
+        function closeCloudConflict() {
+            document.getElementById('cloudConflictModal').classList.add('hidden');
+            document.getElementById('cloudConflictModal').classList.remove('flex');
+            document.getElementById('sidebar').inert = false;
+            document.getElementById('mainAppContent').inert = false;
+        }
+
+        async function syncCloudWorkspace() {
+            if (cloudSyncInProgress || cloudConflictRemote || !currentAuthUser) return;
+            if (!navigator.onLine) {
+                updateCloudSyncStatus('offline');
+                return;
+            }
+            cloudSyncInProgress = true;
+            let localChangedDuringSync = false;
+            updateCloudSyncStatus('syncing');
+            try {
+                await localPersistPromise;
+                const syncSnapshot = JSON.parse(JSON.stringify(db));
+                const client = await getSupabaseClient();
+                const { data: remote, error: readError } = await client
+                    .from('pos_workspaces')
+                    .select('snapshot, updated_at')
+                    .eq('owner_id', currentAuthUser.id)
+                    .maybeSingle();
+                if (readError) throw readError;
+
+                const meta = readCloudSyncMeta();
+                if (remote && meta?.userId === currentAuthUser.id && meta.remoteUpdatedAt !== remote.updated_at) {
+                    showCloudConflict(remote);
+                    return;
+                }
+                if (remote && meta?.userId !== currentAuthUser.id && !snapshotsMatch(remote.snapshot, syncSnapshot)) {
+                    showCloudConflict(remote);
+                    return;
+                }
+                if (remote && snapshotsMatch(remote.snapshot, syncSnapshot)) {
+                    writeCloudSyncMeta(remote.updated_at);
+                    localChangedDuringSync = !snapshotsMatch(syncSnapshot, db);
+                    if (localChangedDuringSync) localStorage.setItem('cm_pos_cloud_sync_dirty_v1', 'true');
+                    updateCloudSyncStatus('synced');
+                    return;
+                }
+
+                const expectedUpdatedAt = remote?.updated_at || null;
+                const { data: updatedAt, error: writeError } = await client.rpc('save_pos_workspace_snapshot', {
+                    p_snapshot: syncSnapshot,
+                    p_expected_updated_at: expectedUpdatedAt
+                });
+                if (writeError) {
+                    if (writeError.code === '40001') {
+                        const { data: latest, error: latestError } = await client
+                            .from('pos_workspaces')
+                            .select('snapshot, updated_at')
+                            .eq('owner_id', currentAuthUser.id)
+                            .maybeSingle();
+                        if (latestError) throw latestError;
+                        if (latest) showCloudConflict(latest);
+                        else throw writeError;
+                        return;
+                    }
+                    throw writeError;
+                }
+                writeCloudSyncMeta(updatedAt);
+                localChangedDuringSync = !snapshotsMatch(syncSnapshot, db);
+                if (localChangedDuringSync) localStorage.setItem('cm_pos_cloud_sync_dirty_v1', 'true');
+                updateCloudSyncStatus('synced');
+            } catch (error) {
+                console.error('Cloud workspace sync failed.', error);
+                updateCloudSyncStatus(navigator.onLine ? 'error' : 'offline', error.message || 'Cloud sync failed');
+            } finally {
+                cloudSyncInProgress = false;
+                if (localChangedDuringSync && currentAuthUser && !cloudConflictRemote && navigator.onLine) {
+                    queueCloudSnapshotSync();
+                }
+            }
+        }
+
+        async function resolveWorkspaceConflict(choice) {
+            if (!cloudConflictRemote || !currentAuthUser) return;
+            const remote = cloudConflictRemote;
+            try {
+                updateCloudSyncStatus('syncing');
+                if (choice === 'local') {
+                    await preserveCloudSnapshot('Local workspace before cloud conflict resolution', db);
+                    await preserveCloudSnapshot('Cloud workspace before local copy was chosen', remote.snapshot);
+                    const client = await getSupabaseClient();
+                    const { data: updatedAt, error } = await client.rpc('save_pos_workspace_snapshot', {
+                        p_snapshot: db,
+                        p_expected_updated_at: remote.updated_at
+                    });
+                    if (error) throw error;
+                    writeCloudSyncMeta(updatedAt);
+                    closeCloudConflict();
+                    updateCloudSyncStatus('synced');
+                    return;
+                }
+
+                await preserveCloudSnapshot('Local workspace before restoring cloud copy', db);
+                applyingCloudSnapshot = true;
+                db = remote.snapshot;
+                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
+                await dexie.kv.put({ key: 'db', value: db });
+                localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
+                writeCloudSyncMeta(remote.updated_at);
+                refreshAllUI();
+                closeCloudConflict();
+                updateCloudSyncStatus('synced');
+            } catch (error) {
+                console.error('Could not resolve the cloud workspace conflict.', error);
+                updateCloudSyncStatus('error', error.message || 'Could not resolve workspace copies');
+            } finally {
+                applyingCloudSnapshot = false;
+            }
+        }
+
+        function retryCloudSync() {
+            window.clearTimeout(cloudSyncTimer);
+            syncCloudWorkspace();
+        }
+
+        function registerOfflineAppShell() {
+            if (!('serviceWorker' in navigator)) return;
+            navigator.serviceWorker.register('/sw.js').catch(error => {
+                console.warn('Offline app shell could not be registered.', error);
+            });
         }
 
         let currentChartFilter = '1D';
@@ -1615,16 +1866,17 @@
         }
 
         function saveToLocalStorage() {
-            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(e) {}
+            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(error) { console.error('Could not save the local workspace snapshot.', error); }
             // persist asynchronously to IndexedDB
-            persistDB().catch(()=>{});
+            localPersistPromise = persistDB();
             refreshAllUI();
+            queueCloudSnapshotSync();
         }
 
         function auditActor() {
-            const email = sessionStorage.getItem('cm_local_session_email') || localStorage.getItem('cm_local_remembered_email') || 'Local operator';
-            const account = readLocalAccounts().find(item => item.email === email);
-            return { email, name: account?.name || email };
+            const email = currentAuthUser?.email || sessionStorage.getItem('cm_local_session_email') || 'Local operator';
+            const name = currentAuthUser?.user_metadata?.full_name || currentAuthUser?.user_metadata?.name || email;
+            return { email, name };
         }
 
         function recordAuditEvent(action, entity, entityId, summary) {
@@ -1960,7 +2212,7 @@
             if (open) sidebar.querySelector('.nav-btn')?.focus();
         }
 
-        function showLocalSessionScreen(mode = 'signin', message = '') {
+        function showLocalSessionScreen(mode = 'signin', message = '', messageType = 'error') {
             const overlay = document.getElementById('localSessionOverlay');
             const signingUp = mode === 'signup';
             const signInForm = document.getElementById('localSignInForm');
@@ -1972,10 +2224,14 @@
             overlay.setAttribute('aria-describedby', signingUp ? 'localSignUpDescription' : 'localSessionDescription');
             messageEl.textContent = message;
             messageEl.classList.toggle('hidden', !message);
-            messageEl.classList.toggle('bg-rose-50', Boolean(message));
-            messageEl.classList.toggle('text-rose-700', Boolean(message));
-            messageEl.classList.toggle('dark:bg-rose-950/30', Boolean(message));
-            messageEl.classList.toggle('dark:text-rose-200', Boolean(message));
+            messageEl.classList.toggle('bg-rose-50', Boolean(message) && messageType === 'error');
+            messageEl.classList.toggle('text-rose-700', Boolean(message) && messageType === 'error');
+            messageEl.classList.toggle('dark:bg-rose-950/30', Boolean(message) && messageType === 'error');
+            messageEl.classList.toggle('dark:text-rose-200', Boolean(message) && messageType === 'error');
+            messageEl.classList.toggle('bg-emerald-50', Boolean(message) && messageType === 'success');
+            messageEl.classList.toggle('text-emerald-800', Boolean(message) && messageType === 'success');
+            messageEl.classList.toggle('dark:bg-emerald-950/30', Boolean(message) && messageType === 'success');
+            messageEl.classList.toggle('dark:text-emerald-200', Boolean(message) && messageType === 'success');
             overlay.classList.remove('hidden');
             overlay.classList.add('flex');
             document.getElementById('sidebar').inert = true;
@@ -1983,40 +2239,23 @@
             document.getElementById(signingUp ? 'localSignUpName' : 'localLoginEmail').focus();
         }
 
-        function readLocalAccounts() {
-            const rawAccounts = localStorage.getItem('cm_local_accounts_v1');
-            if (!rawAccounts) return [];
-            const accounts = JSON.parse(rawAccounts);
-            if (!Array.isArray(accounts)) throw new Error('Local account data is invalid.');
-            return accounts;
-        }
-
-        function saveLocalAccounts(accounts) {
-            localStorage.setItem('cm_local_accounts_v1', JSON.stringify(accounts));
-        }
-
-        async function hashLocalPassword(password, salt) {
-            if (!window.crypto?.subtle) throw new Error('Password security is unavailable in this browser. Open the app on localhost or HTTPS.');
-            const keyMaterial = await window.crypto.subtle.importKey('raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
-            const saltBytes = Uint8Array.from(atob(salt), character => character.charCodeAt(0));
-            const hashBits = await window.crypto.subtle.deriveBits({ name: 'PBKDF2', salt: saltBytes, iterations: 210000, hash: 'SHA-256' }, keyMaterial, 256);
-            return btoa(String.fromCharCode(...new Uint8Array(hashBits)));
-        }
-
-        function localPasswordsMatch(expectedHash, actualHash) {
-            if (typeof expectedHash !== 'string' || expectedHash.length !== actualHash.length) return false;
-            let mismatch = 0;
-            for (let index = 0; index < expectedHash.length; index++) mismatch |= expectedHash.charCodeAt(index) ^ actualHash.charCodeAt(index);
-            return mismatch === 0;
-        }
-
         function finishLocalSignIn(email, remember = false) {
             try {
                 sessionStorage.setItem('cm_local_session_signed_in', 'true');
                 sessionStorage.setItem('cm_local_session_email', email);
                 sessionStorage.removeItem('cm_local_session_signed_out');
-                if (remember) localStorage.setItem('cm_local_remembered_email', email);
-                else localStorage.removeItem('cm_local_remembered_email');
+                localStorage.removeItem('cm_local_remembered_email');
+                if (remember && currentAuthUser) {
+                    localStorage.setItem('cm_pos_offline_session_allowed_v1', 'true');
+                    localStorage.setItem('cm_pos_offline_authorized_user_v1', JSON.stringify({
+                        id: currentAuthUser.id,
+                        email: currentAuthUser.email || email,
+                        user_metadata: currentAuthUser.user_metadata || {}
+                    }));
+                } else {
+                    localStorage.removeItem('cm_pos_offline_session_allowed_v1');
+                    localStorage.removeItem('cm_pos_offline_authorized_user_v1');
+                }
             } catch (error) {
                 console.error('Could not save the local sign-in state.', error);
                 showLocalSessionScreen('signin', 'This browser could not save your sign-in. Check its storage settings and try again.');
@@ -2027,6 +2266,11 @@
             const overlay = document.getElementById('localSessionOverlay');
             overlay.classList.add('hidden');
             overlay.classList.remove('flex');
+            const name = currentAuthUser?.user_metadata?.full_name || currentAuthUser?.user_metadata?.name || 'Admin';
+            document.getElementById('adminAccountName').textContent = name;
+            document.getElementById('adminAccountEmail').textContent = currentAuthUser?.email || email;
+            document.getElementById('adminAccountBadge').textContent = navigator.onLine ? 'CLOUD' : 'OFFLINE';
+            updateCloudSyncStatus(navigator.onLine ? 'checking' : 'offline');
             const focusTarget = window.matchMedia('(max-width: 767px)').matches ? document.getElementById('nav-dashboard') : document.getElementById('sidebarBrandExpand');
             focusTarget?.focus();
         }
@@ -2060,23 +2304,23 @@
             const email = form.elements.email.value.trim().toLowerCase();
             const password = form.elements.password.value;
             try {
-                const account = readLocalAccounts().find(item => item.email === email);
-                if (!account) {
-                    showLocalSessionScreen('signin', 'Email or password is incorrect. If this is your first time, create an account.');
-                    return;
-                }
-                const submittedHash = await hashLocalPassword(password, account.salt);
-                if (!localPasswordsMatch(account.passwordHash, submittedHash)) {
-                    showLocalSessionScreen('signin', 'Email or password is incorrect.');
-                    return;
-                }
-                showAuthTransition('Signing in', 'Preparing your workspace…');
+                if (!navigator.onLine) throw new Error('Connect to the internet to sign in. Previously authorized devices can reopen the saved workspace offline.');
+                showAuthTransition('Signing in', 'Connecting securely to your workspace…');
+                const client = await getSupabaseClient();
+                const { data, error } = await client.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                currentAuthUser = data.user;
                 await waitFor(5000);
                 hideAuthTransition();
                 finishLocalSignIn(email, document.getElementById('localRememberMe').checked);
+                await syncCloudWorkspace();
             } catch (error) {
-                console.error('Local sign-in failed.', error);
-                showLocalSessionScreen('signin', error.message || 'Could not sign in. Check browser storage and try again.');
+                console.error('Supabase sign-in failed.', error);
+                hideAuthTransition();
+                const message = /invalid login credentials/i.test(error.message || '')
+                    ? 'Email or password is incorrect. Device-only accounts were not migrated; register this email if it is not already on Supabase.'
+                    : error.message || 'Could not sign in. Check your connection and try again.';
+                showLocalSessionScreen('signin', message);
             }
         }
 
@@ -2096,20 +2340,29 @@
                 return;
             }
             try {
-                const accounts = readLocalAccounts();
-                if (accounts.some(account => account.email === email)) {
-                    showLocalSessionScreen('signup', 'An account with this email already exists. Sign in instead.');
+                if (!navigator.onLine) throw new Error('Connect to the internet to create a Supabase account.');
+                showAuthTransition('Creating account', 'Setting up your secure workspace…');
+                const client = await getSupabaseClient();
+                const { data, error } = await client.auth.signUp({
+                    email,
+                    password,
+                    options: { data: { full_name: name } }
+                });
+                if (error) throw error;
+                if (!data.session || !data.user) {
+                    hideAuthTransition();
+                    showLocalSessionScreen('signin', 'Check your email to confirm your account, then sign in.', 'success');
                     return;
                 }
-                const saltBytes = window.crypto.getRandomValues(new Uint8Array(16));
-                const salt = btoa(String.fromCharCode(...saltBytes));
-                const passwordHash = await hashLocalPassword(password, salt);
-                accounts.push({ name, email, salt, passwordHash, createdAt: new Date().toISOString() });
-                saveLocalAccounts(accounts);
-                finishLocalSignIn(email);
+                currentAuthUser = data.user;
+                await waitFor(900);
+                hideAuthTransition();
+                finishLocalSignIn(email, true);
+                await syncCloudWorkspace();
             } catch (error) {
-                console.error('Local account creation failed.', error);
-                showLocalSessionScreen('signup', error.message || 'Could not create the account. Check browser storage and try again.');
+                console.error('Supabase account creation failed.', error);
+                hideAuthTransition();
+                showLocalSessionScreen('signup', error.message || 'Could not create the account. Check your connection and try again.');
             }
         }
 
@@ -2131,15 +2384,28 @@
             closeSignOutConfirm();
             showAuthTransition('Signing out', 'Securing this device…', true);
             try {
+                if (supabaseClient) {
+                    const { error } = await supabaseClient.auth.signOut();
+                    if (error) console.error('Could not complete remote sign-out.', error);
+                }
+            } catch (error) {
+                console.error('Could not complete remote sign-out.', error);
+            }
+            try {
                 sessionStorage.setItem('cm_local_session_signed_out', 'true');
                 sessionStorage.removeItem('cm_local_session_signed_in');
                 sessionStorage.removeItem('cm_local_session_email');
                 localStorage.removeItem('cm_local_remembered_email');
+                localStorage.removeItem('cm_pos_offline_session_allowed_v1');
+                localStorage.removeItem('cm_pos_offline_authorized_user_v1');
+                localStorage.removeItem('cm-pos-supabase-auth-v1');
             } catch (error) {
                 console.error('Could not clear the local sign-in state.', error);
             }
+            currentAuthUser = null;
             await waitFor(900);
             hideAuthTransition();
+            updateCloudSyncStatus('signedOut');
             showLocalSessionScreen();
         }
 
@@ -4568,29 +4834,67 @@
             initTheme();
             startHeaderClock();
             initSidebar();
-            let hasActiveSession = false;
-            try {
-                hasActiveSession = sessionStorage.getItem('cm_local_session_signed_in') === 'true';
-                if (!hasActiveSession) {
-                    const rememberedEmail = localStorage.getItem('cm_local_remembered_email');
-                    hasActiveSession = Boolean(rememberedEmail && readLocalAccounts().some(account => account.email === rememberedEmail));
-                    if (hasActiveSession) {
-                        sessionStorage.setItem('cm_local_session_signed_in', 'true');
-                        sessionStorage.setItem('cm_local_session_email', rememberedEmail);
-                    }
-                }
-            } catch (error) {
-                console.error('Could not restore the local sign-in state.', error);
-            }
-            if (!hasActiveSession) showLocalSessionScreen();
             await loadFromLocalStorage();
             initializeLiveSessionState();
-            // Seed derived product data only
             seedProductsFromShirts();
-            // persist derived product data if local storage is writable
-            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(e) {}
-            persistDB().catch(()=>{});
+            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(error) { console.error('Could not migrate the local workspace snapshot.', error); }
+            await persistDB();
             refreshAllUI();
+
+            let cachedOfflineUser = null;
+            try {
+                if (localStorage.getItem('cm_pos_offline_session_allowed_v1') === 'true') {
+                    cachedOfflineUser = JSON.parse(localStorage.getItem('cm_pos_offline_authorized_user_v1') || 'null');
+                }
+            } catch (error) {
+                console.error('Could not restore the authorized offline session.', error);
+            }
+
+            if (navigator.onLine) {
+                try {
+                    const client = await getSupabaseClient();
+                    const { data, error } = await client.auth.getSession();
+                    if (error) throw error;
+                    currentAuthUser = data.session?.user || null;
+                } catch (error) {
+                    console.warn('Supabase session could not be checked during startup.', error);
+                }
+            } else {
+                try {
+                    if (localStorage.getItem('cm_pos_offline_session_allowed_v1') === 'true') {
+                        cachedOfflineUser = JSON.parse(localStorage.getItem('cm_pos_offline_authorized_user_v1') || 'null');
+                    }
+                } catch (error) {
+                    console.error('Could not restore the authorized offline session.', error);
+                }
+            }
+
+            if (!currentAuthUser && !navigator.onLine && cachedOfflineUser?.id) currentAuthUser = cachedOfflineUser;
+            if (currentAuthUser) {
+                const allowOffline = localStorage.getItem('cm_pos_offline_session_allowed_v1') === 'true';
+                finishLocalSignIn(currentAuthUser.email || '', allowOffline || !navigator.onLine);
+                if (navigator.onLine) await syncCloudWorkspace();
+                else updateCloudSyncStatus('offline');
+            } else {
+                updateCloudSyncStatus('signedOut');
+                showLocalSessionScreen('signin', navigator.onLine ? '' : 'This device has no saved authorized offline session. Connect to the internet and sign in first.');
+            }
+
+            window.addEventListener('online', () => {
+                if (currentAuthUser) {
+                    document.getElementById('adminAccountBadge').textContent = 'CLOUD';
+                    syncCloudWorkspace();
+                } else {
+                    updateCloudSyncStatus('signedOut');
+                }
+            });
+            window.addEventListener('offline', () => {
+                if (currentAuthUser) {
+                    document.getElementById('adminAccountBadge').textContent = 'OFFLINE';
+                    updateCloudSyncStatus('offline');
+                }
+            });
+            registerOfflineAppShell();
         }
 
         window.onload = initApp;
