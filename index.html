@@ -2245,23 +2245,28 @@
         let pendingLegacySnapshotApply = false;
 
         async function initializeLocalWorkspace(storedSnapshot) {
+            updateLocalSaveStatus('checking', 'Reading protected device key');
             const keyRow = await dexie.kv.get('local-encryption-key-v2');
             localDeviceKey = keyRow?.value || null;
             if (ClothesManiaWorkspaceCrypto.isEncryptedSnapshot(storedSnapshot)) {
+                updateLocalSaveStatus('checking', 'Unlocking legacy local workspace');
                 if (!await unlockLegacyWorkspaceSnapshot(storedSnapshot, true)) return false;
                 return true;
             }
             if (ClothesManiaWorkspaceCrypto.isDeviceEncryptedSnapshot(storedSnapshot)) {
                 if (!localDeviceKey) throw new Error('The protected local key is missing. Restore a known-good backup before continuing.');
+                updateLocalSaveStatus('checking', 'Decrypting saved local workspace');
                 db = await ClothesManiaWorkspaceCrypto.unlockDeviceSnapshot(storedSnapshot, localDeviceKey);
             } else if (storedSnapshot) {
                 if (!isValidWorkspaceSnapshot(storedSnapshot)) throw new Error('Saved local data is invalid. The app stopped to avoid replacing it.');
                 db = storedSnapshot;
             }
             if (!localDeviceKey) {
+                updateLocalSaveStatus('checking', 'Preparing protected device storage');
                 localDeviceKey = await ClothesManiaWorkspaceCrypto.createDeviceKey();
                 await dexie.kv.put({ key: 'local-encryption-key-v2', value: localDeviceKey });
             }
+            updateLocalSaveStatus('checking', 'Checking protected local backups');
             await migrateLegacyLocalBackups();
             return true;
         }
