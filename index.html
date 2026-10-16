@@ -2135,7 +2135,7 @@
         }
 
         async function migrateLegacyLocalBackups() {
-            const records = await dexie.kv.toArray();
+            const records = await dexie.kv.where('key').startsWith('cloud-backup-').toArray();
             for (const record of records) {
                 if (!String(record.key || '').startsWith('cloud-backup-')) continue;
                 const value = record.value;

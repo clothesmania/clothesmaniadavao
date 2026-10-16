@@ -83,6 +83,11 @@ test('fresh startup initializes device encryption without showing a passphrase p
     assert.match(html, /requestLegacyWorkspacePassphrase\(snapshot, applyLocally = false\)/);
 });
 
+test('startup migration reads only locally preserved cloud backups', () => {
+    assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
+    assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);
+});
+
 test('server sync endpoint uses authenticated user RPCs and never includes a service-role secret', () => {
     const endpoint = fs.readFileSync(path.join(root, 'supabase', 'functions', 'workspace-sync', 'index.ts'), 'utf8');
     const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '202610160001_server_managed_workspace_encryption.sql'), 'utf8');
