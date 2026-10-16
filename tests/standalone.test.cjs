@@ -161,10 +161,50 @@ test('sign-in failures show plain-language guidance instead of backend errors', 
     const source = html.slice(start, end);
 
     assert.match(source, /email and password do not match/i);
+    assert.match(source, /password needs to be updated before you can sign in/i);
     assert.match(source, /check your internet connection/i);
     assert.match(source, /administrator to check your access/i);
     assert.doesNotMatch(source, /database|supabase|migration|schema/i);
     assert.match(html, /showLocalSessionScreen\('signin', friendlySignInError\(error\)\)/);
+});
+
+test('admin password visibility toggles are accessible and reset when switching auth screens', () => {
+    const source = getFunctionSource(html, 'togglePasswordVisibility');
+    const input = { type: 'password' };
+    const icon = { className: '' };
+    const attributes = {};
+    const button = {
+        setAttribute: (name, value) => { attributes[name] = value; },
+        querySelector: selector => selector === 'i' ? icon : null
+    };
+    const togglePasswordVisibility = new Function('document', `${source}; return togglePasswordVisibility;`)({ getElementById: id => id === 'testPassword' ? input : null });
+
+    togglePasswordVisibility('testPassword', button);
+    assert.equal(input.type, 'text');
+    assert.equal(attributes['aria-label'], 'Hide password');
+    assert.equal(attributes['aria-pressed'], 'true');
+    assert.equal(icon.className, 'fa-solid fa-eye-slash');
+    togglePasswordVisibility('testPassword', button);
+    assert.equal(input.type, 'password');
+    assert.equal(attributes['aria-label'], 'Show password');
+    assert.match(html, /function showLocalSessionScreen\([^)]*\) \{\s*resetPasswordVisibility\(\)/);
+    for (const inputId of ['localLoginPassword', 'localSignUpPassword', 'localSignUpConfirm', 'localNewPassword', 'localNewPasswordConfirm']) {
+        assert.match(html, new RegExp(`aria-controls="${inputId}"`));
+    }
+});
+
+test('new and recovered admin passwords must meet the strong password policy', () => {
+    const source = getFunctionSource(html, 'getAdminPasswordValidationMessage');
+    const validate = new Function(`${source}; return getAdminPasswordValidationMessage;`)();
+
+    assert.match(validate('Abc1!'), /14 characters/);
+    assert.match(validate('ABCDEFGHIJKLMN1!'), /lowercase/);
+    assert.match(validate('abcdefghijklmn1!'), /uppercase/);
+    assert.match(validate('StrongAdminPass!'), /number/);
+    assert.match(validate('StrongAdminPass1'), /symbol/);
+    assert.equal(validate('Str0ngAdminPass!'), '');
+    assert.match(getFunctionSource(html, 'handleLocalSignUp'), /getAdminPasswordValidationMessage\(password\)/);
+    assert.match(getFunctionSource(html, 'handlePasswordRecovery'), /getAdminPasswordValidationMessage\(password\)/);
 });
 
 test('startup migration reads only locally preserved cloud backups', () => {

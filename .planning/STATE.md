@@ -119,9 +119,11 @@ Resume file: None
 | 25 | Redesign the View Mine Order dialog for clearer hierarchy and responsive readability | 2026-10-15 | — | Complete | — |
 | 26 | Highlight remarks and add auto-saving per-item fulfillment controls | 2026-10-15 | — | Complete | — |
 | 27 | Clarify shared report data, autosync, and responsive calendar | 2026-10-16 | — | Complete | 261016-sbo-clarify-report-data-source-make-reports- |
+| 28 | Add prompt shared-workspace updates through Supabase Realtime | 2026-10-16 | — | Complete | 261016-sqs-add-secure-supabase-realtime-notificatio |
 | 27 | Remove remark badge styling and use bold blue remark text | 2026-10-15 | — | Complete | — |
 | 28 | Constrain long remarks and open order details from row clicks | 2026-10-15 | — | Complete | — |
 | 29 | Simplify receipt footer and use a thermal-style monospaced print layout | 2026-10-15 | — | Complete | — |
 | 30 | Remove the not-free-shipping choice and require payment references for paid mines | 2026-10-15 | — | Complete | — |
 | 31 | Add seller paid/unpaid performance tracking and open report items in mine history | 2026-10-15 | — | Complete | — |
 | 32 | Restore the last selected POS section after browser refresh | 2026-10-15 | — | Complete | — |
+| 33 | Add password visibility and strong admin signup/recovery password rules | 2026-10-16 | — | Complete | 261016-t7f-admin-password-visibility-and-strength |

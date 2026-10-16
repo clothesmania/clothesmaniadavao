@@ -1523,7 +1523,10 @@
                             <label for="localLoginPassword" class="text-sm font-medium text-foreground">Password</label>
                             <button type="button" onclick="showLocalSessionScreen('forgot-password')" class="text-xs font-medium text-amber-700 underline underline-offset-2 hover:text-amber-800 dark:text-amber-300">Forgot password?</button>
                         </div>
-                        <input id="localLoginPassword" name="password" type="password" autocomplete="current-password" required class="auth-field text-sm" placeholder="Enter your password">
+                        <div class="relative">
+                            <input id="localLoginPassword" name="password" type="password" autocomplete="current-password" required class="auth-field pr-12 text-sm" placeholder="Enter your password">
+                            <button type="button" onclick="togglePasswordVisibility('localLoginPassword', this)" aria-controls="localLoginPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+                        </div>
                         <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground"><input id="localRememberMe" type="checkbox" checked class="h-4 w-4 rounded border-border accent-amber-500">Allow this device to reopen the workspace offline</label>
                     </div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>Sign in</button>
@@ -1538,8 +1541,8 @@
                         <div><label for="localSignUpName" class="mb-1.5 block text-sm font-medium text-foreground">Full name</label><input id="localSignUpName" name="name" type="text" autocomplete="name" required maxlength="80" class="auth-field text-sm" placeholder="Your name"></div>
                         <div><label for="localSignUpEmail" class="mb-1.5 block text-sm font-medium text-foreground">Email</label><input id="localSignUpEmail" name="email" type="email" autocomplete="email" required maxlength="254" class="auth-field text-sm" placeholder="you@example.com"></div>
                         <div><label for="localSignUpInviteCode" class="mb-1.5 block text-sm font-medium text-foreground">Admin invitation code</label><input id="localSignUpInviteCode" name="inviteCode" type="text" autocomplete="off" required minlength="40" maxlength="40" pattern="[a-fA-F0-9]{40}" class="auth-field font-mono text-sm" placeholder="40-character code"></div>
-                        <div><label for="localSignUpPassword" class="mb-1.5 block text-sm font-medium text-foreground">Password</label><input id="localSignUpPassword" name="password" type="password" autocomplete="new-password" required minlength="12" class="auth-field text-sm" placeholder="At least 12 characters"><p class="mt-1 text-xs text-muted-foreground">Use at least 12 characters.</p></div>
-                        <div><label for="localSignUpConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm password</label><input id="localSignUpConfirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="12" class="auth-field text-sm" placeholder="Re-enter your password"></div>
+                        <div><label for="localSignUpPassword" class="mb-1.5 block text-sm font-medium text-foreground">Password</label><div class="relative"><input id="localSignUpPassword" name="password" type="password" autocomplete="new-password" required minlength="14" class="auth-field pr-12 text-sm" placeholder="Create a strong password"><button type="button" onclick="togglePasswordVisibility('localSignUpPassword', this)" aria-controls="localSignUpPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div><p class="mt-1 text-xs text-muted-foreground">Use 14+ characters, including uppercase, lowercase, a number, and a symbol.</p></div>
+                        <div><label for="localSignUpConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm password</label><div class="relative"><input id="localSignUpConfirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="14" class="auth-field pr-12 text-sm" placeholder="Re-enter your password"><button type="button" onclick="togglePasswordVisibility('localSignUpConfirm', this)" aria-controls="localSignUpConfirm" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
                     </div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create account</button>
                     <p class="text-center text-sm text-muted-foreground">Already have an account? <button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Sign in</button></p>
@@ -1551,9 +1554,9 @@
                     <p class="text-center text-sm text-muted-foreground"><button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4">Back to sign in</button></p>
                 </form>
                 <form id="localPasswordRecoveryForm" class="hidden space-y-5" onsubmit="handlePasswordRecovery(event)">
-                    <div class="space-y-1.5"><h2 id="localPasswordRecoveryTitle" class="text-2xl font-bold tracking-tight text-foreground">Choose a new password</h2><p id="localPasswordRecoveryDescription" class="text-sm leading-6 text-muted-foreground">Use at least 12 characters for your new password.</p></div>
-                    <div><label for="localNewPassword" class="mb-1.5 block text-sm font-medium text-foreground">New password</label><input id="localNewPassword" name="password" type="password" autocomplete="new-password" minlength="12" required class="auth-field text-sm" placeholder="At least 12 characters"></div>
-                    <div><label for="localNewPasswordConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm new password</label><input id="localNewPasswordConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" required class="auth-field text-sm" placeholder="Re-enter your password"></div>
+                    <div class="space-y-1.5"><h2 id="localPasswordRecoveryTitle" class="text-2xl font-bold tracking-tight text-foreground">Choose a new password</h2><p id="localPasswordRecoveryDescription" class="text-sm leading-6 text-muted-foreground">Use 14+ characters, including uppercase, lowercase, a number, and a symbol.</p></div>
+                    <div><label for="localNewPassword" class="mb-1.5 block text-sm font-medium text-foreground">New password</label><div class="relative"><input id="localNewPassword" name="password" type="password" autocomplete="new-password" minlength="14" required class="auth-field pr-12 text-sm" placeholder="Create a strong password"><button type="button" onclick="togglePasswordVisibility('localNewPassword', this)" aria-controls="localNewPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
+                    <div><label for="localNewPasswordConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm new password</label><div class="relative"><input id="localNewPasswordConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="14" required class="auth-field pr-12 text-sm" placeholder="Re-enter your password"><button type="button" onclick="togglePasswordVisibility('localNewPasswordConfirm', this)" aria-controls="localNewPasswordConfirm" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900">Update password</button>
                 </form>
                 <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>Sign-in and changes require internet. Successful updates save on this device and sync automatically to the encrypted shared database.</p>
@@ -2766,7 +2769,41 @@
             if (open) sidebar.querySelector('.nav-btn')?.focus();
         }
 
+        function togglePasswordVisibility(inputId, button) {
+            const input = document.getElementById(inputId);
+            if (!input || !button) return;
+            const showPassword = input.type === 'password';
+            input.type = showPassword ? 'text' : 'password';
+            button.setAttribute('aria-label', showPassword ? 'Hide password' : 'Show password');
+            button.setAttribute('aria-pressed', String(showPassword));
+            const icon = button.querySelector('i');
+            if (icon) icon.className = showPassword ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
+        }
+
+        function resetPasswordVisibility() {
+            document.querySelectorAll('#localSessionOverlay input[type="text"][autocomplete="current-password"], #localSessionOverlay input[type="text"][autocomplete="new-password"]').forEach(input => {
+                input.type = 'password';
+                const button = document.querySelector(`[aria-controls="${input.id}"]`);
+                if (button) {
+                    button.setAttribute('aria-label', 'Show password');
+                    button.setAttribute('aria-pressed', 'false');
+                    const icon = button.querySelector('i');
+                    if (icon) icon.className = 'fa-solid fa-eye';
+                }
+            });
+        }
+
+        function getAdminPasswordValidationMessage(password = '') {
+            if (password.length < 14) return 'Use at least 14 characters.';
+            if (!/[a-z]/.test(password)) return 'Add at least one lowercase letter.';
+            if (!/[A-Z]/.test(password)) return 'Add at least one uppercase letter.';
+            if (!/[0-9]/.test(password)) return 'Add at least one number.';
+            if (!/[^A-Za-z0-9\s]/.test(password)) return 'Add at least one symbol, such as ! or #.';
+            return '';
+        }
+
         function showLocalSessionScreen(mode = 'signin', message = '', messageType = 'error') {
+            resetPasswordVisibility();
             const overlay = document.getElementById('localSessionOverlay');
             const screens = {
                 signin: ['localSignInForm', 'localSessionTitle', 'localSessionDescription', 'localLoginEmail'],
@@ -2908,6 +2945,9 @@
 
         function friendlySignInError(error) {
             const message = String(error?.message || '').toLowerCase();
+            if (/weak[_ ]password|password.{0,60}(strength|requirement|character|uppercase|lowercase|number|symbol)/.test(message)) {
+                return 'Your password needs to be updated before you can sign in. Use “Forgot password?” to choose a stronger one.';
+            }
             if (/invalid login credentials|invalid email or password|email or password/.test(message)) {
                 return 'That email and password do not match. If you have not joined the store account yet, ask an administrator for an invitation.';
             }
@@ -2947,8 +2987,9 @@
             event.preventDefault();
             const password = event.currentTarget.elements.password.value;
             const confirmation = event.currentTarget.elements.confirmPassword.value;
-            if (password.length < 12) {
-                showLocalSessionScreen('reset-password', 'Choose a password with at least 12 characters.');
+            const passwordMessage = getAdminPasswordValidationMessage(password);
+            if (passwordMessage) {
+                showLocalSessionScreen('reset-password', passwordMessage);
                 return;
             }
             if (password !== confirmation) {
@@ -2967,7 +3008,10 @@
                 showLocalSessionScreen('signin', 'Your password has been updated. Sign in with your new password.', 'success');
             } catch (error) {
                 console.error('Password update failed.', error);
-                showLocalSessionScreen('reset-password', error.message || 'Could not update your password. Request a new reset link.');
+                const message = /weak[_ ]password|password.{0,60}(strength|requirement|character|uppercase|lowercase|number|symbol)/i.test(error.message || '')
+                    ? 'Choose a stronger password with 14+ characters, uppercase and lowercase letters, a number, and a symbol.'
+                    : error.message || 'Could not update your password. Request a new reset link.';
+                showLocalSessionScreen('reset-password', message);
             }
         }
 
@@ -3015,8 +3059,9 @@
             const password = form.elements.password.value;
             const confirmPassword = form.elements.confirmPassword.value;
             const inviteCode = form.elements.inviteCode.value.trim().toLowerCase();
-            if (password.length < 12) {
-                showLocalSessionScreen('signup', 'Choose a password with at least 12 characters.');
+            const passwordMessage = getAdminPasswordValidationMessage(password);
+            if (passwordMessage) {
+                showLocalSessionScreen('signup', passwordMessage);
                 return;
             }
             if (password !== confirmPassword) {
@@ -3059,7 +3104,10 @@
                     try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the rejected new account session.', signOutError); }
                     currentAuthUser = null;
                 }
-                showLocalSessionScreen('signup', error.message || 'Could not create the account. Check your connection and try again.');
+                const message = /weak[_ ]password|password.{0,60}(strength|requirement|character|uppercase|lowercase|number|symbol)/i.test(error.message || '')
+                    ? 'Choose a stronger password with 14+ characters, uppercase and lowercase letters, a number, and a symbol.'
+                    : error.message || 'Could not create the account. Check your connection and try again.';
+                showLocalSessionScreen('signup', message);
             }
         }
 
