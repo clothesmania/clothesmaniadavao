@@ -1667,6 +1667,9 @@
         let currentAuthUser = null;
         let cloudSyncTimer = null;
         let cloudSyncInProgress = false;
+        let workspaceRealtimeChannel = null;
+        let workspaceRealtimeOwnerId = null;
+        let remoteRefreshTimer = null;
         let localPersistPromise = Promise.resolve();
         let persistQueue = Promise.resolve();
         let applyingCloudSnapshot = false;
@@ -1997,6 +2000,32 @@
             cloudSyncTimer = window.setTimeout(() => syncCloudWorkspace(), 900);
         }
 
+        function subscribeToWorkspaceChanges(client, workspaceOwnerId) {
+            if (!client || !workspaceOwnerId || !currentAuthUser || !navigator.onLine) return;
+            if (workspaceRealtimeChannel && workspaceRealtimeOwnerId === workspaceOwnerId) return;
+            if (workspaceRealtimeChannel) client.removeChannel(workspaceRealtimeChannel);
+            workspaceRealtimeOwnerId = workspaceOwnerId;
+            workspaceRealtimeChannel = client
+                .channel(`pos-workspace:${workspaceOwnerId}`)
+                .on('postgres_changes', {
+                    event: 'UPDATE',
+                    schema: 'public',
+                    table: 'pos_workspace_sync_events',
+                    filter: `workspace_owner_id=eq.${workspaceOwnerId}`
+                }, payload => {
+                    if (payload.new?.workspace_owner_id !== workspaceOwnerId || !currentAuthUser || !navigator.onLine) return;
+                    window.clearTimeout(remoteRefreshTimer);
+                    remoteRefreshTimer = window.setTimeout(() => {
+                        if (currentAuthUser && navigator.onLine && !cloudConflictRemote) syncCloudWorkspace();
+                    }, 150);
+                })
+                .subscribe(status => {
+                    if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                        console.warn('Workspace live updates are unavailable; periodic cloud sync remains active.');
+                    }
+                });
+        }
+
         async function preserveCloudSnapshot(label, snapshot) {
             const key = `cloud-backup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
             const encryptedSnapshot = await ClothesManiaWorkspaceCrypto.encryptSnapshotWithDeviceKey(snapshot, localDeviceKey);
@@ -2067,6 +2096,7 @@
                 const client = await getSupabaseClient();
                 const ensured = await invokeWorkspaceSync(client, { action: 'ensure', snapshot: syncSnapshot });
                 cloudWorkspaceOwnerId = ensured.workspaceOwnerId;
+                subscribeToWorkspaceChanges(client, cloudWorkspaceOwnerId);
                 const result = await invokeWorkspaceSync(client, { action: 'get' });
                 let remote = result.remote;
                 if (remote?.legacySnapshot) {
@@ -2876,6 +2906,26 @@
             return result.workspaceOwnerId;
         }
 
+        function friendlySignInError(error) {
+            const message = String(error?.message || '').toLowerCase();
+            if (/invalid login credentials|invalid email or password|email or password/.test(message)) {
+                return 'That email and password do not match. If you have not joined the store account yet, ask an administrator for an invitation.';
+            }
+            if (!navigator.onLine || /network|fetch failed|failed to fetch|timed out|timeout|connection/.test(message)) {
+                return 'We could not reach the sign-in service. Check your internet connection and try again.';
+            }
+            if (/not connected|not authorized|membership|invitation|invite|workspace|store access/.test(message)) {
+                return 'This account is not connected to the store yet. Ask an administrator to check your access.';
+            }
+            if (/too many requests|rate limit/.test(message)) {
+                return 'There have been too many sign-in attempts. Wait a few minutes, then try again.';
+            }
+            if (/email not confirmed|confirm your email/.test(message)) {
+                return 'Please confirm your email address, then try signing in again.';
+            }
+            return 'We could not sign you in. Check your details and internet connection, then try again. If it keeps happening, ask an administrator for help.';
+        }
+
         async function handlePasswordResetRequest(event) {
             event.preventDefault();
             const email = event.currentTarget.elements.email.value.trim().toLowerCase();
@@ -2949,10 +2999,7 @@
                     try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the rejected sign-in.', signOutError); }
                     currentAuthUser = null;
                 }
-                const message = /invalid login credentials/i.test(error.message || '')
-                    ? 'Email or password is incorrect. Device-only accounts were not migrated; register this email if it is not already on Supabase.'
-                    : error.message || 'Could not sign in. Check your connection and try again.';
-                showLocalSessionScreen('signin', message);
+                showLocalSessionScreen('signin', friendlySignInError(error));
             }
         }
 
@@ -6274,7 +6321,7 @@
                     currentAuthUser = null;
                     try { await (await getSupabaseClient()).auth.signOut(); } catch (signOutError) { console.error('Could not clear the unauthorized session.', signOutError); }
                     updateCloudSyncStatus('signedOut');
-                    showLocalSessionScreen('signin', error.message || 'This account is not connected to the shared workspace. Ask an admin for an invitation.');
+                    showLocalSessionScreen('signin', friendlySignInError(error));
                     registerOfflineAppShell();
                     return;
                 }

@@ -139,6 +139,34 @@ test('reports identify shared workspace data and use the autosave-to-cloud path'
     assert.match(html, /action: 'save', snapshot: syncSnapshot/);
 });
 
+test('shared workspace updates use authorized Realtime notifications with polling fallback', () => {
+    const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '202610160003_workspace_realtime.sql'), 'utf8');
+    const subscription = getFunctionSource(html, 'subscribeToWorkspaceChanges');
+
+    assert.match(migration, /alter publication supabase_realtime add table public\.pos_workspace_sync_events/i);
+    assert.match(migration, /enable row level security/i);
+    assert.match(migration, /notify_pos_workspace_change/);
+    assert.match(subscription, /event: 'UPDATE'/);
+    assert.match(subscription, /table: 'pos_workspace_sync_events'/);
+    assert.match(subscription, /filter: `workspace_owner_id=eq\.\$\{workspaceOwnerId\}`/);
+    assert.match(subscription, /syncCloudWorkspace\(\)/);
+    assert.match(html, /subscribeToWorkspaceChanges\(client, cloudWorkspaceOwnerId\)/);
+    assert.match(html, /\}, 15000\)/);
+    assert.match(html, /action: 'get'/);
+});
+
+test('sign-in failures show plain-language guidance instead of backend errors', () => {
+    const start = html.indexOf('function friendlySignInError(');
+    const end = html.indexOf('\n        async function handlePasswordResetRequest', start);
+    const source = html.slice(start, end);
+
+    assert.match(source, /email and password do not match/i);
+    assert.match(source, /check your internet connection/i);
+    assert.match(source, /administrator to check your access/i);
+    assert.doesNotMatch(source, /database|supabase|migration|schema/i);
+    assert.match(html, /showLocalSessionScreen\('signin', friendlySignInError\(error\)\)/);
+});
+
 test('startup migration reads only locally preserved cloud backups', () => {
     assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
     assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);

@@ -10,6 +10,8 @@ The encrypted snapshot remains the source of truth and recovery copy. Migration 
 
 Apply the record-projection migration after `202610160001_server_managed_workspace_encryption.sql`, then deploy the matching `workspace-sync` Edge Function and frontend. On the first authenticated read, the Edge Function projects the existing encrypted snapshot into the new table; subsequent saves update the snapshot and encrypted rows atomically. The optimistic timestamp check still rejects concurrent edits. Do not apply this migration by dropping or replacing existing workspace data.
 
+Apply `202610160003_workspace_realtime.sql` after the record-projection migration to add the lightweight `pos_workspace_sync_events` table to Supabase's Realtime publication. A database trigger updates this signal row when a workspace changes. Signed-in clients receive only the workspace ID and update timestamp, then fetch the encrypted snapshot through `workspace-sync`; the Realtime event does not expose the snapshot. Row-level security limits events to authorized workspace members. The app retains focus refresh and 15-second polling as fallbacks if Realtime is unavailable.
+
 ## Server-managed encryption deployment
 
 1. Generate a random 32-byte key and encode it as base64, for example with `openssl rand -base64 32`. Store it securely; losing or changing it without a rotation migration makes current server-encrypted snapshots and exported backups unreadable.
