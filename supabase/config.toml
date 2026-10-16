@@ -1,0 +1,2 @@
+[functions.workspace-sync]
+verify_jwt = true

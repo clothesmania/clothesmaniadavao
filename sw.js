@@ -1,7 +1,8 @@
-const CACHE_NAME = 'clothes-mania-pos-shell-v1';
+const CACHE_NAME = 'clothes-mania-pos-shell-v2';
 const APP_SHELL = [
   '/index.html',
   '/report-io.js',
+  '/workspace-crypto.js',
   '/images/profile.jpg',
   '/images/logo.svg',
   '/images/logo-full.svg',
@@ -71,8 +72,10 @@ self.addEventListener('fetch', event => {
       event.respondWith((async () => {
         try {
           const response = await fetch(request);
-          const cache = await caches.open(CACHE_NAME);
-          await cache.put('/index.html', response.clone());
+          if (response.ok) {
+            const cache = await caches.open(CACHE_NAME);
+            await cache.put('/index.html', response.clone());
+          }
           return response;
         } catch (error) {
           return (await caches.match('/index.html')) || Response.error();

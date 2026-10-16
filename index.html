@@ -50,6 +50,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Dexie.js for IndexedDB persistence -->
     <script src="https://unpkg.com/dexie@3.2.2/dist/dexie.min.js"></script>
+    <script src="workspace-crypto.js"></script>
     <style>
         :root {
             color-scheme: light;
@@ -168,10 +169,34 @@
         .mine-status-toggle:hover { filter: brightness(0.97); }
         .mine-status-toggle.status-paid, .mine-status-static.status-paid { color: #166534; background: #f0fdf4; border-color: #bbf7d0; }
         .mine-status-toggle.status-unpaid, .mine-status-static.status-unpaid { color: #b91c1c; background: #fef2f2; border-color: #fecaca; }
+        .mine-status-toggle.status-partial, .mine-status-static.status-partial { color: #92400e; background: #fffbeb; border-color: #fde68a; }
+        #mineStatus, #mineDeliveryStatus { transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease; }
+        #mineStatus.status-color-unpaid, #mineDeliveryStatus.status-color-not-shipped { color: #b91c1c !important; background-color: #fef2f2 !important; border-color: #fecaca !important; }
+        #mineStatus.status-color-partial, #mineDeliveryStatus.status-color-pending, #mineDeliveryStatus.status-color-maxim { color: #92400e !important; background-color: #fffbeb !important; border-color: #fde68a !important; }
+        #mineStatus.status-color-paid, #mineDeliveryStatus.status-color-shipped { color: #166534 !important; background-color: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+        #mineDeliveryStatus.status-color-pick-up { color: #1d4ed8 !important; background-color: #eff6ff !important; border-color: #bfdbfe !important; }
+        .mine-delivery-select.status-color-not-shipped { color: #b91c1c; background-color: #fef2f2; border-color: #fecaca; }
+        .mine-delivery-select.status-color-pending, .mine-delivery-select.status-color-maxim { color: #92400e; background-color: #fffbeb; border-color: #fde68a; }
+        .mine-delivery-select.status-color-shipped { color: #166534; background-color: #f0fdf4; border-color: #bbf7d0; }
+        .mine-delivery-select.status-color-pick-up { color: #1d4ed8; background-color: #eff6ff; border-color: #bfdbfe; }
+        #mineStatus option[value="UNPAID"], #mineDeliveryStatus option[value="NOT SHIPPED"] { color: #b91c1c; background: #fef2f2; }
+        #mineStatus option[value="PARTIAL"], #mineDeliveryStatus option[value="PENDING"], #mineDeliveryStatus option[value="MAXIM"] { color: #92400e; background: #fffbeb; }
+        #mineStatus option[value="PAID"], #mineDeliveryStatus option[value="SHIPPED"] { color: #166534; background: #f0fdf4; }
+        #mineDeliveryStatus option[value="PICK UP"] { color: #1d4ed8; background: #eff6ff; }
+        .dark #mineStatus.status-color-unpaid, .dark #mineDeliveryStatus.status-color-not-shipped { color: #fca5a5 !important; background-color: #450a0a !important; border-color: #991b1b !important; }
+        .dark #mineStatus.status-color-partial, .dark #mineDeliveryStatus.status-color-pending, .dark #mineDeliveryStatus.status-color-maxim { color: #fcd34d !important; background-color: #451a03 !important; border-color: #92400e !important; }
+        .dark #mineStatus.status-color-paid, .dark #mineDeliveryStatus.status-color-shipped { color: #86efac !important; background-color: #052e16 !important; border-color: #166534 !important; }
+        .dark #mineDeliveryStatus.status-color-pick-up { color: #93c5fd !important; background-color: #172554 !important; border-color: #1d4ed8 !important; }
+        .dark .mine-delivery-select.status-color-not-shipped { color: #fca5a5; background-color: #450a0a; border-color: #991b1b; }
+        .dark .mine-delivery-select.status-color-pending, .dark .mine-delivery-select.status-color-maxim { color: #fcd34d; background-color: #451a03; border-color: #92400e; }
+        .dark .mine-delivery-select.status-color-shipped { color: #86efac; background-color: #052e16; border-color: #166534; }
+        .dark .mine-delivery-select.status-color-pick-up { color: #93c5fd; background-color: #172554; border-color: #1d4ed8; }
         .mine-status-static.status-cancelled { color: hsl(var(--muted-foreground)); background: hsl(var(--muted)); border-color: hsl(var(--border)); }
         .dark .mine-status-toggle.status-paid, .dark .mine-status-static.status-paid { color: #86efac; background: #052e16; border-color: #166534; }
         .dark .mine-status-toggle.status-unpaid, .dark .mine-status-static.status-unpaid { color: #fca5a5; background: #450a0a; border-color: #991b1b; }
+        .dark .mine-status-toggle.status-partial, .dark .mine-status-static.status-partial { color: #fcd34d; background: #451a03; border-color: #92400e; }
         .mine-select { min-height: 2rem; max-width: 8rem; border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); background-color: hsl(var(--background)); padding: 0.35rem 1.7rem 0.35rem 0.6rem; color: hsl(var(--foreground)); font-size: 0.75rem; font-weight: 500; box-shadow: 0 1px 2px hsl(240 10% 3.9% / 0.04); }
+        .mine-order-remark { display: block; max-height: 3.25rem; max-width: 9rem; overflow-x: hidden; overflow-y: auto; overflow-wrap: anywhere; overscroll-behavior: contain; scrollbar-width: thin; }
         .mine-action-btn { display: inline-flex; width: 2rem; height: 2rem; align-items: center; justify-content: center; border: 1px solid hsl(var(--input)); border-radius: calc(var(--radius) - 2px); background: hsl(var(--background)); color: hsl(var(--muted-foreground)); transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease; }
         .mine-action-btn:hover { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
         .mine-action-btn.is-destructive:hover { border-color: #fecaca; background: #fef2f2; color: #b91c1c; }
@@ -186,6 +211,14 @@
         details[open] > summary .mine-history-caret { transform: rotate(90deg); }
         .mine-history-month-content { border-top: 1px solid hsl(var(--border)); padding: 0.5rem 1rem 1rem; }
         .mine-history-day { overflow: hidden; border-bottom: 1px solid hsl(var(--border)); }
+        #receiptPrintArea { display: none; }
+        @media print {
+            body.printing-receipt > *:not(#receiptPrintArea) { display: none !important; }
+            body.printing-receipt #receiptPrintArea { display: block !important; position: static !important; width: 100%; color: #111827; background: #fff; font-family: Arial, sans-serif; }
+            body.printing-receipt #receiptPrintArea * { visibility: visible !important; }
+            body.printing-receipt { background: #fff !important; }
+            @page { margin: 3mm; }
+        }
         .mine-history-day:last-child { border-bottom: 0; }
         .mine-history-day-summary { padding: 0.85rem 0.25rem; }
         .mine-history-session-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr)); gap: 0.75rem; padding: 0 0 1rem 1.5rem; }
@@ -260,7 +293,7 @@
                 padding-top: max(0.75rem, env(safe-area-inset-top));
                 padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
             }
-            #modalNewMine > div, #modalNewShirt > div, #modalRestock > div, #modalStockProduct > section, #modalRef > div, #modalViewMine > div, #modalLiveSession > div, #modalAddLiveHost > section, #modalLiveHostRemoval > section, #modalDeleteLiveSession > section, #reportImportModal > section {
+            #modalNewMine > div, #modalNewShirt > div, #modalRestock > div, #modalStockProduct > section, #modalRef > div, #modalViewMine > section, #modalLiveSession > div, #modalAddLiveHost > section, #modalLiveHostRemoval > section, #modalDeleteLiveSession > section, #reportImportModal > section {
                 max-height: calc(100dvh - 1.5rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
                 overflow-y: auto;
                 overscroll-behavior: contain;
@@ -277,7 +310,7 @@
             #adminMenu { width: min(18rem, calc(100vw - 1.5rem)); }
         }
         @media (max-height: 520px) and (max-width: 900px) {
-            #localSessionOverlay, #signOutConfirmModal, #authTransitionModal, #cloudConflictModal { align-items: flex-start; overflow-y: auto; }
+            #localSessionOverlay, #signOutConfirmModal, #authTransitionModal, #cloudConflictModal, #appDialogOverlay { align-items: flex-start; overflow-y: auto; }
             #localSessionOverlay { padding-top: max(0.5rem, env(safe-area-inset-top)); padding-bottom: max(0.5rem, env(safe-area-inset-bottom)); }
             .auth-shell { min-height: 0; }
         }
@@ -443,7 +476,7 @@
                 <!-- Welcome Banner -->
                 <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm">
                     <div>
-                        <h2 class="font-display font-black text-2xl text-gray-900 dark:text-white tracking-tight">Welcome Back, Admin 👋</h2>
+                        <h2 id="dashboardWelcomeTitle" class="font-display font-black text-2xl text-gray-900 dark:text-white tracking-tight">Welcome back, Admin 👋</h2>
                         <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Here is your live Clothes Mania Davao sales & inventory overview for today.</p>
                     </div>
                     <div class="flex items-center gap-3">
@@ -783,6 +816,20 @@
                             </table>
                         </div>
                     </section>
+                    <section id="mineInvoiceView" class="hidden space-y-4" aria-labelledby="mineInvoiceTitle">
+                        <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h3 id="mineInvoiceTitle" class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">Buyer invoices</h3>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Orders with the same buyer name in one live session are grouped together. Print the final sales receipt after every item is fully paid.</p>
+                            </div>
+                            <label class="relative w-full sm:max-w-xs">
+                                <span class="sr-only">Search buyer invoices</span>
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="mineInvoiceSearch" type="search" oninput="renderBuyerInvoices()" placeholder="Search buyer or item" class="input-shadcn h-10 w-full pl-9 pr-3 text-xs">
+                            </label>
+                        </header>
+                        <div id="mineInvoiceGroups" class="space-y-3"></div>
+                    </section>
                     <div id="mineHistoryDetailHeader" class="hidden items-center justify-between gap-3">
                         <div>
                             <h3 id="mineHistorySessionTitle" class="font-semibold text-sm text-gray-900 dark:text-white"></h3>
@@ -793,10 +840,20 @@
 
                     <div id="mineOrdersTableView" class="space-y-4">
                     <div class="flex items-center gap-3 flex-wrap bg-gray-50 dark:bg-gray-900/60 p-3 rounded-xl border border-gray-200 dark:border-gray-800 text-xs">
-                        <span class="text-gray-500 font-semibold"><i class="fa-solid fa-filter text-amber-500 mr-1"></i> Status</span>
-                        <button onclick="filterMines('ALL')" id="filter-btn-ALL" class="mine-filter-btn is-active" aria-pressed="true">All orders</button>
-                        <button onclick="filterMines('PAID')" id="filter-btn-PAID" class="mine-filter-btn" aria-pressed="false">Paid</button>
-                        <button onclick="filterMines('UNPAID')" id="filter-btn-UNPAID" class="mine-filter-btn" aria-pressed="false">Unpaid</button>
+                        <span class="text-gray-500 font-semibold"><i class="fa-solid fa-filter text-amber-500 mr-1"></i><span id="mineFilterLabel">Status</span></span>
+                        <div id="minePaymentFilters" class="flex items-center gap-2">
+                            <button onclick="filterMines('ALL')" id="filter-btn-ALL" class="mine-filter-btn is-active" aria-pressed="true">All orders</button>
+                            <button onclick="filterMines('PAID')" id="filter-btn-PAID" class="mine-filter-btn" aria-pressed="false">Paid</button>
+                            <button onclick="filterMines('UNPAID')" id="filter-btn-UNPAID" class="mine-filter-btn" aria-pressed="false">Unpaid</button>
+                        </div>
+                        <div id="mineItemStatusFilters" class="hidden flex items-center gap-2 overflow-x-auto">
+                            <button onclick="filterMines('ITEM_STATUS:ALL')" id="filter-btn-ITEM_STATUS-ALL" class="mine-filter-btn is-active" aria-pressed="true">All items</button>
+                            <button onclick="filterMines('ITEM_STATUS:PENDING')" id="filter-btn-ITEM_STATUS-PENDING" class="mine-filter-btn" aria-pressed="false">Pending</button>
+                            <button onclick="filterMines('ITEM_STATUS:NOT SHIPPED')" id="filter-btn-ITEM_STATUS-NOT_SHIPPED" class="mine-filter-btn" aria-pressed="false">Not shipped</button>
+                            <button onclick="filterMines('ITEM_STATUS:SHIPPED')" id="filter-btn-ITEM_STATUS-SHIPPED" class="mine-filter-btn" aria-pressed="false">Shipped</button>
+                            <button onclick="filterMines('ITEM_STATUS:PICK UP')" id="filter-btn-ITEM_STATUS-PICK_UP" class="mine-filter-btn" aria-pressed="false">Pick up</button>
+                            <button onclick="filterMines('ITEM_STATUS:MAXIM')" id="filter-btn-ITEM_STATUS-MAXIM" class="mine-filter-btn" aria-pressed="false">Maxim</button>
+                        </div>
                         <span id="mineFeedCount" class="ml-auto text-gray-500 tabular-nums" aria-live="polite"></span>
                     </div>
 
@@ -808,13 +865,17 @@
                                     <th class="py-3 px-3">Date / Time</th>
                                     <th class="py-3 px-3">Buyer Name</th>
                                     <th class="py-3 px-3">Product Details</th>
+                                    <th class="py-3 px-3">Item ID</th>
                                     <th class="py-3 px-3">Price</th>
                                     <th class="py-3 px-3">DP</th>
                                     <th class="py-3 px-3">Total</th>
-                                    <th class="py-3 px-3">Ref#</th>
-                                    <th class="py-3 px-3">Status</th>
+                                    <th class="py-3 px-3">Payment Status</th>
+                                    <th class="py-3 px-3">Item status</th>
+                                    <th class="py-3 px-3">Remarks</th>
+                                    <th class="py-3 px-3">Shipping fee</th>
                                     <th class="py-3 px-3">Live Host</th>
                                     <th class="py-3 px-3">MOP</th>
+                                    <th class="py-3 px-3">Reference / Ref #</th>
                                     <th class="py-3 px-3 text-right">Actions</th>
                                 </tr>
                             </thead>
@@ -960,6 +1021,16 @@
                             </table>
                         </div>
                         <p id="liveHostPerformanceEmpty" class="hidden px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No paid orders for this seller in this period.</p>
+                        <section class="border-t border-gray-200/70 dark:border-white/10" aria-labelledby="liveHostUnpaidTitle">
+                            <div class="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3"><h4 id="liveHostUnpaidTitle" class="text-sm font-semibold text-gray-900 dark:text-white">Unpaid items to follow up</h4><span id="liveHostUnpaidSummary" class="text-xs font-medium text-rose-700 dark:text-rose-300"></span></div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[44rem] border-collapse text-left text-xs">
+                                    <thead class="bg-rose-50/70 text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:bg-rose-500/[0.06] dark:text-gray-300"><tr><th class="px-4 py-3 font-semibold">Date</th><th class="px-4 py-3 font-semibold">Buyer</th><th class="px-4 py-3 font-semibold">Item</th><th class="px-4 py-3 font-semibold">Status</th><th class="px-4 py-3 text-right font-semibold">Balance due</th><th class="px-4 py-3 text-right font-semibold">Track</th></tr></thead>
+                                    <tbody id="liveHostPerformanceUnpaidOrders" class="divide-y divide-gray-200/70 dark:divide-white/10"></tbody>
+                                </table>
+                            </div>
+                            <p id="liveHostPerformanceUnpaidEmpty" class="hidden px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No unpaid or partially paid items for this seller in this period.</p>
+                        </section>
                     </section>
 
                     <div id="liveHostDirectory" class="overflow-hidden rounded-xl border border-gray-200/80 bg-white/50 dark:border-white/10 dark:bg-slate-950/20">
@@ -1126,7 +1197,7 @@
                     </div>
                     <div>
                         <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white">Record New "Mine" Order</h3>
-                        <p class="text-xs text-gray-500">Fast entry for live selling orders</p>
+                        <p id="mineOrderDateTime" class="text-xs text-gray-500">Fast entry for live selling orders</p>
                     </div>
                 </div>
                 <button onclick="closeNewMineModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
@@ -1135,14 +1206,16 @@
             <form id="formMineOrder" onsubmit="saveNewMineOrder(event)" class="space-y-4 text-xs">
                 <div class="grid grid-cols-2 gap-3">
                     <div>
-                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Date</label>
-                        <input type="date" id="mineDate" required disabled aria-label="Order date, set automatically" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 font-bold opacity-100 cursor-not-allowed">
+                        <label for="mineAdminName" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Admin Name</label>
+                        <input type="text" id="mineAdminName" readonly aria-label="Signed-in admin" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 font-bold">
                     </div>
                     <div>
-                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Time</label>
-                        <input type="text" id="mineTime" required disabled aria-label="Order time, set automatically" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 opacity-100 cursor-not-allowed">
+                        <label for="mineSeller" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Live Seller Host</label>
+                        <select id="mineSeller" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold"></select>
                     </div>
                 </div>
+                <input type="hidden" id="mineDate">
+                <input type="hidden" id="mineTime">
                 <div>
                     <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Buyer Name / FB Profile</label>
                     <input type="text" id="mineBuyerName" placeholder="e.g. Maria Santos (Davao City)" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-medium focus:border-amber-500 focus:outline-none">
@@ -1156,53 +1229,73 @@
                 <div class="grid grid-cols-3 gap-3">
                     <div>
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Price (₱)</label>
-                        <input type="number" id="minePrice" step="0.01" value="380" required oninput="document.getElementById('mineTotal').value = this.value" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold font-mono focus:outline-none">
+                        <input type="number" id="minePrice" step="0.01" required oninput="document.getElementById('mineTotal').value = this.value; updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold font-mono focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Downpayment (₱)</label>
-                        <input type="number" id="mineDp" step="0.01" value="0" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono focus:outline-none">
+                        <input type="number" id="mineDp" step="0.01" value="0" oninput="updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono focus:outline-none">
                     </div>
                     <div>
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Total (₱)</label>
-                        <input type="number" id="mineTotal" step="0.01" value="380" required class="w-full bg-gray-50 dark:bg-gray-900 border border-amber-500/50 rounded-xl p-3 text-amber-500 font-extrabold font-mono focus:outline-none">
+                        <input type="number" id="mineTotal" step="0.01" required oninput="updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-amber-500/50 rounded-xl p-3 text-amber-500 font-extrabold font-mono focus:outline-none">
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-3">
                     <div>
-                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Auto SKU</label>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Item ID</label>
                         <input type="text" id="mineSKU" readonly class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 font-mono">
                     </div>
                     <div>
-                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Reference / Ref #</label>
+                        <label for="mineRef" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Reference / Ref # <span id="mineRefRequiredHint" class="hidden text-rose-600">(required when paid)</span></label>
                         <input type="text" id="mineRef" placeholder="Optional reference" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
                     </div>
                     <div>
                         <label class="mb-1 block font-semibold text-gray-500 dark:text-gray-400">&nbsp;</label>
-                        <button type="button" onclick="generateSKUForModal()" class="w-full h-[42px] rounded-xl bg-blue-600 px-3 text-xs font-semibold text-white transition-colors hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#161922]">Generate SKU</button>
+                        <button type="button" onclick="generateSKUForModal()" class="w-full h-[42px] rounded-xl bg-blue-500 px-3 text-xs font-semibold text-white transition-colors hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#161922]">Generate Item ID</button>
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
+                <div class="grid grid-cols-2 gap-3">
                     <div>
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Payment Status</label>
-                        <select id="mineStatus" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
-                            <option value="PAID">PAID (Collected)</option>
-                            <option value="UNPAID">UNPAID (Pending)</option>
+                        <select id="mineStatus" onchange="handleMinePaymentStatusSelection(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="UNPAID">UNPAID (PENDING)</option>
+                            <option value="PARTIAL">PARTIALLY PAID</option>
+                            <option value="PAID">PAID</option>
                         </select>
-                    </div>
-                    <div>
-                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Live Seller Host</label>
-                        <select id="mineSeller" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold"></select>
                     </div>
                     <div>
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Mode of Payment</label>
                         <select id="mineMop" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
                             <option value="GCash">GCash</option>
-                            <option value="COD">COD</option>
-                            <option value="BPI">BPI</option>
+                            <option value="Bank">Bank</option>
                             <option value="Maya">Maya</option>
                             <option value="Cash">Cash</option>
                         </select>
                     </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="mineDeliveryStatus" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Item status</label>
+                        <select id="mineDeliveryStatus" onchange="updateMineDeliveryStatusColor(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="PENDING">PENDING</option>
+                            <option value="NOT SHIPPED">NOT SHIPPED</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="PICK UP">PICK UP</option>
+                            <option value="MAXIM">MAXIM</option>
+                        </select>
+                        <p class="mt-1 text-[10px] text-gray-500 dark:text-gray-400">SHIPPED is available only after full payment.</p>
+                    </div>
+                    <div>
+                        <label for="mineShippingFeeStatus" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Shipping fee</label>
+                        <select id="mineShippingFeeStatus" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="NONE">NONE</option>
+                            <option value="FREE">FREE SHIPPING</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="mineDeliveryNoteField" class="hidden">
+                    <label for="mineDeliveryNote" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Reason / note <span class="text-rose-600">(required for NOT SHIPPED)</span></label>
+                    <textarea id="mineDeliveryNote" rows="2" maxlength="500" placeholder="Add a short reason why this item has not shipped" class="w-full resize-y rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 focus:border-amber-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"></textarea>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-gray-800">
                     <button type="button" onclick="closeNewMineModal()" class="btn-ghost px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition">Cancel</button>
@@ -1213,7 +1306,7 @@
     </div>
 
     <div id="modalNewShirt" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+        <div class="box-border min-w-0 w-full max-w-lg rounded-3xl border border-gray-200 bg-white p-5 shadow-2xl space-y-4 dark:border-gray-800 dark:bg-[#161922] sm:p-6">
             <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
                 <h3 id="productModalTitle" class="font-display font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
                     <i class="fa-solid fa-box-open text-amber-500"></i> Add Product
@@ -1221,10 +1314,10 @@
                 <button onclick="closeNewShirtModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
             </div>
             
-            <form id="formNewShirt" onsubmit="saveNewShirt(event)" class="space-y-3 text-xs max-h-[75vh] overflow-y-auto pr-1">
-                <div>
+            <form id="formNewShirt" onsubmit="saveNewShirt(event)" class="min-w-0 space-y-3 overflow-y-auto pl-2 pr-3 text-xs max-h-[75vh]">
+                <div class="min-w-0">
                     <label for="productCategoryInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Category</label>
-                    <select id="productCategoryInput" required class="select-shadcn w-full">
+                    <select id="productCategoryInput" required class="select-shadcn box-border min-w-0 w-full">
                         <option value="Clothing & Apparel">Clothing & Apparel</option>
                         <option value="Pants">Pants</option>
                         <option value="Bags">Bags</option>
@@ -1234,35 +1327,35 @@
                         <option value="Other">Other</option>
                     </select>
                 </div>
-                <div>
+                <div class="min-w-0">
                     <label for="shirtNameInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Product name</label>
-                    <input type="text" id="shirtNameInput" placeholder="e.g. Vintage Tee, Crossbody Bag, Running Shoes" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                    <input type="text" id="shirtNameInput" placeholder="e.g. Vintage Tee, Crossbody Bag, Running Shoes" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
                 </div>
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
+                <div class="grid min-w-0 grid-cols-2 gap-3">
+                    <div class="min-w-0">
                         <label for="shirtSizeInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Size / variant</label>
-                        <input type="text" id="shirtSizeInput" placeholder="e.g. M, 38, One Size" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                        <input type="text" id="shirtSizeInput" placeholder="e.g. M, 38, One Size" class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label for="shirtColorInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Color / variant</label>
-                        <input type="text" id="shirtColorInput" placeholder="Optional" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                        <input type="text" id="shirtColorInput" placeholder="Optional" class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-3">
-                    <div>
+                <div class="grid min-w-0 grid-cols-3 gap-3">
+                    <div class="min-w-0">
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Quantity</label>
-                        <input type="number" id="shirtQtyInput" min="0" value="25" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono">
+                        <input type="number" id="shirtQtyInput" min="0" value="25" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Cost Price (₱)</label>
-                        <input type="number" id="shirtCostInput" step="0.01" value="180" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono">
+                        <input type="number" id="shirtCostInput" step="0.01" value="180" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
                     </div>
-                    <div>
+                    <div class="min-w-0">
                         <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Selling Price (₱)</label>
-                        <input type="number" id="shirtPriceInput" step="0.01" value="380" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-amber-500 font-bold font-mono">
+                        <input type="number" id="shirtPriceInput" step="0.01" value="380" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono font-bold text-amber-500 dark:border-gray-800 dark:bg-gray-900">
                     </div>
                 </div>
-                <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                <div class="flex min-w-0 flex-wrap justify-end gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
                     <button type="button" onclick="closeNewShirtModal()" class="btn-ghost px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Cancel</button>
                     <button type="submit" class="btn-primary px-5 py-2.5 bg-amber-500 text-black font-extrabold rounded-xl shadow-lg shadow-amber-500/20">Save Product</button>
                 </div>
@@ -1382,23 +1475,22 @@
     </div>
 
     <!-- View Mine Modal -->
-    <div id="modalViewMine" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl modal-shadcn">
-            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
-                <h3 class="font-display font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
-                    <i class="fa-solid fa-eye text-amber-500"></i> View Mine Order
-                </h3>
-                <button onclick="closeViewMineModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-
-            <div id="viewMineContent" class="text-sm text-gray-800 dark:text-gray-100 space-y-2">
+    <div id="modalViewMine" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <section role="dialog" aria-modal="true" aria-labelledby="viewMineTitle" class="w-full max-w-xl max-h-[min(90vh,48rem)] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl modal-shadcn dark:border-gray-800 dark:bg-[#161922] sm:p-6">
+            <header class="flex items-start justify-between gap-4 border-b border-gray-100 pb-4 dark:border-gray-800">
+                <div class="flex min-w-0 items-center gap-3">
+                    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+                    <div class="min-w-0"><h3 id="viewMineTitle" class="text-base font-bold tracking-tight text-gray-950 dark:text-white">Order details</h3><p id="viewMineSubtitle" class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400"></p></div>
+                </div>
+                <button type="button" onclick="closeViewMineModal()" aria-label="Close order details" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:bg-gray-800 dark:hover:text-white"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </header>
+            <div id="viewMineContent" class="pt-4 text-sm text-gray-800 dark:text-gray-100">
                 <!-- Filled dynamically -->
             </div>
-
-            <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                <button onclick="closeViewMineModal()" class="btn-ghost px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Close</button>
-            </div>
-        </div>
+            <footer class="mt-5 flex justify-end border-t border-gray-100 pt-4 dark:border-gray-800">
+                <button type="button" onclick="closeViewMineModal()" class="btn-outline inline-flex h-10 items-center justify-center rounded-lg px-4 text-xs font-semibold">Close</button>
+            </footer>
+        </section>
     </div>
 
     <div id="localSessionOverlay" class="hidden fixed inset-0 z-[100] items-center justify-center overflow-y-auto bg-slate-950/20 p-4 backdrop-blur-xl antialiased sm:p-6" role="dialog" aria-modal="true" aria-labelledby="localSessionTitle" aria-describedby="localSessionDescription">
@@ -1466,6 +1558,30 @@
         </section>
     </div>
 
+    <div id="localEncryptionOverlay" class="hidden fixed inset-0 z-[130] items-center justify-center overflow-y-auto bg-slate-950/75 p-4 backdrop-blur-xl antialiased sm:p-6" role="dialog" aria-modal="true" aria-labelledby="localEncryptionTitle" aria-describedby="localEncryptionDescription">
+        <section class="auth-shell animate-in fade-in zoom-in-95 duration-200">
+            <div class="auth-form-panel text-card-foreground">
+                <form id="localEncryptionForm" class="space-y-5" onsubmit="submitWorkspacePassphrase(event)">
+                    <div class="space-y-1.5">
+                        <h2 id="localEncryptionTitle" class="text-2xl font-bold tracking-tight text-foreground">Protect this workspace</h2>
+                        <p id="localEncryptionDescription" class="text-sm leading-6 text-muted-foreground"></p>
+                    </div>
+                    <p id="localEncryptionMessage" class="hidden rounded-md px-3 py-2 text-sm" role="status" aria-live="polite"></p>
+                    <div id="workspacePassphraseGroup" class="space-y-2">
+                        <label for="workspacePassphrase" class="block text-sm font-medium text-foreground">Workspace passphrase</label>
+                        <input id="workspacePassphrase" type="password" autocomplete="current-password" required minlength="14" class="auth-field text-sm" placeholder="At least 14 characters">
+                    </div>
+                    <div id="workspacePassphraseConfirmationGroup" class="space-y-2">
+                        <label for="workspacePassphraseConfirmation" class="block text-sm font-medium text-foreground">Confirm passphrase</label>
+                        <input id="workspacePassphraseConfirmation" type="password" autocomplete="new-password" minlength="14" class="auth-field text-sm" placeholder="Enter the same passphrase again">
+                    </div>
+                    <p id="workspacePassphraseRecoveryWarning" class="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs leading-5 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200"></p>
+                    <button id="workspacePassphraseSubmit" type="submit" class="btn-primary min-h-11 w-full rounded-lg bg-amber-500 px-4 text-sm font-semibold text-black hover:bg-amber-600">Continue securely</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
     <div id="adminAccessModal" class="hidden fixed inset-0 z-[115] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="adminAccessTitle">
         <section class="w-full max-w-xl rounded-2xl border border-border bg-background p-5 text-foreground shadow-2xl sm:p-6">
             <div class="flex items-start justify-between gap-4"><div><h2 id="adminAccessTitle" class="text-lg font-bold">Manage admin access</h2><p class="mt-1 text-sm text-muted-foreground">Share this store with up to five admin accounts, including the owner. Every admin can view and edit all records.</p></div><button type="button" onclick="closeAdminAccessModal()" aria-label="Close" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground hover:bg-muted"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
@@ -1501,6 +1617,24 @@
         </section>
     </div>
 
+    <div id="appDialogOverlay" class="hidden fixed inset-0 z-[130] items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogMessage" onclick="if (event.target === this) closeAppDialog()">
+        <section class="w-full max-w-md rounded-2xl border border-border bg-background p-5 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:p-6">
+            <div id="appDialogIcon" class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></div>
+            <h2 id="appDialogTitle" class="text-lg font-bold">Confirm action</h2>
+            <p id="appDialogMessage" class="mt-2 text-sm leading-6 text-muted-foreground"></p>
+            <form id="appDialogForm" class="mt-5" onsubmit="submitAppDialog(event)">
+                <div id="appDialogInputWrap" class="hidden">
+                    <label id="appDialogInputLabel" for="appDialogInput" class="mb-1.5 block text-sm font-medium">Buyer name</label>
+                    <input id="appDialogInput" type="text" maxlength="80" autocomplete="off" class="auth-field text-sm" placeholder="Enter a name">
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" class="btn-outline min-h-10 rounded-lg px-4 text-sm font-semibold" onclick="closeAppDialog()">Cancel</button>
+                    <button id="appDialogConfirmButton" type="submit" class="btn-primary min-h-10 rounded-lg px-4 text-sm font-semibold">Confirm</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
     <div id="authTransitionModal" class="hidden fixed inset-0 z-[120] items-center justify-center bg-slate-950/25 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="authTransitionTitle" aria-describedby="authTransitionMessage">
         <section class="w-full max-w-xs rounded-2xl border border-border bg-background p-7 text-center text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
             <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-300"><i id="authTransitionIcon" class="fa-solid fa-arrow-right-to-bracket text-lg" aria-hidden="true"></i></div>
@@ -1521,10 +1655,20 @@
         let cloudSyncTimer = null;
         let cloudSyncInProgress = false;
         let localPersistPromise = Promise.resolve();
+        let persistQueue = Promise.resolve();
         let applyingCloudSnapshot = false;
         let cloudConflictRemote = null;
         let cloudWorkspaceOwnerId = null;
+        let localDeviceKey = null;
+        let legacyMigrationPassphrase = '';
+        let localWorkspaceReady = false;
+        let pendingLocalSnapshot = null;
+        let pendingWorkspaceUnlockResolver = null;
+        let pendingWorkspaceEncryptionMode = 'create';
         let passwordRecoveryPending = false;
+        let appDialogResolver = null;
+        let appDialogPreviousFocus = null;
+        let appDialogInputMode = false;
 
         async function getSupabaseClient() {
             if (supabaseClient) return supabaseClient;
@@ -1632,16 +1776,66 @@
         const dexie = new Dexie('ClothesManiaDB');
         dexie.version(1).stores({ kv: '&key' });
 
-        async function persistDB() {
+        async function readPersistedWorkspaceSnapshot() {
+            let indexedDbSnapshot = null;
+            let browserSnapshot = null;
+            let browserSnapshotError = null;
             try {
-                await dexie.kv.put({ key: 'db', value: db });
-                updateLocalSaveStatus('saved');
-                return true;
-            } catch (e) {
-                console.error('Dexie persist error', e);
-                updateLocalSaveStatus('error', 'IndexedDB could not save');
-                return false;
+                const row = await dexie.kv.get('db');
+                indexedDbSnapshot = row?.value || null;
+            } catch (error) {
+                console.error('Could not read the IndexedDB workspace snapshot.', error);
             }
+            try {
+                const saved = localStorage.getItem('clothesManiaDavaoDB_v4');
+                browserSnapshot = saved ? JSON.parse(saved) : null;
+            } catch (error) {
+                browserSnapshotError = error;
+                console.error('Could not read the browser workspace snapshot.', error);
+            }
+            if (indexedDbSnapshot) return indexedDbSnapshot;
+            if (browserSnapshot) return browserSnapshot;
+            if (browserSnapshotError) throw new Error('Saved local data could not be read. The app stopped to avoid replacing it.');
+            return null;
+        }
+
+        function persistDB() {
+            const saveOperation = persistQueue.catch(() => false).then(async () => {
+                if (!localDeviceKey) {
+                    updateLocalSaveStatus('error', 'Protected device storage is not available');
+                    return false;
+                }
+                let encryptedSnapshot;
+                try {
+                    encryptedSnapshot = await ClothesManiaWorkspaceCrypto.encryptSnapshotWithDeviceKey(db, localDeviceKey);
+                } catch (error) {
+                    console.error('Could not encrypt the local workspace snapshot.', error);
+                    updateLocalSaveStatus('error', 'Workspace encryption failed');
+                    return false;
+                }
+                let indexedDbSaved = false;
+                let localStorageSaved = false;
+                try {
+                    await dexie.kv.put({ key: 'db', value: encryptedSnapshot });
+                    indexedDbSaved = true;
+                } catch (error) {
+                    console.error('IndexedDB encrypted save failed.', error);
+                }
+                try {
+                    localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(encryptedSnapshot));
+                    localStorageSaved = true;
+                } catch (error) {
+                    console.error('Browser encrypted fallback save failed.', error);
+                }
+                if (!indexedDbSaved && !localStorageSaved) {
+                    updateLocalSaveStatus('error', 'Could not save encrypted data on this device');
+                    return false;
+                }
+                updateLocalSaveStatus(indexedDbSaved ? 'saved' : 'fallback');
+                return true;
+            });
+            persistQueue = saveOperation;
+            return saveOperation;
         }
 
         function updateLocalSaveStatus(state, message = '') {
@@ -1724,22 +1918,41 @@
 
         async function preserveCloudSnapshot(label, snapshot) {
             const key = `cloud-backup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-            await dexie.kv.put({ key, value: { label, savedAt: new Date().toISOString(), snapshot } });
+            const encryptedSnapshot = await ClothesManiaWorkspaceCrypto.encryptSnapshotWithDeviceKey(snapshot, localDeviceKey);
+            await dexie.kv.put({ key, value: { label, savedAt: new Date().toISOString(), snapshot: encryptedSnapshot } });
         }
 
         async function restoreRemoteWorkspaceSnapshot(remote, label = 'Local workspace before cloud refresh') {
             await preserveCloudSnapshot(label, db);
             applyingCloudSnapshot = true;
+            const previousSnapshot = db;
             try {
                 db = remote.snapshot;
-                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
-                await dexie.kv.put({ key: 'db', value: db });
+                if (!await persistDB()) {
+                    db = previousSnapshot;
+                    throw new Error('The shared workspace was not applied because encrypted local storage failed.');
+                }
                 localStorage.removeItem('cm_pos_cloud_sync_dirty_v1');
                 writeCloudSyncMeta(remote.updated_at);
                 refreshAllUI();
             } finally {
                 applyingCloudSnapshot = false;
             }
+        }
+
+        async function invokeWorkspaceSync(client, body) {
+            const { data, error } = await client.functions.invoke('workspace-sync', { body });
+            if (error) {
+                let responseData = data;
+                if (!responseData && error.context instanceof Response) {
+                    try { responseData = await error.context.clone().json(); } catch (readError) { console.error('Could not read workspace sync error response.', readError); }
+                }
+                const failure = new Error(responseData?.error || error.message || 'Cloud workspace request failed.');
+                failure.code = responseData?.code || (error.context?.status === 409 ? '40001' : '');
+                throw failure;
+            }
+            if (data?.error) throw new Error(data.error);
+            return data;
         }
 
         function showCloudConflict(remote) {
@@ -1759,7 +1972,7 @@
         }
 
         async function syncCloudWorkspace() {
-            if (cloudSyncInProgress || cloudConflictRemote || !currentAuthUser) return;
+            if (!localWorkspaceReady || cloudSyncInProgress || cloudConflictRemote || !currentAuthUser) return;
             if (!navigator.onLine) {
                 updateCloudSyncStatus('offline');
                 return;
@@ -1771,19 +1984,18 @@
                 await localPersistPromise;
                 const syncSnapshot = JSON.parse(JSON.stringify(db));
                 const client = await getSupabaseClient();
-                const { data: workspaceOwnerId, error: ensureError } = await client.rpc('ensure_pos_workspace', {
-                    p_initial_snapshot: syncSnapshot
-                });
-                if (ensureError) throw ensureError;
-                cloudWorkspaceOwnerId = workspaceOwnerId;
-                const { data: remoteRows, error: readError } = await client.rpc('get_pos_workspace_snapshot');
-                if (readError) throw readError;
-                const remoteRow = Array.isArray(remoteRows) ? remoteRows[0] : remoteRows;
-                const remote = remoteRow ? {
-                    workspace_owner_id: remoteRow.workspace_owner_id,
-                    snapshot: remoteRow.snapshot,
-                    updated_at: remoteRow.updated_at
-                } : null;
+                const ensured = await invokeWorkspaceSync(client, { action: 'ensure', snapshot: syncSnapshot });
+                cloudWorkspaceOwnerId = ensured.workspaceOwnerId;
+                const result = await invokeWorkspaceSync(client, { action: 'get' });
+                let remote = result.remote;
+                if (remote?.legacySnapshot) {
+                    remote.snapshot = await unlockLegacyWorkspaceSnapshot(remote.legacySnapshot);
+                    remote.encrypted = false;
+                    delete remote.legacySnapshot;
+                } else if (remote) {
+                    remote.encrypted = true;
+                    legacyMigrationPassphrase = '';
+                }
 
                 const meta = readCloudSyncMeta();
                 if (remote && meta?.workspaceOwnerId === cloudWorkspaceOwnerId && meta.remoteUpdatedAt !== remote.updated_at) {
@@ -1799,7 +2011,7 @@
                     showCloudConflict(remote);
                     return;
                 }
-                if (remote && snapshotsMatch(remote.snapshot, syncSnapshot)) {
+                if (remote?.encrypted && snapshotsMatch(remote.snapshot, syncSnapshot)) {
                     writeCloudSyncMeta(remote.updated_at);
                     localChangedDuringSync = !snapshotsMatch(syncSnapshot, db);
                     if (localChangedDuringSync) localStorage.setItem('cm_pos_cloud_sync_dirty_v1', 'true');
@@ -1807,24 +2019,28 @@
                     return;
                 }
 
-                const expectedUpdatedAt = remote?.updated_at || null;
-                const { data: updatedAt, error: writeError } = await client.rpc('save_pos_workspace_snapshot', {
-                    p_snapshot: syncSnapshot,
-                    p_expected_updated_at: expectedUpdatedAt
-                });
-                if (writeError) {
+                let saved;
+                try {
+                    saved = await invokeWorkspaceSync(client, {
+                        action: 'save', snapshot: syncSnapshot, expectedUpdatedAt: remote?.updated_at || null
+                    });
+                } catch (writeError) {
                     if (writeError.code === '40001') {
-                        const { data: latestRows, error: latestError } = await client.rpc('get_pos_workspace_snapshot');
-                        if (latestError) throw latestError;
-                        const latestRow = Array.isArray(latestRows) ? latestRows[0] : latestRows;
-                        const latest = latestRow ? { snapshot: latestRow.snapshot, updated_at: latestRow.updated_at } : null;
+                        const latestResult = await invokeWorkspaceSync(client, { action: 'get' });
+                        const latest = latestResult.remote;
+                        if (latest?.legacySnapshot) {
+                            latest.snapshot = await unlockLegacyWorkspaceSnapshot(latest.legacySnapshot);
+                            latest.encrypted = false;
+                            delete latest.legacySnapshot;
+                        }
                         if (latest) showCloudConflict(latest);
                         else throw writeError;
                         return;
                     }
                     throw writeError;
                 }
-                writeCloudSyncMeta(updatedAt);
+                writeCloudSyncMeta(saved.updatedAt);
+                legacyMigrationPassphrase = '';
                 localChangedDuringSync = !snapshotsMatch(syncSnapshot, db);
                 if (localChangedDuringSync) localStorage.setItem('cm_pos_cloud_sync_dirty_v1', 'true');
                 updateCloudSyncStatus('synced');
@@ -1848,12 +2064,8 @@
                     await preserveCloudSnapshot('Local workspace before cloud conflict resolution', db);
                     await preserveCloudSnapshot('Cloud workspace before local copy was chosen', remote.snapshot);
                     const client = await getSupabaseClient();
-                    const { data: updatedAt, error } = await client.rpc('save_pos_workspace_snapshot', {
-                        p_snapshot: db,
-                        p_expected_updated_at: remote.updated_at
-                    });
-                    if (error) throw error;
-                    writeCloudSyncMeta(updatedAt);
+                    const saved = await invokeWorkspaceSync(client, { action: 'save', snapshot: db, expectedUpdatedAt: remote.updated_at });
+                    writeCloudSyncMeta(saved.updatedAt);
                     closeCloudConflict();
                     updateCloudSyncStatus('synced');
                     return;
@@ -1921,28 +2133,139 @@
             }
         }
 
-        async function loadFromLocalStorage() {
-            // Try IndexedDB first
-            try {
-                const row = await dexie.kv.get('db');
-                if (row && row.value) {
-                    db = row.value;
-                } else {
-                    const saved = localStorage.getItem('clothesManiaDavaoDB_v4');
-                    if (saved) {
-                        try { db = JSON.parse(saved); } catch(e) {}
-                        // persist migrated copy to IndexedDB
-                        persistDB().catch(()=>{});
-                    }
-                }
-            } catch (e) {
-                console.error('Dexie load error', e);
-                const saved = localStorage.getItem('clothesManiaDavaoDB_v4');
-                if (saved) {
-                    try { db = JSON.parse(saved); } catch(e) {}
-                }
+        async function migrateLegacyLocalBackups() {
+            const records = await dexie.kv.toArray();
+            for (const record of records) {
+                if (!String(record.key || '').startsWith('cloud-backup-')) continue;
+                const value = record.value;
+                if (!value?.snapshot || ClothesManiaWorkspaceCrypto.isEncryptedSnapshot(value.snapshot) || ClothesManiaWorkspaceCrypto.isDeviceEncryptedSnapshot(value.snapshot)) continue;
+                const encryptedSnapshot = await ClothesManiaWorkspaceCrypto.encryptSnapshotWithDeviceKey(value.snapshot, localDeviceKey);
+                await dexie.kv.put({ ...record, value: { ...value, snapshot: encryptedSnapshot } });
             }
+        }
 
+        function showWorkspacePassphraseMessage(message, isError = true) {
+            const messageElement = document.getElementById('localEncryptionMessage');
+            messageElement.textContent = message;
+            messageElement.classList.toggle('hidden', !message);
+            messageElement.classList.toggle('bg-rose-50', isError);
+            messageElement.classList.toggle('text-rose-700', isError);
+            messageElement.classList.toggle('dark:bg-rose-950/30', isError);
+            messageElement.classList.toggle('dark:text-rose-200', isError);
+            messageElement.classList.toggle('bg-emerald-50', !isError);
+            messageElement.classList.toggle('text-emerald-800', !isError);
+            messageElement.classList.toggle('dark:bg-emerald-950/30', !isError);
+            messageElement.classList.toggle('dark:text-emerald-200', !isError);
+        }
+
+        function isValidWorkspaceSnapshot(snapshot) {
+            return Boolean(snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot));
+        }
+
+        function requestLegacyWorkspacePassphrase(snapshot, applyLocally = false) {
+            pendingLocalSnapshot = snapshot;
+            pendingWorkspaceEncryptionMode = 'unlock';
+            pendingLegacySnapshotApply = applyLocally;
+            const confirmationGroup = document.getElementById('workspacePassphraseConfirmationGroup');
+            const confirmationInput = document.getElementById('workspacePassphraseConfirmation');
+            const passphraseInput = document.getElementById('workspacePassphrase');
+            confirmationGroup.classList.add('hidden');
+            confirmationInput.required = false;
+            passphraseInput.autocomplete = 'current-password';
+            document.getElementById('localEncryptionTitle').textContent = 'Migrate protected legacy data';
+            document.getElementById('localEncryptionDescription').textContent = 'This older saved workspace uses a passphrase. Enter it once to migrate the records to the current protected storage.';
+            document.getElementById('workspacePassphraseRecoveryWarning').textContent = 'The legacy passphrase is used only to migrate this existing data. It is not saved.';
+            document.getElementById('workspacePassphraseSubmit').textContent = 'Migrate records';
+            showWorkspacePassphraseMessage('');
+            document.getElementById('localEncryptionOverlay').classList.remove('hidden');
+            document.getElementById('localEncryptionOverlay').classList.add('flex');
+            document.getElementById('sidebar').inert = true;
+            document.getElementById('mainAppContent').inert = true;
+            passphraseInput.focus();
+            return new Promise(resolve => { pendingWorkspaceUnlockResolver = resolve; });
+        }
+
+        async function unlockLegacyWorkspaceSnapshot(snapshot, applyLocally = false) {
+            if (!ClothesManiaWorkspaceCrypto.isEncryptedSnapshot(snapshot)) {
+                if (!isValidWorkspaceSnapshot(snapshot)) throw new Error('The legacy cloud workspace snapshot is invalid.');
+                return snapshot;
+            }
+            if (legacyMigrationPassphrase) {
+                const unlocked = await ClothesManiaWorkspaceCrypto.unlockSnapshot(snapshot, legacyMigrationPassphrase);
+                if (!isValidWorkspaceSnapshot(unlocked.snapshot)) throw new Error('The legacy workspace data is invalid.');
+                return unlocked.snapshot;
+            }
+            return requestLegacyWorkspacePassphrase(snapshot, applyLocally);
+        }
+
+        async function submitWorkspacePassphrase(event) {
+            event.preventDefault();
+            const form = document.getElementById('localEncryptionForm');
+            const submitButton = document.getElementById('workspacePassphraseSubmit');
+            const passphrase = document.getElementById('workspacePassphrase').value;
+            submitButton.disabled = true;
+            showWorkspacePassphraseMessage('Migrating the existing protected records…', false);
+            try {
+                const unlocked = await ClothesManiaWorkspaceCrypto.unlockSnapshot(pendingLocalSnapshot, passphrase);
+                if (!isValidWorkspaceSnapshot(unlocked.snapshot)) throw new Error('The decrypted workspace data is invalid. No records were changed.');
+                legacyMigrationPassphrase = passphrase;
+                if (!localDeviceKey) {
+                    const keyRow = await dexie.kv.get('local-encryption-key-v2');
+                    localDeviceKey = keyRow?.value || await ClothesManiaWorkspaceCrypto.createDeviceKey();
+                    await dexie.kv.put({ key: 'local-encryption-key-v2', value: localDeviceKey });
+                }
+                if (pendingLegacySnapshotApply) {
+                    db = unlocked.snapshot;
+                    await migrateLegacyLocalBackups();
+                    if (!await persistDB()) throw new Error('Migrated data could not be saved on this device. The old encrypted copy remains untouched.');
+                    const persistedSnapshot = await readPersistedWorkspaceSnapshot();
+                    const verified = await ClothesManiaWorkspaceCrypto.unlockDeviceSnapshot(persistedSnapshot, localDeviceKey);
+                    if (!snapshotsMatch(verified, db)) throw new Error('Local migration verification failed. The original data was retained.');
+                }
+                document.getElementById('workspacePassphrase').value = '';
+                document.getElementById('workspacePassphraseConfirmation').value = '';
+                document.getElementById('localEncryptionOverlay').classList.add('hidden');
+                document.getElementById('localEncryptionOverlay').classList.remove('flex');
+                document.getElementById('sidebar').inert = false;
+                document.getElementById('mainAppContent').inert = false;
+                form.reset();
+                pendingLocalSnapshot = null;
+                pendingWorkspaceUnlockResolver?.(unlocked.snapshot);
+                pendingWorkspaceUnlockResolver = null;
+                pendingLegacySnapshotApply = false;
+            } catch (error) {
+                console.error('Workspace encryption or unlock failed.', error);
+                showWorkspacePassphraseMessage(error.message || 'The workspace could not be unlocked safely.');
+            } finally {
+                submitButton.disabled = false;
+            }
+        }
+
+        let pendingLegacySnapshotApply = false;
+
+        async function initializeLocalWorkspace(storedSnapshot) {
+            const keyRow = await dexie.kv.get('local-encryption-key-v2');
+            localDeviceKey = keyRow?.value || null;
+            if (ClothesManiaWorkspaceCrypto.isEncryptedSnapshot(storedSnapshot)) {
+                if (!await unlockLegacyWorkspaceSnapshot(storedSnapshot, true)) return false;
+                return true;
+            }
+            if (ClothesManiaWorkspaceCrypto.isDeviceEncryptedSnapshot(storedSnapshot)) {
+                if (!localDeviceKey) throw new Error('The protected local key is missing. Restore a known-good backup before continuing.');
+                db = await ClothesManiaWorkspaceCrypto.unlockDeviceSnapshot(storedSnapshot, localDeviceKey);
+            } else if (storedSnapshot) {
+                if (!isValidWorkspaceSnapshot(storedSnapshot)) throw new Error('Saved local data is invalid. The app stopped to avoid replacing it.');
+                db = storedSnapshot;
+            }
+            if (!localDeviceKey) {
+                localDeviceKey = await ClothesManiaWorkspaceCrypto.createDeviceKey();
+                await dexie.kv.put({ key: 'local-encryption-key-v2', value: localDeviceKey });
+            }
+            await migrateLegacyLocalBackups();
+            return true;
+        }
+
+        async function loadFromLocalStorage() {
             const todayStr = localDateKey();
             const dateInput = document.getElementById('mineDate');
             if (dateInput) dateInput.value = todayStr;
@@ -1950,20 +2273,12 @@
 
         function saveToLocalStorage() {
             updateLocalSaveStatus('saving');
-            let localStorageSaved = false;
-            try {
-                localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db));
-                localStorageSaved = true;
-            } catch(error) {
-                console.error('Could not save the local workspace snapshot.', error);
-            }
-            localPersistPromise = persistDB().then(indexedDbSaved => {
-                if (!indexedDbSaved && localStorageSaved) updateLocalSaveStatus('fallback');
-                else if (!indexedDbSaved) updateLocalSaveStatus('error', 'Could not save locally');
-                return indexedDbSaved || localStorageSaved;
+            localPersistPromise = persistDB().then(localSaved => {
+                if (localSaved) queueCloudSnapshotSync();
+                else updateLocalSaveStatus('error', 'Could not save encrypted data locally; cloud sync was not attempted');
+                return localSaved;
             });
             refreshAllUI();
-            queueCloudSnapshotSync();
         }
 
         function auditActor() {
@@ -2202,7 +2517,7 @@
 
         function selectMineSession(sessionId) {
             mineSessionView = sessionId;
-            mineFilterTab = 'ALL';
+            mineFilterTab = sessionId === '__item_status__' ? 'ITEM_STATUS:ALL' : 'ALL';
             const selectedSession = (db.liveSessions || []).find(session => session.id === sessionId);
             if (selectedSession && isLiveSessionActive(selectedSession)) {
                 activeLiveSessionId = sessionId;
@@ -2211,10 +2526,10 @@
             renderFullMinesTable();
         }
 
-        function endLiveSession() {
+        async function endLiveSession() {
             const session = (db.liveSessions || []).find(item => item.id === mineSessionView && isLiveSessionActive(item));
             if (!session) return;
-            if (!confirm(`End “${session.name}”? Its orders will be saved in History, and new mines will go into a new session.`)) return;
+            if (!await showAppConfirm('End this live session?', `End “${session.name}”? Its orders will be saved in History, and new mines will go into a new session.`, 'End session', true)) return;
             session.status = 'ended';
             session.endedAt = new Date().toISOString();
             session.endedBy = auditActor().name;
@@ -2366,10 +2681,20 @@
             overlay.classList.remove('flex');
             const name = currentAuthUser?.user_metadata?.full_name || currentAuthUser?.user_metadata?.name || 'Admin';
             document.getElementById('adminAccountName').textContent = name;
+            document.getElementById('dashboardWelcomeTitle').textContent = `Welcome back, ${name} 👋`;
             document.getElementById('adminAccountEmail').textContent = currentAuthUser?.email || email;
             document.getElementById('adminAccountBadge').textContent = navigator.onLine ? 'CLOUD' : 'OFFLINE';
             updateCloudSyncStatus(navigator.onLine ? 'checking' : 'offline');
-            const focusTarget = window.matchMedia('(max-width: 767px)').matches ? document.getElementById('nav-dashboard') : document.getElementById('sidebarBrandExpand');
+            const tabIds = ['dashboard', 'products', 'stock', 'mines', 'reports', 'hosts', 'audit'];
+            let lastTab = 'dashboard';
+            try {
+                const savedTab = localStorage.getItem('cm_pos_last_tab');
+                if (tabIds.includes(savedTab)) lastTab = savedTab;
+            } catch (error) {
+                console.error('Could not restore the last page.', error);
+            }
+            switchTab(lastTab);
+            const focusTarget = window.matchMedia('(max-width: 767px)').matches ? document.getElementById(`nav-${lastTab}`) : document.getElementById('sidebarBrandExpand');
             focusTarget?.focus();
         }
 
@@ -2426,14 +2751,12 @@
         }
 
         async function ensureCloudWorkspaceMembership(client) {
+            if (!localWorkspaceReady) throw new Error('Protected local records are unavailable. Restore a known-good local backup before signing in on this device.');
             await acceptPendingAdminInvite(client);
             const initialSnapshot = JSON.parse(JSON.stringify(db));
-            const { data: workspaceOwnerId, error } = await client.rpc('ensure_pos_workspace', {
-                p_initial_snapshot: initialSnapshot
-            });
-            if (error) throw error;
-            cloudWorkspaceOwnerId = workspaceOwnerId;
-            return workspaceOwnerId;
+            const result = await invokeWorkspaceSync(client, { action: 'ensure', snapshot: initialSnapshot });
+            cloudWorkspaceOwnerId = result.workspaceOwnerId;
+            return result.workspaceOwnerId;
         }
 
         async function handlePasswordResetRequest(event) {
@@ -2483,6 +2806,10 @@
 
         async function handleLocalSignIn(event) {
             event.preventDefault();
+            if (!localWorkspaceReady) {
+                showLocalSessionScreen('signin', 'Protected local records are unavailable. Restore a known-good local backup before signing in on this device.');
+                return;
+            }
             const form = event.currentTarget;
             const email = form.elements.email.value.trim().toLowerCase();
             const password = form.elements.password.value;
@@ -2514,6 +2841,10 @@
 
         async function handleLocalSignUp(event) {
             event.preventDefault();
+            if (!localWorkspaceReady) {
+                showLocalSessionScreen('signin', 'Protected local records are unavailable. Restore a known-good local backup before creating an account on this device.');
+                return;
+            }
             const form = event.currentTarget;
             const name = form.elements.name.value.trim();
             const email = form.elements.email.value.trim().toLowerCase();
@@ -2681,6 +3012,73 @@
             }
         }
 
+        function showAppDialog({ title, message, confirmLabel = 'Confirm', destructive = false, inputLabel = '', defaultValue = '' }) {
+            return new Promise(resolve => {
+                if (appDialogResolver) finishAppDialog(null);
+                const overlay = document.getElementById('appDialogOverlay');
+                const inputWrap = document.getElementById('appDialogInputWrap');
+                const input = document.getElementById('appDialogInput');
+                const confirmButton = document.getElementById('appDialogConfirmButton');
+                appDialogResolver = resolve;
+                appDialogPreviousFocus = document.activeElement;
+                appDialogInputMode = Boolean(inputLabel);
+                overlay.setAttribute('role', appDialogInputMode ? 'dialog' : 'alertdialog');
+                document.getElementById('appDialogTitle').textContent = title;
+                document.getElementById('appDialogMessage').textContent = message;
+                inputWrap.classList.toggle('hidden', !appDialogInputMode);
+                document.getElementById('appDialogInputLabel').textContent = inputLabel;
+                input.value = defaultValue;
+                input.required = appDialogInputMode;
+                confirmButton.textContent = confirmLabel;
+                confirmButton.className = destructive
+                    ? 'btn-destructive min-h-10 rounded-lg px-4 text-sm font-semibold'
+                    : 'btn-primary min-h-10 rounded-lg px-4 text-sm font-semibold';
+                const icon = document.getElementById('appDialogIcon');
+                icon.className = destructive
+                    ? 'mb-4 grid h-11 w-11 place-items-center rounded-xl bg-rose-500/10 text-rose-700 dark:text-rose-300'
+                    : 'mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300';
+                icon.innerHTML = `<i class="fa-solid ${appDialogInputMode ? 'fa-user' : destructive ? 'fa-triangle-exclamation' : 'fa-circle-exclamation'}" aria-hidden="true"></i>`;
+                overlay.classList.remove('hidden');
+                overlay.classList.add('flex');
+                requestAnimationFrame(() => (appDialogInputMode ? input : confirmButton).focus());
+            });
+        }
+
+        function showAppConfirm(title, message, confirmLabel = 'Confirm', destructive = false) {
+            return showAppDialog({ title, message, confirmLabel, destructive });
+        }
+
+        function showAppPrompt(title, message, inputLabel, defaultValue = '', confirmLabel = 'Save') {
+            return showAppDialog({ title, message, inputLabel, defaultValue, confirmLabel });
+        }
+
+        function finishAppDialog(result) {
+            const overlay = document.getElementById('appDialogOverlay');
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+            const resolve = appDialogResolver;
+            const previousFocus = appDialogPreviousFocus;
+            appDialogResolver = null;
+            appDialogPreviousFocus = null;
+            appDialogInputMode = false;
+            resolve?.(result);
+            if (previousFocus?.isConnected) previousFocus.focus();
+        }
+
+        function closeAppDialog() {
+            finishAppDialog(null);
+        }
+
+        function submitAppDialog(event) {
+            event.preventDefault();
+            if (appDialogInputMode) {
+                const value = document.getElementById('appDialogInput').value.trim();
+                finishAppDialog(value || null);
+                return;
+            }
+            finishAppDialog(true);
+        }
+
         function signOut() {
             const modal = document.getElementById('signOutConfirmModal');
             modal.classList.remove('hidden');
@@ -2725,6 +3123,28 @@
         }
 
         window.addEventListener('keydown', event => {
+            const appDialog = document.getElementById('appDialogOverlay');
+            if (!appDialog.classList.contains('hidden')) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeAppDialog();
+                    return;
+                }
+                if (event.key === 'Tab') {
+                    const focusable = [...appDialog.querySelectorAll('button:not(:disabled), input:not(:disabled)')].filter(element => element.getClientRects().length);
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last?.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first?.focus();
+                    }
+                    return;
+                }
+                return;
+            }
             const stockModal = document.getElementById('modalStockProduct');
             if (event.key === 'Tab' && !stockModal.classList.contains('hidden')) {
                 const focusable = [...stockModal.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')];
@@ -2777,7 +3197,14 @@
         }
 
         function switchTab(tabId) {
-            ['dashboard', 'products', 'stock', 'mines', 'reports', 'hosts', 'audit'].forEach(id => {
+            const tabIds = ['dashboard', 'products', 'stock', 'mines', 'reports', 'hosts', 'audit'];
+            if (!tabIds.includes(tabId)) return;
+            try {
+                localStorage.setItem('cm_pos_last_tab', tabId);
+            } catch (error) {
+                console.error('Could not save the current page.', error);
+            }
+            tabIds.forEach(id => {
                 const content = document.getElementById('tab-content-' + id);
                 if (content) content.classList.add('hidden');
                 const btn = document.getElementById('nav-' + id);
@@ -3007,17 +3434,21 @@
             return { startKey, endKey, label: `${dateLabel(startKey)} – ${dateLabel(endKey)}` };
         }
 
-        function getLiveHostPaidOrders(name, range = getLiveHostPerformanceRange()) {
+        function getLiveHostOrders(name, range = getLiveHostPerformanceRange()) {
             const normalized = String(name || '').trim().toUpperCase();
             const sessions = new Map((Array.isArray(db.liveSessions) ? db.liveSessions : []).map(session => [session.id, session]));
             return (Array.isArray(db.mines) ? db.mines : [])
                 .filter(mine => isReportableMine(mine)
-                    && String(mine.status || '').toUpperCase() === 'PAID'
+                    && String(getMinePaymentStatus(mine)).toUpperCase() !== 'RETURNED'
                     && String(mine.seller || mine.host || '').trim().toUpperCase() === normalized
                     && mine.date >= range.startKey
                     && mine.date <= range.endKey)
-                .map(mine => ({ mine, session: sessions.get(mine.sessionId), total: getReportOrderAmounts(mine).total }))
+                .map(mine => ({ mine, session: sessions.get(mine.sessionId), ...getReportOrderAmounts(mine), status: getMinePaymentStatus(mine) }))
                 .sort((left, right) => String(right.mine.date).localeCompare(String(left.mine.date)) || String(right.mine.time || '').localeCompare(String(left.mine.time || '')));
+        }
+
+        function getLiveHostPaidOrders(name, range = getLiveHostPerformanceRange()) {
+            return getLiveHostOrders(name, range).filter(order => order.status === 'PAID');
         }
 
         function closeLiveHostPerformance() {
@@ -3030,6 +3461,17 @@
             selectedLiveHostPerformance = decodeURIComponent(encodedName);
             renderLiveHosts();
             document.getElementById('liveHostPerformanceDetail')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+
+        function openMineOrderRecord(id) {
+            const mine = (db.mines || []).find(order => String(order.id) === String(id));
+            if (!mine) return;
+            switchTab('mines');
+            const knownSession = mine.sessionId && (db.liveSessions || []).some(session => session.id === mine.sessionId);
+            mineSessionView = knownSession ? mine.sessionId : '__legacy__';
+            mineFilterTab = 'ALL';
+            renderFullMinesTable();
+            viewMine(mine.id);
         }
 
         function openLiveHostRemovalEncoded(encodedName) {
@@ -3059,10 +3501,10 @@
             toggleLiveHostActiveEncoded(encodeURIComponent(name));
         }
 
-        function permanentlyDeleteSelectedLiveHost() {
+        async function permanentlyDeleteSelectedLiveHost() {
             const normalized = selectedLiveHostRemoval;
             if (!normalized) return;
-            if (!confirm(`Permanently remove ${liveHostLabel(normalized)} from the seller list? Existing orders and reports will keep the seller name.`)) return;
+            if (!await showAppConfirm('Permanently delete this seller?', `Remove ${liveHostLabel(normalized)} from the seller list? Existing orders and reports will keep the seller name.`, 'Delete seller', true)) return;
             if (!Array.isArray(db.hosts)) db.hosts = [];
             const removedRecord = db.hosts.find(host => String(typeof host === 'string' ? host : host?.name || '').trim().toUpperCase() === normalized);
             if (removedRecord) moveRecordToTrash('Live seller', typeof removedRecord === 'string' ? { name: removedRecord, role: 'live-seller', isActive: true } : removedRecord, liveHostLabel(normalized));
@@ -3087,21 +3529,33 @@
                 return;
             }
             const sellerName = liveHostLabel(selectedLiveHostPerformance);
-            const orders = getLiveHostPaidOrders(selectedLiveHostPerformance, range);
+            const sellerOrders = getLiveHostOrders(selectedLiveHostPerformance, range);
+            const orders = sellerOrders.filter(order => order.status === 'PAID');
+            const unpaidOrders = sellerOrders.filter(order => order.status !== 'PAID');
             const total = orders.reduce((sum, record) => sum + record.total, 0);
             const average = orders.length ? total / orders.length : 0;
-            const sellingDays = new Set(orders.map(({ mine }) => mine.date)).size;
+            const outstandingBalance = unpaidOrders.reduce((sum, order) => sum + order.balance, 0);
+            const sellingDays = new Set(sellerOrders.map(({ mine }) => mine.date)).size;
             document.getElementById('liveHostPerformanceTitle').textContent = `${sellerName} · Performance`;
-            document.getElementById('liveHostPerformanceSubtitle').textContent = `Paid orders only · ${range.label}`;
+            document.getElementById('liveHostPerformanceSubtitle').textContent = `Paid sales and unpaid follow-up · ${range.label}`;
             document.getElementById('liveHostPerformanceMetrics').innerHTML = [
                 ['Paid sales', formatCurrency(total)],
-                ['Paid orders', orders.length.toLocaleString('en-PH')],
+                ['Items mined', sellerOrders.length.toLocaleString('en-PH')],
+                ['Paid items', orders.length.toLocaleString('en-PH')],
+                ['Unpaid items', unpaidOrders.length.toLocaleString('en-PH')],
+                ['Outstanding balance', formatCurrency(outstandingBalance)],
                 ['Average paid order', formatCurrency(average)],
                 ['Selling days', sellingDays.toLocaleString('en-PH')]
             ].map(([label, value]) => `<div class="bg-white/80 px-4 py-3 dark:bg-slate-950/20"><span class="block text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">${label}</span><span class="mt-1 block text-base font-semibold tabular-nums text-gray-900 dark:text-white">${value}</span></div>`).join('');
             document.getElementById('liveHostPerformanceOrders').innerHTML = orders.map(({ mine, session, total: orderTotal }) => `<tr class="bg-white/40 dark:bg-transparent"><td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">${escapeHtml(reportDateLabel(mine.date, { month: 'short', day: 'numeric', year: 'numeric' }))}</td><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${escapeHtml(mine.name || mine.buyer || '—')}</td><td class="max-w-64 px-4 py-3 text-gray-700 dark:text-gray-300"><span class="line-clamp-2">${escapeHtml(mine.item || '—')}</span></td><td class="px-4 py-3 text-gray-600 dark:text-gray-300">${escapeHtml(session?.name || mine.liveSession || '—')}</td><td class="whitespace-nowrap px-4 py-3 text-right font-mono font-semibold tabular-nums text-gray-900 dark:text-white">${formatCurrency(orderTotal)}</td></tr>`).join('');
+            document.getElementById('liveHostPerformanceUnpaidOrders').innerHTML = unpaidOrders.map(({ mine, balance, status }) => `<tr class="bg-white/40 dark:bg-transparent"><td class="whitespace-nowrap px-4 py-3 text-gray-600 dark:text-gray-300">${escapeHtml(reportDateLabel(mine.date, { month: 'short', day: 'numeric', year: 'numeric' }))}</td><td class="px-4 py-3 font-medium text-gray-900 dark:text-white">${escapeHtml(mine.name || mine.buyer || '—')}</td><td class="max-w-64 px-4 py-3 text-gray-700 dark:text-gray-300"><span class="line-clamp-2">${escapeHtml(mine.item || '—')}</span></td><td class="px-4 py-3"><span class="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2 py-1 text-[10px] font-semibold text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300">${escapeHtml(status === 'PARTIAL' ? 'PARTIALLY PAID' : 'UNPAID')}</span></td><td class="whitespace-nowrap px-4 py-3 text-right font-mono font-semibold tabular-nums text-rose-700 dark:text-rose-300">${formatCurrency(balance)}</td><td class="px-4 py-3 text-right"><button type="button" data-open-mine-order="${escapeHtml(mine.id)}" class="btn-outline whitespace-nowrap px-2.5 py-1.5 text-[11px]"><i class="fa-solid fa-arrow-up-right-from-square mr-1" aria-hidden="true"></i>Open record</button></td></tr>`).join('');
+            const unpaidSummary = document.getElementById('liveHostUnpaidSummary');
+            if (unpaidSummary) unpaidSummary.textContent = `${unpaidOrders.length} ${unpaidOrders.length === 1 ? 'item' : 'items'} · ${formatCurrency(outstandingBalance)} due`;
+            document.getElementById('liveHostPerformanceUnpaidOrders').querySelectorAll('[data-open-mine-order]').forEach(button => button.addEventListener('click', () => openMineOrderRecord(button.dataset.openMineOrder)));
             document.getElementById('liveHostPerformanceEmpty')?.classList.toggle('hidden', orders.length > 0);
             document.getElementById('liveHostPerformanceOrders')?.classList.toggle('hidden', orders.length === 0);
+            document.getElementById('liveHostPerformanceUnpaidEmpty')?.classList.toggle('hidden', unpaidOrders.length > 0);
+            document.getElementById('liveHostPerformanceUnpaidOrders')?.classList.toggle('hidden', unpaidOrders.length === 0);
             detail.classList.remove('hidden');
         }
 
@@ -3202,13 +3656,13 @@
             requestAnimationFrame(() => document.getElementById('liveHostFirstName')?.focus());
         }
 
-        function toggleLiveHostActiveEncoded(encodedName) {
+        async function toggleLiveHostActiveEncoded(encodedName) {
             const normalized = decodeURIComponent(encodedName);
             const hostIndices = (Array.isArray(db.hosts) ? db.hosts : []).map((host, index) => String(typeof host === 'string' ? host : host?.name || '').trim().toUpperCase() === normalized ? index : -1).filter(index => index >= 0);
             const existing = hostIndices.map(index => db.hosts[index]).sort((left, right) => (Date.parse(right?.updatedAt || '') || 0) - (Date.parse(left?.updatedAt || '') || 0))[0] || null;
             const nextActive = existing ? existing.isActive === false : false;
             const action = nextActive ? 'Reactivate' : 'Disable';
-            if (!confirm(`${action} ${liveHostLabel(normalized)}? Past orders will remain in history.`)) return;
+            if (!await showAppConfirm(`${action} this seller?`, `${action} ${liveHostLabel(normalized)}? Past orders will remain in history.`, action, action === 'Disable')) return;
             const currentName = existing ? String(typeof existing === 'string' ? existing : existing.name) : normalized;
             const nameParts = currentName.trim().split(/\s+/);
             const record = typeof existing === 'object' ? existing : {};
@@ -3324,20 +3778,25 @@
                 return;
             }
             recent.forEach(m => {
-                const isPaid = m.status === 'PAID';
-                const badge = isPaid 
+                const paymentStatus = getMinePaymentStatus(m);
+                const encodedMineId = encodeURIComponent(String(m.id || '')).replace(/'/g, '%27');
+                const isPaid = paymentStatus === 'PAID';
+                const isPartial = paymentStatus === 'PARTIAL';
+                const badge = isPaid
                     ? '<span class="bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">PAID</span>'
-                    : '<span class="bg-rose-500/10 text-rose-500 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">UNPAID</span>';
+                    : isPartial
+                        ? '<span class="bg-amber-500/10 text-amber-700 border border-amber-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">PARTIALLY PAID</span>'
+                        : '<span class="bg-rose-500/10 text-rose-500 border border-rose-500/30 px-2.5 py-1 rounded-full font-bold text-[10px]">UNPAID</span>';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
-                        <td class="py-3 px-3 text-gray-500 font-mono">${m.date} <br><span class="text-[10px] text-gray-400">${m.time}</span></td>
-                        <td class="py-3 px-3 font-bold text-gray-900 dark:text-white">${m.name}</td>
-                        <td class="py-3 px-3 text-gray-600 dark:text-gray-300">${m.item}</td>
+                        <td class="py-3 px-3 text-gray-500 font-mono">${escapeHtml(m.date)} <br><span class="text-[10px] text-gray-400">${escapeHtml(m.time)}</span></td>
+                        <td class="py-3 px-3 font-bold text-gray-900 dark:text-white">${escapeHtml(m.name)}</td>
+                        <td class="py-3 px-3 text-gray-600 dark:text-gray-300">${escapeHtml(m.item)}</td>
                         <td class="py-3 px-3">${badge}</td>
                         <td class="py-3 px-3 text-right font-mono font-extrabold text-amber-500">${formatCurrency(m.total)}</td>
                         <td class="py-3 px-3 text-center">
-                            <button onclick="viewMine('${m.id}')" title="View order" class="bg-gray-100 dark:bg-gray-800 hover:bg-amber-500 hover:text-black text-gray-600 dark:text-gray-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">
+                            <button onclick="viewMine(decodeURIComponent('${encodedMineId}'))" title="View order" class="bg-gray-100 dark:bg-gray-800 hover:bg-amber-500 hover:text-black text-gray-600 dark:text-gray-300 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition">
                                 View
                             </button>
                         </td>
@@ -3673,7 +4132,8 @@
             const sessionTabs = sessions.map(session => {
                 const count = db.mines.filter(mine => mine.sessionId === session.id).length;
                 const active = mineSessionView === session.id;
-                return `<span class="inline-flex items-center border-b-2 ${active ? 'border-amber-500' : 'border-transparent'}"><button role="tab" aria-selected="${active}" onclick="selectMineSession('${session.id}')" class="mine-session-tab ${active ? 'is-active' : ''}">${escapeHtml(session.name)}<span class="mine-session-tab-count">${count}</span></button><button type="button" onclick="requestDeleteLiveSession('${encodeURIComponent(session.id)}')" class="px-2 text-xs text-gray-400 hover:text-rose-600" aria-label="Delete ${escapeHtml(session.name)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button></span>`;
+                const encodedSessionId = encodeURIComponent(String(session.id || '')).replace(/'/g, '%27');
+                return `<span class="inline-flex items-center border-b-2 ${active ? 'border-amber-500' : 'border-transparent'}"><button role="tab" aria-selected="${active}" onclick="selectMineSession(decodeURIComponent('${encodedSessionId}'))" class="mine-session-tab ${active ? 'is-active' : ''}">${escapeHtml(session.name)}<span class="mine-session-tab-count">${count}</span></button><button type="button" onclick="requestDeleteLiveSession(decodeURIComponent('${encodedSessionId}'))" class="px-2 text-xs text-gray-400 hover:text-rose-600" aria-label="Delete ${escapeHtml(session.name)}"><i class="fa-solid fa-trash-can" aria-hidden="true"></i></button></span>`;
             }).join('');
             const liveStatus = document.getElementById('mineLiveStatus');
             const activeSession = getActiveLiveSession();
@@ -3685,8 +4145,95 @@
             const selectedSession = (db.liveSessions || []).find(session => session.id === mineSessionView);
             const historyActive = mineSessionView === '__history__' || mineSessionView === '__legacy__' || (selectedSession && !sessions.includes(selectedSession));
             const unpaidActive = mineSessionView === '__unpaid__';
+            const itemStatusActive = mineSessionView === '__item_status__';
+            const invoicesActive = mineSessionView === '__invoices__';
             const unpaidCount = getOutstandingMineOrders().length;
-            container.innerHTML = `${sessionTabs || '<span class="px-3 py-3 text-xs text-gray-500">No live sessions yet today</span>'}<button role="tab" aria-selected="${historyActive}" onclick="selectMineSession('__history__')" class="mine-session-tab ${historyActive ? 'is-active' : ''}">History<span class="mine-session-tab-count">${historyCount}</span></button><button role="tab" aria-selected="${unpaidActive}" onclick="selectMineSession('__unpaid__')" class="mine-session-tab ${unpaidActive ? 'is-active' : ''}"><i class="fa-solid fa-hourglass-half mr-1.5 text-[10px]" aria-hidden="true"></i>Unpaid<span class="mine-session-tab-count">${unpaidCount}</span></button>`;
+            const itemStatusCount = (db.mines || []).filter(mine => !['SHIPPED', 'PICK UP', 'MAXIM'].includes(String(mine.deliveryStatus || 'PENDING').toUpperCase())).length;
+            const invoiceCount = getBuyerInvoiceGroups().length;
+            container.innerHTML = `${sessionTabs || '<span class="px-3 py-3 text-xs text-gray-500">No live sessions yet</span>'}<button role="tab" aria-selected="${historyActive}" onclick="selectMineSession('__history__')" class="mine-session-tab ${historyActive ? 'is-active' : ''}">History<span class="mine-session-tab-count">${historyCount}</span></button><button role="tab" aria-selected="${unpaidActive}" onclick="selectMineSession('__unpaid__')" class="mine-session-tab ${unpaidActive ? 'is-active' : ''}"><i class="fa-solid fa-hourglass-half mr-1.5 text-[10px]" aria-hidden="true"></i>Unpaid<span class="mine-session-tab-count">${unpaidCount}</span></button><button role="tab" aria-selected="${itemStatusActive}" onclick="selectMineSession('__item_status__')" class="mine-session-tab ${itemStatusActive ? 'is-active' : ''}">Item Status<span class="mine-session-tab-count">${itemStatusCount}</span></button><button role="tab" aria-selected="${invoicesActive}" onclick="selectMineSession('__invoices__')" class="mine-session-tab ${invoicesActive ? 'is-active' : ''}">Invoices<span class="mine-session-tab-count">${invoiceCount}</span></button>`;
+        }
+
+        function getBuyerInvoiceGroups() {
+            const groups = new Map();
+            (db.mines || []).filter(isReportableMine).forEach(mine => {
+                const buyerName = String(mine.name || 'Unknown buyer').trim().replace(/\s+/g, ' ') || 'Unknown buyer';
+                const buyerKey = buyerName.toLocaleLowerCase();
+                const sessionKey = mine.sessionId || `legacy:${mine.date}`;
+                const key = `${sessionKey}::${buyerKey}`;
+                if (!groups.has(key)) {
+                    const session = (db.liveSessions || []).find(item => item.id === mine.sessionId);
+                    groups.set(key, {
+                        key,
+                        buyer: buyerName,
+                        sessionName: session?.name || (mine.sessionId ? 'Earlier live session' : 'Earlier order'),
+                        orders: []
+                    });
+                }
+                groups.get(key).orders.push(mine);
+            });
+            return [...groups.values()].map(group => {
+                group.orders.sort((first, second) => `${first.date || ''} ${first.time || ''}`.localeCompare(`${second.date || ''} ${second.time || ''}`));
+                group.total = 0;
+                group.collected = 0;
+                group.balance = 0;
+                group.orders.forEach(order => {
+                    const amounts = getReportOrderAmounts(order);
+                    group.total += amounts.total;
+                    group.collected += amounts.collected;
+                    group.balance += amounts.balance;
+                });
+                group.allPaid = group.orders.length > 0 && group.balance <= 0 && group.orders.every(order => getMinePaymentStatus(order) === 'PAID');
+                let hash = 2166136261;
+                for (let index = 0; index < group.key.length; index += 1) hash = Math.imul(hash ^ group.key.charCodeAt(index), 16777619);
+                group.receiptNumber = `CM-${String(group.orders[0].date || '').replace(/-/g, '')}-${(hash >>> 0).toString(36).toUpperCase()}`;
+                return group;
+            }).sort((first, second) => `${second.orders[0]?.date || ''} ${second.orders[0]?.time || ''}`.localeCompare(`${first.orders[0]?.date || ''} ${first.orders[0]?.time || ''}`));
+        }
+
+        function renderBuyerInvoices() {
+            const container = document.getElementById('mineInvoiceGroups');
+            if (!container) return;
+            const searchInput = document.getElementById('mineInvoiceSearch');
+            const query = String(searchInput?.value || '').trim().toLocaleLowerCase();
+            const groups = getBuyerInvoiceGroups().filter(group => !query || `${group.buyer} ${group.sessionName} ${group.orders.map(order => `${order.item || ''} ${order.sku || ''}`).join(' ')}`.toLocaleLowerCase().includes(query));
+            if (!groups.length) {
+                container.innerHTML = '<div class="rounded-xl border border-dashed border-gray-300 p-8 text-center text-sm text-gray-500 dark:border-gray-700">No buyer invoices match your search yet.</div>';
+                return;
+            }
+            container.innerHTML = groups.map(group => {
+                const statusLabel = group.allPaid ? 'Fully paid' : group.collected > 0 ? 'Partially paid' : 'Unpaid';
+                const statusClass = group.allPaid ? 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300' : group.collected > 0 ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300' : 'border-rose-200 bg-rose-50 text-rose-700 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300';
+                const rows = group.orders.map(order => {
+                    const amounts = getReportOrderAmounts(order);
+                    return `<tr class="border-t border-gray-100 dark:border-gray-800"><td class="px-3 py-2.5">${escapeHtml(reportDateLabel(order.date, { month: 'short', day: 'numeric', year: 'numeric' }))}</td><td class="px-3 py-2.5"><div class="font-medium text-gray-900 dark:text-white">${escapeHtml(order.item || 'Item')}</div><div class="text-[10px] text-gray-500">Item ID: ${escapeHtml(order.sku || '—')}</div></td><td class="px-3 py-2.5 text-right font-mono">${formatCurrency(amounts.total)}</td><td class="px-3 py-2.5 text-right font-mono text-emerald-700 dark:text-emerald-300">${formatCurrency(amounts.collected)}</td><td class="px-3 py-2.5 text-right font-mono ${amounts.balance > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-gray-500'}">${formatCurrency(amounts.balance)}</td></tr>`;
+                }).join('');
+                const action = group.allPaid
+                    ? `<button type="button" data-print-invoice="${escapeHtml(group.key)}" class="btn-primary inline-flex items-center gap-2 px-3 py-2 text-xs"><i class="fa-solid fa-print" aria-hidden="true"></i>Print sales receipt</button>`
+                    : `<button type="button" disabled class="btn-outline inline-flex cursor-not-allowed items-center gap-2 px-3 py-2 text-xs opacity-60"><i class="fa-solid fa-lock" aria-hidden="true"></i>Waiting for full payment</button>`;
+                return `<details class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900/60"><summary class="flex cursor-pointer list-none flex-wrap items-center justify-between gap-3 px-4 py-3"><span><strong class="block text-sm text-gray-950 dark:text-white">${escapeHtml(group.buyer)}</strong><span class="mt-1 block text-xs text-gray-500">${escapeHtml(group.sessionName)} · ${group.orders.length} ${group.orders.length === 1 ? 'item' : 'items'} · Receipt ${escapeHtml(group.receiptNumber)}</span></span><span class="flex flex-wrap items-center gap-3"><span class="rounded-full border px-2.5 py-1 text-[10px] font-semibold ${statusClass}">${statusLabel}</span><strong class="font-mono text-sm text-gray-950 dark:text-white">${formatCurrency(group.total)}</strong></span></summary><div class="border-t border-gray-100 p-4 dark:border-gray-800"><div class="overflow-x-auto"><table class="w-full min-w-[620px] text-left text-xs"><thead class="text-[10px] uppercase tracking-wide text-gray-500"><tr><th class="px-3 py-2">Date</th><th class="px-3 py-2">Item</th><th class="px-3 py-2 text-right">Total</th><th class="px-3 py-2 text-right">Paid</th><th class="px-3 py-2 text-right">Balance</th></tr></thead><tbody>${rows}</tbody></table></div><div class="mt-4 flex flex-col gap-3 border-t border-gray-100 pt-3 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between"><p class="text-xs text-gray-500">Collected ${formatCurrency(group.collected)} · Balance due ${formatCurrency(group.balance)}</p>${action}</div></div></details>`;
+            }).join('');
+            container.querySelectorAll('[data-print-invoice]').forEach(button => button.addEventListener('click', () => printBuyerReceipt(button.dataset.printInvoice)));
+        }
+
+        function printBuyerReceipt(groupKey) {
+            const group = getBuyerInvoiceGroups().find(item => item.key === groupKey);
+            if (!group || !group.allPaid) {
+                showToast('A sales receipt is available after every item is fully paid.', true);
+                return;
+            }
+            const printArea = document.getElementById('receiptPrintArea');
+            if (!printArea) return;
+            const itemRows = group.orders.map((order, index) => `<tr><td style="padding:6px 0;border-bottom:1px dashed #999;overflow-wrap:anywhere">${index + 1}. ${escapeHtml(order.item || 'Item')}<br><small>ITEM ID: ${escapeHtml(order.sku || '—')}</small></td><td style="padding:6px 0;border-bottom:1px dashed #999;text-align:right;white-space:nowrap">${formatCurrency(getReportOrderAmounts(order).total)}</td></tr>`).join('');
+            const paymentMethods = [...new Set(group.orders.map(order => order.mop).filter(Boolean))].join(', ') || '—';
+            printArea.innerHTML = `<main style="box-sizing:border-box;width:72mm;max-width:100%;margin:0 auto;padding:3mm 2mm;color:#111;background:#fff;font-family:'Courier New',Courier,monospace;font-size:11px;line-height:1.4"><header style="text-align:center;padding-bottom:8px;border-bottom:1px dashed #555"><img src="images/coverimage.jpg" alt="Clothes Mania Davao" style="display:block;width:62mm;max-width:100%;height:30mm;object-fit:contain;margin:0 auto 5px"><h1 style="margin:0;font-size:13px;font-weight:700;letter-spacing:.04em">**** INVOICE / RECEIPT ****</h1></header><section style="padding:9px 0;border-bottom:1px dashed #555;overflow-wrap:anywhere"><div>BUYER: ${escapeHtml(group.buyer)}</div><div>DATE: ${escapeHtml(group.orders[0]?.date || '')}</div><div>LIVE: ${escapeHtml(group.sessionName)}</div><div>RECEIPT #: ${escapeHtml(group.receiptNumber)}</div><div>ISSUED: ${escapeHtml(new Date().toLocaleString('en-PH'))}</div></section><table style="width:100%;border-collapse:collapse;margin-top:7px;font-size:11px"><thead><tr><th style="padding:3px 0;text-align:left;border-bottom:1px solid #111">ITEM</th><th style="padding:3px 0;text-align:right;border-bottom:1px solid #111">PRICE</th></tr></thead><tbody>${itemRows}</tbody></table><table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:11px"><tbody><tr><td style="padding:3px 0">TOTAL</td><td style="padding:3px 0;text-align:right">${formatCurrency(group.total)}</td></tr><tr><td style="padding:3px 0">PAID</td><td style="padding:3px 0;text-align:right">${formatCurrency(group.collected)}</td></tr><tr><td style="padding:3px 0">BALANCE</td><td style="padding:3px 0;text-align:right">${formatCurrency(group.balance)}</td></tr></tbody></table><div style="padding:6px 0;border-bottom:1px dashed #555">PAYMENT: ${escapeHtml(paymentMethods)}</div><footer style="padding-top:10px;text-align:center;overflow-wrap:anywhere"><p style="margin:0 0 8px;font-weight:700">THANK YOU FOR SHOPPING WITH US<br>LET YOUR STYLE BE THE SPOTLIGHT</p><p style="margin:0 0 3px;font-weight:700">STORE LOCATION</p><p style="margin:0">Door 1F Ground Floor DSTI Bldg., Watusi Street, Buhangin, Davao City, Philippines, 8000</p></footer></main>`;
+            const cleanup = () => {
+                document.body.classList.remove('printing-receipt');
+                printArea.innerHTML = '';
+            };
+            window.addEventListener('afterprint', cleanup, { once: true });
+            document.body.classList.add('printing-receipt');
+            window.print();
+            setTimeout(cleanup, 60000);
         }
 
         function getOutstandingMineOrders() {
@@ -3848,22 +4395,55 @@
         function renderFullMinesTable() {
             const tbody = document.getElementById('fullMinesTableBody');
             tbody.innerHTML = '';
+            if (!tbody.dataset.mineRowViewBound) {
+                tbody.addEventListener('click', event => {
+                    const target = event.target instanceof Element ? event.target : event.target.parentElement;
+                    if (!target || target.closest('button, input, select, textarea, a, label, [contenteditable="true"]')) return;
+                    const row = target.closest('tr[data-mine-view-id]');
+                    if (row) viewMine(row.dataset.mineViewId);
+                });
+                tbody.addEventListener('keydown', event => {
+                    if (event.key !== 'Enter' && event.key !== ' ') return;
+                    const target = event.target instanceof Element ? event.target : event.target.parentElement;
+                    if (target?.closest('button, input, select, textarea, a, label, [contenteditable="true"]')) return;
+                    const row = target?.closest('tr[data-mine-view-id]');
+                    if (!row) return;
+                    event.preventDefault();
+                    viewMine(row.dataset.mineViewId);
+                });
+                tbody.dataset.mineRowViewBound = 'true';
+            }
             renderMineSessionTabs();
 
             const historyList = document.getElementById('mineHistoryList');
             const unpaidView = document.getElementById('mineUnpaidView');
+            const invoiceView = document.getElementById('mineInvoiceView');
             const historyHeader = document.getElementById('mineHistoryDetailHeader');
             const tableView = document.getElementById('mineOrdersTableView');
             const endButton = document.getElementById('btnEndLiveSession');
             const selectedSession = (db.liveSessions || []).find(session => session.id === mineSessionView);
             const showingHistoryCards = mineSessionView === '__history__';
             const showingUnpaidLedger = mineSessionView === '__unpaid__';
+            const showingItemStatus = mineSessionView === '__item_status__';
+            const showingInvoices = mineSessionView === '__invoices__';
             historyList?.classList.toggle('hidden', !showingHistoryCards);
             unpaidView?.classList.toggle('hidden', !showingUnpaidLedger);
-            tableView?.classList.toggle('hidden', showingHistoryCards || showingUnpaidLedger);
-            historyHeader?.classList.toggle('hidden', showingHistoryCards || showingUnpaidLedger || (mineSessionView !== '__legacy__' && !selectedSession));
-            historyHeader?.classList.toggle('flex', !showingHistoryCards && !showingUnpaidLedger && (mineSessionView === '__legacy__' || Boolean(selectedSession)));
-            endButton?.classList.toggle('hidden', showingUnpaidLedger || !(selectedSession && isLiveSessionActive(selectedSession)));
+            invoiceView?.classList.toggle('hidden', !showingInvoices);
+            tableView?.classList.toggle('hidden', showingHistoryCards || showingUnpaidLedger || showingInvoices);
+            historyHeader?.classList.toggle('hidden', showingHistoryCards || showingUnpaidLedger || showingInvoices || (!showingItemStatus && mineSessionView !== '__legacy__' && !selectedSession));
+            historyHeader?.classList.toggle('flex', !showingHistoryCards && !showingUnpaidLedger && !showingInvoices && (showingItemStatus || mineSessionView === '__legacy__' || Boolean(selectedSession)));
+            historyHeader?.querySelector('button')?.classList.toggle('hidden', showingItemStatus);
+            endButton?.classList.toggle('hidden', showingUnpaidLedger || showingInvoices || !(selectedSession && isLiveSessionActive(selectedSession)));
+            document.getElementById('minePaymentFilters')?.classList.toggle('hidden', showingItemStatus);
+            document.getElementById('mineItemStatusFilters')?.classList.toggle('hidden', !showingItemStatus);
+            document.getElementById('mineFilterLabel').textContent = showingItemStatus ? 'Item status' : 'Payment status';
+
+            if (showingInvoices) {
+                renderBuyerInvoices();
+                const count = document.getElementById('mineFeedCount');
+                if (count) count.textContent = `${getBuyerInvoiceGroups().length} buyer ${getBuyerInvoiceGroups().length === 1 ? 'invoice' : 'invoices'}`;
+                return;
+            }
 
             if (showingHistoryCards) {
                 renderMineHistoryList();
@@ -3885,6 +4465,9 @@
             if (mineSessionView === '__legacy__') {
                 if (historyTitle) historyTitle.textContent = 'Earlier orders';
                 if (historyDate) historyDate.textContent = 'Orders saved before live sessions were introduced';
+            } else if (showingItemStatus) {
+                if (historyTitle) historyTitle.textContent = 'Item Status';
+                if (historyDate) historyDate.textContent = 'Track fulfillment across all live sessions';
             } else if (selectedSession && historyHeader) {
                 if (historyTitle) historyTitle.textContent = selectedSession.name;
                 if (historyDate) historyDate.textContent = `${formatLiveSessionTimestamp(selectedSession)}${isLiveSessionActive(selectedSession) ? ' · In progress' : ' · Saved!'}`;
@@ -3893,13 +4476,19 @@
             let sessionMines = [];
             if (mineSessionView === '__legacy__') {
                 sessionMines = db.mines.filter(mine => !mine.sessionId || !(db.liveSessions || []).some(session => session.id === mine.sessionId));
+            } else if (showingItemStatus) {
+                sessionMines = db.mines;
             } else if (mineSessionView !== '__new__') {
                 sessionMines = db.mines.filter(mine => mine.sessionId === mineSessionView);
             }
 
             const filtered = sessionMines.filter(mine => {
-                if (mineFilterTab === 'PAID' && mine.status !== 'PAID') return false;
-                if (mineFilterTab === 'UNPAID' && mine.status !== 'UNPAID') return false;
+                if (mineFilterTab.startsWith('ITEM_STATUS:')) {
+                    const selectedItemStatus = mineFilterTab.slice('ITEM_STATUS:'.length);
+                    if (selectedItemStatus !== 'ALL' && String(mine.deliveryStatus || 'PENDING').toUpperCase() !== selectedItemStatus) return false;
+                }
+                if (mineFilterTab === 'PAID' && getMinePaymentStatus(mine) !== 'PAID') return false;
+                if (mineFilterTab === 'UNPAID' && getReportOrderAmounts(mine).balance <= 0) return false;
                 return true;
             });
             const count = document.getElementById('mineFeedCount');
@@ -3907,7 +4496,9 @@
 
             if (!filtered.length) {
                 const selectedSession = (db.liveSessions || []).find(session => session.id === mineSessionView);
-                const emptyMessage = mineSessionView === '__new__'
+                const emptyMessage = showingItemStatus
+                    ? 'No orders match this item status.'
+                    : mineSessionView === '__new__'
                     ? 'Start a live session to get a clean feed for today. Earlier orders remain safely in History.'
                     : mineSessionView === '__history__'
                         ? 'No earlier orders yet.'
@@ -3915,46 +4506,93 @@
                 const action = mineSessionView === '__new__'
                     ? '<button onclick="startLiveSession()" class="btn-primary mt-3 px-3 py-2 text-xs"><i class="fa-solid fa-plus mr-1"></i> Start live session</button>'
                     : '';
-                tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-12 text-center"><div class="mx-auto max-w-sm text-sm font-medium text-gray-700 dark:text-gray-300">${emptyMessage}</div>${action}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="15" class="px-4 py-12 text-center"><div class="mx-auto max-w-sm text-sm font-medium text-gray-700 dark:text-gray-300">${emptyMessage}</div>${action}</td></tr>`;
                 return;
             }
 
-            filtered.forEach(m => {
-                const isPaid = m.status === 'PAID';
+            const buyerGroups = new Map();
+            filtered.forEach(mine => {
+                const buyerName = String(mine.name || 'Unknown buyer').trim().replace(/\s+/g, ' ') || 'Unknown buyer';
+                const buyerKey = buyerName.toLocaleLowerCase();
+                const sessionKey = mine.sessionId || `legacy:${mine.date}`;
+                const groupKey = `${sessionKey}::${buyerKey}`;
+                if (!buyerGroups.has(groupKey)) buyerGroups.set(groupKey, { buyerName, orders: [] });
+                buyerGroups.get(groupKey).orders.push(mine);
+            });
+
+            buyerGroups.forEach(group => {
+                const groupAmounts = group.orders.reduce((totals, mine) => {
+                    const amounts = getReportOrderAmounts(mine);
+                    totals.total += amounts.total;
+                    totals.balance += amounts.balance;
+                    return totals;
+                }, { total: 0, balance: 0 });
+                const preferredSeller = group.orders.find(mine => mine.seller)?.seller || 'TRICIA';
+                const groupStatuses = [...new Set(group.orders.map(mine => String(mine.deliveryStatus || 'PENDING').toUpperCase()))];
+                const groupStatusSummary = groupStatuses.length > 1 ? `Mixed: ${groupStatuses.join(' · ')}` : groupStatuses[0];
+                const sessionLabel = showingItemStatus
+                    ? (db.liveSessions || []).find(session => session.id === group.orders[0]?.sessionId)?.name || 'Earlier orders'
+                    : '';
+                tbody.innerHTML += `<tr class="bg-amber-50/70 dark:bg-amber-500/[0.06]"><td colspan="15" class="border-t border-gray-200 px-3 py-2.5 dark:border-gray-700"><div class="flex flex-wrap items-center justify-between gap-2"><div class="flex min-w-0 flex-wrap items-center gap-2"><button type="button" data-add-buyer-item="${escapeHtml(group.buyerName)}" data-add-buyer-seller="${escapeHtml(preferredSeller)}" class="inline-flex h-7 shrink-0 items-center gap-1 rounded-lg border border-amber-300 bg-white px-2 text-[10px] font-semibold text-amber-800 transition hover:bg-amber-100 dark:border-amber-500/30 dark:bg-gray-900 dark:text-amber-300 dark:hover:bg-amber-500/10"><i class="fa-solid fa-plus" aria-hidden="true"></i>Add item</button><i class="fa-solid fa-user-group text-amber-600" aria-hidden="true"></i><strong class="text-xs text-gray-900 dark:text-white">${escapeHtml(group.buyerName)}</strong><span class="rounded-full bg-white px-2 py-0.5 text-[10px] font-medium text-gray-500 dark:bg-gray-900 dark:text-gray-400">${group.orders.length} ${group.orders.length === 1 ? 'item' : 'items'}${sessionLabel ? ` · ${escapeHtml(sessionLabel)}` : ''}</span></div><div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-[10px]"><span class="${groupStatuses.length > 1 ? 'font-semibold text-amber-800 dark:text-amber-300' : 'text-gray-500 dark:text-gray-400'}">${escapeHtml(groupStatusSummary)}</span><span class="text-gray-600 dark:text-gray-300">Group total <strong class="font-mono">${formatCurrency(groupAmounts.total)}</strong>${groupAmounts.balance > 0 ? ` · ${formatCurrency(groupAmounts.balance)} due` : ''}</span></div></div></td></tr>`;
+                group.orders.forEach(m => {
+                const paymentStatus = getMinePaymentStatus(m);
+                const encodedMineId = encodeURIComponent(String(m.id || '')).replace(/'/g, '%27');
+                const isPaid = paymentStatus === 'PAID';
+                const isPartial = paymentStatus === 'PARTIAL';
                 const isCancelled = m.status === 'RETURNED' || m.status === 'CANCELLED';
+                const paymentMethod = m.mop === 'BPI' ? 'Bank' : m.mop === 'COD' ? 'Cash' : (m.mop || 'Cash');
+                const requestedItemStatus = String(m.deliveryStatus || 'PENDING').toUpperCase();
+                const itemStatus = ['PENDING', 'NOT SHIPPED', 'SHIPPED', 'PICK UP', 'MAXIM'].includes(requestedItemStatus) ? requestedItemStatus : 'PENDING';
+                const shippingFee = normalizeShippingFeeStatus(m.shippingFeeStatus);
+                const shippingFeeLabel = getShippingFeeStatusLabel(shippingFee);
+                const shippingFeeStyle = shippingFee === 'FREE'
+                    ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                    : shippingFee === 'NOT_FREE'
+                        ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+                        : 'border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300';
                 const statusControl = isCancelled
                     ? '<span class="mine-status-static status-cancelled"><i class="fa-solid fa-ban"></i> Cancelled</span>'
-                    : `<button type="button" onclick="handleStatusChange('${m.id}', '${isPaid ? 'UNPAID' : 'PAID'}')" aria-label="Mark order ${escapeHtml(m.name)} as ${isPaid ? 'unpaid' : 'paid'}" aria-pressed="${isPaid}" class="mine-status-toggle ${isPaid ? 'status-paid' : 'status-unpaid'}"><i class="fa-solid ${isPaid ? 'fa-circle-check' : 'fa-clock'}"></i>${isPaid ? 'Paid' : 'Unpaid'}</button>`;
+                    : isPaid
+                        ? '<span class="mine-status-static status-paid"><i class="fa-solid fa-circle-check"></i>PAID</span>'
+                    : `<button type="button" onclick="handleStatusChange(decodeURIComponent('${encodedMineId}'), 'PAID')" aria-label="Mark order ${escapeHtml(m.name)} as paid" aria-pressed="false" class="mine-status-toggle ${isPartial ? 'status-partial' : 'status-unpaid'}"><i class="fa-solid ${isPartial ? 'fa-hourglass-half' : 'fa-clock'}"></i>${isPartial ? 'PARTIALLY PAID' : 'UNPAID'}</button>`;
+                const itemStatusControl = `<select aria-label="Item status for ${escapeHtml(m.item || m.name)}" onchange="handleMineItemStatusChange(decodeURIComponent('${encodedMineId}'), this.value)" class="mine-select mine-delivery-select status-color-${itemStatus.toLowerCase().replace(/ /g, '-')}"><option value="PENDING" ${itemStatus === 'PENDING' ? 'selected' : ''}>PENDING</option><option value="NOT SHIPPED" ${itemStatus === 'NOT SHIPPED' ? 'selected' : ''}>NOT SHIPPED</option><option value="SHIPPED" ${itemStatus === 'SHIPPED' ? 'selected' : ''} ${!isPaid ? 'disabled' : ''}>SHIPPED${!isPaid ? ' (FULL PAYMENT REQUIRED)' : ''}</option><option value="PICK UP" ${itemStatus === 'PICK UP' ? 'selected' : ''}>PICK UP</option><option value="MAXIM" ${itemStatus === 'MAXIM' ? 'selected' : ''}>MAXIM</option></select>`;
                 tbody.innerHTML += `
-                    <tr class="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition">
+                    <tr data-mine-view-id="${escapeHtml(m.id)}" tabindex="0" aria-label="View order details for ${escapeHtml(m.name)}" class="cursor-pointer hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-amber-500 dark:hover:bg-gray-800/50 transition">
                         <td class="py-2.5 px-2 text-[12px] font-mono whitespace-nowrap">${escapeHtml(m.date)}<br><span class="text-[10px] text-gray-400">${escapeHtml(m.time)}</span></td>
-                        <td class="py-2.5 px-2"><input aria-label="Buyer name" onchange="updateMineField('${m.id}', 'name', this.value)" class="w-40 bg-transparent text-sm font-bold outline-none" value="${escapeHtml(m.name)}"></td>
-                        <td class="py-2.5 px-2"><input aria-label="Product details" onchange="updateMineField('${m.id}', 'item', this.value)" class="w-60 bg-transparent text-sm outline-none" value="${escapeHtml(m.item)}"></td>
-                        <td class="py-2.5 px-2 text-right"><input aria-label="Price" type="number" step="0.01" onchange="updateMineField('${m.id}', 'price', this.value)" class="w-20 bg-transparent text-sm font-mono text-right outline-none" value="${m.price}"></td>
-                        <td class="py-2.5 px-2 text-right"><input aria-label="Downpayment" type="number" step="0.01" onchange="updateMineField('${m.id}', 'dp', this.value)" class="w-16 bg-transparent text-sm font-mono text-right outline-none" value="${m.dp}"></td>
-                        <td class="py-2.5 px-2 text-right"><input aria-label="Order total" type="number" step="0.01" onchange="updateMineField('${m.id}', 'total', this.value)" class="w-20 bg-transparent text-sm font-mono text-right font-bold outline-none" value="${m.total}"></td>
-                        <td class="py-2.5 px-2"><input aria-label="Payment reference" onchange="updateMineField('${m.id}', 'ref', this.value)" class="w-36 bg-transparent text-sm outline-none" value="${escapeHtml(m.ref || '')}"></td>
+                        <td class="py-2.5 px-2"><input aria-label="Buyer name" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'name', this.value)" class="w-40 bg-transparent text-sm font-bold outline-none" value="${escapeHtml(m.name)}"></td>
+                        <td class="py-2.5 px-2"><input aria-label="Product details" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'item', this.value)" class="w-60 bg-transparent text-sm outline-none" value="${escapeHtml(m.item)}"></td>
+                        <td class="py-2.5 px-2 font-mono text-xs text-gray-600 dark:text-gray-300">${escapeHtml(m.sku || '—')}</td>
+                        <td class="py-2.5 px-2 text-right"><input aria-label="Price" type="number" step="0.01" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'price', this.value)" class="w-20 bg-transparent text-sm font-mono text-right outline-none" value="${Number(m.price) || 0}"></td>
+                        <td class="py-2.5 px-2 text-right"><input aria-label="Downpayment" type="number" step="0.01" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'dp', this.value)" class="w-16 bg-transparent text-sm font-mono text-right outline-none" value="${Number(m.dp) || 0}"></td>
+                        <td class="py-2.5 px-2 text-right"><input aria-label="Order total" type="number" step="0.01" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'total', this.value)" class="w-20 bg-transparent text-sm font-mono text-right font-bold outline-none" value="${Number(m.total) || 0}"></td>
                         <td class="py-2.5 px-2">${statusControl}</td>
-                        <td class="py-2.5 px-2"><select aria-label="Live host" onchange="updateMineField('${m.id}', 'seller', this.value)" class="mine-select">${liveHostOptions(m.seller)}</select></td>
-                        <td class="py-2.5 px-2"><select aria-label="Mode of payment" onchange="handleMOPChange('${m.id}', this.value)" class="mine-select"><option ${m.mop==='GCash'?'selected':''}>GCash</option><option ${m.mop==='COD'?'selected':''}>COD</option><option ${m.mop==='BPI'?'selected':''}>BPI</option><option ${m.mop==='Maya'?'selected':''}>Maya</option><option ${m.mop==='Cash'?'selected':''}>Cash</option></select></td>
+                        <td class="py-2.5 px-2">${itemStatusControl}</td>
+                        <td class="mine-order-remark-cell py-2.5 px-2 max-w-56 text-xs">${itemStatus === 'NOT SHIPPED' && m.deliveryNote ? `<span class="mine-order-remark font-bold leading-4 text-blue-800 dark:text-blue-300">${escapeHtml(m.deliveryNote)}</span>` : '<span class="text-gray-400 dark:text-gray-500">—</span>'}</td>
+                        <td class="py-2.5 px-2"><span class="inline-flex whitespace-nowrap rounded-full border px-2 py-1 text-[10px] font-bold ${shippingFeeStyle}">${escapeHtml(shippingFeeLabel)}</span></td>
+                        <td class="py-2.5 px-2 whitespace-nowrap">${escapeHtml(liveHostLabel(m.seller || ''))}</td>
+                        <td class="py-2.5 px-2"><select aria-label="Mode of payment" onchange="handleMOPChange('${m.id}', this.value)" class="mine-select"><option value="GCash" ${paymentMethod==='GCash'?'selected':''}>GCash</option><option value="Bank" ${paymentMethod==='Bank'?'selected':''}>Bank</option><option value="Maya" ${paymentMethod==='Maya'?'selected':''}>Maya</option><option value="Cash" ${paymentMethod==='Cash'?'selected':''}>Cash</option></select></td>
+                        <td class="py-2.5 px-2"><input aria-label="Payment reference" onchange="updateMineField(decodeURIComponent('${encodedMineId}'), 'ref', this.value)" class="w-36 bg-transparent text-sm outline-none" value="${escapeHtml(m.ref || '')}"></td>
                         <td class="py-2.5 px-2 text-right">
                             <div class="inline-flex items-center gap-1">
-                                <button type="button" onclick="viewMine('${m.id}')" title="View order" aria-label="View order" class="mine-action-btn"><i class="fa-regular fa-eye"></i></button>
-                                <button type="button" onclick="editMineFromRow('${m.id}')" title="Edit order" aria-label="Edit order" class="mine-action-btn"><i class="fa-solid fa-pen"></i></button>
-                                <button type="button" onclick="deleteMineOrder('${m.id}')" title="Delete order" aria-label="Delete order" class="mine-action-btn is-destructive"><i class="fa-regular fa-trash-can"></i></button>
+                                <button type="button" onclick="viewMine(decodeURIComponent('${encodedMineId}'))" title="View order" aria-label="View order" class="mine-action-btn"><i class="fa-regular fa-eye"></i></button>
+                                <button type="button" onclick="editMineFromRow(decodeURIComponent('${encodedMineId}'))" title="Edit order" aria-label="Edit order" class="mine-action-btn"><i class="fa-solid fa-pen"></i></button>
+                                <button type="button" onclick="deleteMineOrder(decodeURIComponent('${encodedMineId}'))" title="Delete order" aria-label="Delete order" class="mine-action-btn is-destructive"><i class="fa-regular fa-trash-can"></i></button>
                             </div>
                         </td>
                     </tr>
                 `;
+                });
             });
+            tbody.querySelectorAll('[data-add-buyer-item]').forEach(button => button.addEventListener('click', () => addMineItemForBuyer(button.dataset.addBuyerItem, button.dataset.addBuyerSeller)));
         }
 
         function filterMines(tab) {
             mineFilterTab = tab;
-            ['ALL', 'PAID', 'UNPAID'].forEach(status => {
+            ['ALL', 'PAID', 'UNPAID', 'ITEM_STATUS-ALL', 'ITEM_STATUS-PENDING', 'ITEM_STATUS-NOT_SHIPPED', 'ITEM_STATUS-SHIPPED', 'ITEM_STATUS-PICK_UP', 'ITEM_STATUS-MAXIM'].forEach(status => {
                 const button = document.getElementById('filter-btn-' + status);
                 if (!button) return;
-                const active = status === tab;
+                const normalizedTab = tab.replace(':', '-').replace(' ', '_');
+                const active = status === normalizedTab;
                 button.classList.toggle('is-active', active);
                 button.setAttribute('aria-pressed', String(active));
             });
@@ -3982,7 +4620,117 @@
                     shirt.qty = (shirt.qty || 0) + 1;
                 }
             }
+            if (field === 'dp' || field === 'total') {
+                mine.status = getMinePaymentStatusFromAmounts(mine.total, mine.dp);
+            }
             saveToLocalStorage();
+            if (field === 'dp' || field === 'total') {
+                renderFullMinesTable();
+                renderUnpaidLedger();
+                updateDashboardMetrics();
+            }
+        }
+
+        function getMinePaymentStatusFromAmounts(totalValue, downpaymentValue) {
+            const total = Math.max(0, Number(totalValue) || 0);
+            const downpayment = Math.max(0, Number(downpaymentValue) || 0);
+            if (total > 0 && downpayment >= total) return 'PAID';
+            return downpayment > 0 ? 'PARTIAL' : 'UNPAID';
+        }
+
+        function getMinePaymentStatus(mine) {
+            const status = String(mine?.status || '').toUpperCase();
+            if (['PAID', 'PARTIAL', 'UNPAID'].includes(status)) return status;
+            return getMinePaymentStatusFromAmounts(mine?.total ?? mine?.price, mine?.dp);
+        }
+
+        function normalizeShippingFeeStatus(status) {
+            const normalizedStatus = String(status || '').toUpperCase();
+            if (normalizedStatus === 'FREE') return 'FREE';
+            if (normalizedStatus === 'NOT_FREE' || normalizedStatus === 'PAID' || normalizedStatus === 'UNPAID') return 'NOT_FREE';
+            return 'NONE';
+        }
+
+        function getShippingFeeStatusLabel(status) {
+            const normalizedStatus = normalizeShippingFeeStatus(status);
+            if (normalizedStatus === 'FREE') return 'FREE SHIPPING';
+            if (normalizedStatus === 'NOT_FREE') return 'NOT FREE SHIPPING';
+            return 'NONE';
+        }
+
+        function getSignedInAdminName() {
+            const metadata = currentAuthUser?.user_metadata || {};
+            return String(metadata.full_name || metadata.name || currentAuthUser?.email?.split('@')[0] || 'Admin').trim();
+        }
+
+        function updateMineOrderHeaderDateTime() {
+            const date = document.getElementById('mineDate').value;
+            const time = document.getElementById('mineTime').value;
+            const label = document.getElementById('mineOrderDateTime');
+            const orderDate = date ? new Date(`${date}T00:00:00`) : null;
+            label.textContent = orderDate && !Number.isNaN(orderDate.getTime()) && time
+                ? `${orderDate.toLocaleDateString([], { dateStyle: 'medium' })} · ${time}`
+                : 'Fast entry for live selling orders';
+        }
+
+        function updateMinePaymentStatusFromAmounts() {
+            const total = document.getElementById('mineTotal').value;
+            const downpayment = document.getElementById('mineDp').value;
+            const statusSelect = document.getElementById('mineStatus');
+            statusSelect.value = getMinePaymentStatusFromAmounts(total, downpayment);
+            updateMinePaymentStatusUI(statusSelect.value);
+        }
+
+        function updateMinePaymentStatusUI(status) {
+            const statusSelect = document.getElementById('mineStatus');
+            const referenceInput = document.getElementById('mineRef');
+            const referenceHint = document.getElementById('mineRefRequiredHint');
+            statusSelect.value = status;
+            statusSelect.classList.remove('status-color-unpaid', 'status-color-partial', 'status-color-paid');
+            statusSelect.classList.add(`status-color-${statusSelect.value.toLowerCase()}`);
+            referenceInput.required = status === 'PAID';
+            referenceInput.placeholder = status === 'PAID' ? 'Required for paid orders' : 'Optional reference';
+            referenceHint.classList.toggle('hidden', status !== 'PAID');
+            updateMineShippedStatusAvailability();
+            if (document.getElementById('mineDeliveryStatus').value === 'SHIPPED') updateMineDeliveryStatusColor('SHIPPED');
+        }
+
+        function updateMineShippedStatusAvailability() {
+            const fullyPaid = document.getElementById('mineStatus').value === 'PAID';
+            const shippedOption = document.querySelector('#mineDeliveryStatus option[value="SHIPPED"]');
+            shippedOption.disabled = !fullyPaid;
+            shippedOption.textContent = fullyPaid ? 'SHIPPED' : 'SHIPPED (FULL PAYMENT REQUIRED)';
+            return fullyPaid;
+        }
+
+        function updateMineDeliveryStatusColor(status) {
+            const statusSelect = document.getElementById('mineDeliveryStatus');
+            const note = document.getElementById('mineDeliveryNote');
+            const noteField = document.getElementById('mineDeliveryNoteField');
+            if (String(status || '').toUpperCase() === 'SHIPPED' && !updateMineShippedStatusAvailability()) {
+                statusSelect.value = 'PENDING';
+                status = 'PENDING';
+                showToast('Mark the order fully paid before setting it to SHIPPED.', true);
+            }
+            const requiresReason = String(status || '').toUpperCase() === 'NOT SHIPPED';
+            const statusClass = {
+                'PENDING': 'status-color-pending',
+                'NOT SHIPPED': 'status-color-not-shipped',
+                'SHIPPED': 'status-color-shipped',
+                'PICK UP': 'status-color-pick-up',
+                'MAXIM': 'status-color-maxim'
+            }[String(status || '').toUpperCase()];
+            statusSelect.classList.remove('status-color-pending', 'status-color-not-shipped', 'status-color-shipped', 'status-color-pick-up', 'status-color-maxim');
+            if (statusClass) statusSelect.classList.add(statusClass);
+            noteField.classList.toggle('hidden', !requiresReason);
+            note.required = requiresReason;
+        }
+
+        function handleMinePaymentStatusSelection(status) {
+            const totalInput = document.getElementById('mineTotal');
+            const downpaymentInput = document.getElementById('mineDp');
+            if (status === 'PAID') downpaymentInput.value = totalInput.value;
+            updateMinePaymentStatusUI(status);
         }
 
         // When MOP changes to GCash or status changes to PAID, require/ref modal if needed
@@ -3995,19 +4743,50 @@
             }
         }
 
+        async function handleMineItemStatusChange(id, newStatus) {
+            const mine = db.mines.find(item => item.id === id);
+            if (!mine) return;
+            const normalizedStatus = String(newStatus || '').toUpperCase();
+            if (normalizedStatus === String(mine.deliveryStatus || 'PENDING').toUpperCase()) return;
+            if (normalizedStatus === 'SHIPPED' && getMinePaymentStatus(mine) !== 'PAID') {
+                showToast('Mark this item fully paid before setting it to SHIPPED.', true);
+                renderFullMinesTable();
+                return;
+            }
+            if (normalizedStatus === 'NOT SHIPPED' && !String(mine.deliveryNote || '').trim()) {
+                const reason = await showAppPrompt('Add a remark', 'Add a short reason for why this item has not shipped.', 'Remarks', '', 'Save status');
+                if (!reason) {
+                    renderFullMinesTable();
+                    return;
+                }
+                mine.deliveryNote = reason;
+            }
+            mine.deliveryStatus = normalizedStatus;
+            recordAuditEvent('Updated item status', 'Mine order', mine.id, `${mine.name} · ${mine.item} marked ${normalizedStatus}`);
+            saveToLocalStorage();
+            renderFullMinesTable();
+            showToast(`Item status saved as ${normalizedStatus}`);
+        }
+
         function handleStatusChange(id, newStatus) {
             const mine = db.mines.find(m => m.id === id);
             if (!mine) return;
-            // if switching to PAID and mop is GCash, require ref
-            if (newStatus === 'PAID' && mine.mop === 'GCash' && !mine.ref) {
-                // set status tentatively and open ref modal
+            if (newStatus === 'PAID') {
+                if (!mine.ref) {
+                    openRefModal(id);
+                    return;
+                }
+                mine.dp = Math.max(0, Number(mine.total || mine.price || 0));
                 mine.status = newStatus;
-                saveToLocalStorage();
-                openRefModal(id);
-                return;
+            } else {
+                mine.status = getMinePaymentStatusFromAmounts(mine.total, mine.dp);
             }
-            // normal update
-            updateMineField(id, 'status', newStatus);
+            recordAuditEvent('Updated payment status', 'Mine order', mine.id, `${mine.name} marked ${mine.status}`);
+            saveToLocalStorage();
+            renderFullMinesTable();
+            renderUnpaidLedger();
+            updateDashboardMetrics();
+            showToast(`Order status updated to ${mine.status}`);
         }
 
         function findShirtFromItem(itemStr) {
@@ -4016,10 +4795,10 @@
             return db.shirts.find(s => cleaned.includes(s.name.toLowerCase()) && cleaned.includes(String(s.size).toLowerCase()));
         }
 
-        function returnMineOrder(id) {
+        async function returnMineOrder(id) {
             const mine = db.mines.find(m => m.id === id);
             if (!mine) return;
-            if (!confirm('Mark this order as returned/cancelled and restore stock?')) return;
+            if (!await showAppConfirm('Return or cancel this order?', 'This will mark the order as returned/cancelled and restore its stock.', 'Return order', true)) return;
             // set status and restore stock if linked
             const shirt = findShirtFromItem(mine.item);
             if (shirt) {
@@ -4056,11 +4835,20 @@
             const val = document.getElementById('refInput').value.trim();
             const mine = db.mines.find(m => m.id === mineId);
             if (!mine) return closeRefModal();
+            if (!val) {
+                showToast('Enter a payment reference before marking this order paid.', true);
+                document.getElementById('refInput').focus();
+                return;
+            }
             mine.ref = val;
             // ensure status is PAID when ref provided
             mine.status = 'PAID';
+            mine.dp = Math.max(0, Number(mine.total || mine.price || 0));
             saveToLocalStorage();
             closeRefModal();
+            renderFullMinesTable();
+            renderUnpaidLedger();
+            updateDashboardMetrics();
             showToast('Payment reference saved');
         }
 
@@ -4080,7 +4868,7 @@
 
         function getReportOrderAmounts(mine) {
             const total = Math.max(0, Number(mine.total ?? mine.price ?? 0) || 0);
-            if (String(mine.status || '').toUpperCase() === 'PAID') return { total, collected: total, balance: 0 };
+            if (getMinePaymentStatus(mine) === 'PAID') return { total, collected: total, balance: 0 };
             const downpayment = Math.min(total, Math.max(0, Number(mine.dp || 0) || 0));
             return { total, collected: downpayment, balance: Math.max(0, total - downpayment) };
         }
@@ -4108,8 +4896,8 @@
             };
         }
 
-        function shiftReportMonth(amount) {
-            if (editingReportDate && !confirm('Discard unsaved daily sheet edits?')) return;
+        async function shiftReportMonth(amount) {
+            if (editingReportDate && !await showAppConfirm('Discard unsaved changes?', 'Your unsaved daily sheet edits will be lost.', 'Discard changes', true)) return;
             editingReportDate = null;
             reportLedgerDraft = null;
             reportMonthCursor = new Date(reportMonthCursor.getFullYear(), reportMonthCursor.getMonth() + amount, 1);
@@ -4117,8 +4905,8 @@
             renderDailyLedger();
         }
 
-        function goToCurrentReportMonth() {
-            if (editingReportDate && !confirm('Discard unsaved daily sheet edits?')) return;
+        async function goToCurrentReportMonth() {
+            if (editingReportDate && !await showAppConfirm('Discard unsaved changes?', 'Your unsaved daily sheet edits will be lost.', 'Discard changes', true)) return;
             editingReportDate = null;
             reportLedgerDraft = null;
             const now = new Date();
@@ -4127,9 +4915,9 @@
             renderDailyLedger();
         }
 
-        function openReportDay(dateKey) {
+        async function openReportDay(dateKey) {
             if (editingReportDate) {
-                if (!confirm('Discard unsaved daily sheet edits?')) return;
+                if (!await showAppConfirm('Discard unsaved changes?', 'Your unsaved daily sheet edits will be lost.', 'Discard changes', true)) return;
                 editingReportDate = null;
                 reportLedgerDraft = null;
             }
@@ -4138,9 +4926,9 @@
             renderDailyLedger();
         }
 
-        function closeReportDay() {
-            if (editingReportDate && !confirm('Discard unsaved daily sheet edits?')) return;
-            if (editingReportSessionId && !confirm('Discard unsaved live-session edits?')) return;
+        async function closeReportDay() {
+            if (editingReportDate && !await showAppConfirm('Discard unsaved changes?', 'Your unsaved daily sheet edits will be lost.', 'Discard changes', true)) return;
+            if (editingReportSessionId && !await showAppConfirm('Discard unsaved changes?', 'Your unsaved live-session edits will be lost.', 'Discard changes', true)) return;
             editingReportDate = null;
             reportLedgerDraft = null;
             editingReportSessionId = null;
@@ -4437,9 +5225,9 @@
             summary.textContent = `${daysWithRecords} days with activity · ${monthOrderCount} ${monthOrderCount === 1 ? 'mine' : 'mines'} · ${monthSessionCount} ${monthSessionCount === 1 ? 'live session' : 'live sessions'}`;
         }
 
-        function beginReportLedgerEdit(dateKey) {
+        async function beginReportLedgerEdit(dateKey) {
             if (editingReportDate && editingReportDate !== dateKey) {
-                if (!confirm('Discard unsaved daily sheet edits?')) return;
+                if (!await showAppConfirm('Discard unsaved changes?', 'Your unsaved daily sheet edits will be lost.', 'Discard changes', true)) return;
             }
             const existing = getDailySheetRecord(dateKey) || {};
             editingReportDate = dateKey;
@@ -4549,15 +5337,19 @@
                 tbody.innerHTML = data.orders.map(mine => {
                     const amounts = getReportOrderAmounts(mine);
                     const session = sessionsById.get(mine.sessionId);
-                    const status = String(mine.status || 'UNPAID').toUpperCase();
+                    const status = getMinePaymentStatus(mine);
                     const statusLabel = status === 'PAID' ? 'Paid' : status === 'PARTIAL' ? 'Partial' : 'Unpaid';
                     const statusStyle = status === 'PAID'
                         ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300'
                         : status === 'PARTIAL'
                             ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-300'
                             : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/20 dark:bg-rose-500/10 dark:text-rose-300';
-                    return `<tr class="transition-colors hover:bg-gray-50/70 dark:bg-slate-950/30 dark:hover:bg-white/[0.025]"><td class="py-3 px-3 font-medium text-gray-900 dark:text-white">${escapeHtml(mine.name || '—')}</td><td class="py-3 px-3">${escapeHtml(mine.item || '—')}</td><td class="py-3 px-3">${escapeHtml(session?.name || 'Unassigned / earlier order')}</td><td class="py-3 px-3"><span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusStyle}">${escapeHtml(statusLabel)}</span></td><td class="py-3 px-3 text-right font-medium tabular-nums">${formatCurrency(amounts.total)}</td><td class="py-3 px-3 text-right tabular-nums">${formatCurrency(amounts.collected)}</td><td class="py-3 px-3 text-right font-medium tabular-nums ${amounts.balance > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-gray-500'}">${formatCurrency(amounts.balance)}</td></tr>`;
+                    const statusControl = status === 'PAID'
+                        ? `<span class="inline-flex rounded-full border px-2.5 py-1 text-[11px] font-medium ${statusStyle}">${escapeHtml(statusLabel)}</span>`
+                        : `<button type="button" data-open-mine-order="${escapeHtml(mine.id)}" title="Open this mine order in its live-session records" class="inline-flex cursor-pointer items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition hover:brightness-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${statusStyle}">${escapeHtml(statusLabel)}<i class="fa-solid fa-arrow-up-right-from-square text-[9px]" aria-hidden="true"></i></button>`;
+                    return `<tr class="transition-colors hover:bg-gray-50/70 dark:bg-slate-950/30 dark:hover:bg-white/[0.025]"><td class="py-3 px-3 font-medium text-gray-900 dark:text-white">${escapeHtml(mine.name || '—')}</td><td class="py-3 px-3">${escapeHtml(mine.item || '—')}</td><td class="py-3 px-3">${escapeHtml(session?.name || 'Unassigned / earlier order')}</td><td class="py-3 px-3">${statusControl}</td><td class="py-3 px-3 text-right font-medium tabular-nums">${formatCurrency(amounts.total)}</td><td class="py-3 px-3 text-right tabular-nums">${formatCurrency(amounts.collected)}</td><td class="py-3 px-3 text-right font-medium tabular-nums ${amounts.balance > 0 ? 'text-rose-700 dark:text-rose-300' : 'text-gray-500'}">${formatCurrency(amounts.balance)}</td></tr>`;
                 }).join('');
+                tbody.querySelectorAll('[data-open-mine-order]').forEach(button => button.addEventListener('click', () => openMineOrderRecord(button.dataset.openMineOrder)));
             }
             sheetBody.querySelectorAll('[data-delete-report-session]').forEach(button => {
                 button.addEventListener('click', () => deleteEmptyReportSession(button.dataset.reportDate, button.dataset.deleteReportSession));
@@ -4588,24 +5380,69 @@
                 renderFullMinesTable();
             }
             document.getElementById('formMineOrder').reset();
+            updateMinePaymentStatusFromAmounts();
+            updateMineDeliveryStatusColor(document.getElementById('mineDeliveryStatus').value);
             document.getElementById('mineDate').value = localDateKey();
             document.getElementById('mineTime').value = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            document.getElementById('mineSeller').innerHTML = liveHostOptions('TRICIA', true, false);
+            document.getElementById('mineAdminName').value = getSignedInAdminName();
+            document.getElementById('mineSeller').innerHTML = liveHostOptions('TRICIA', false, false);
             document.getElementById('mineSeller').value = 'TRICIA';
+            updateMineOrderHeaderDateTime();
             document.getElementById('modalNewMine').classList.remove('hidden');
         }
 
         function closeNewMineModal() {
-            document.getElementById('modalNewMine').classList.add('hidden');
+            const modal = document.getElementById('modalNewMine');
+            modal.classList.add('hidden');
+            delete modal.dataset.editId;
+        }
+
+        function addMineItemForBuyer(buyerName, seller) {
+            const activeSession = getActiveLiveSession();
+            if (!activeSession) {
+                showToast('Start a live session before adding another item.', true);
+                return;
+            }
+            mineSessionView = activeSession.id;
+            mineFilterTab = 'ALL';
+            activeLiveSessionId = activeSession.id;
+            db.activeLiveSessionId = activeSession.id;
+            renderFullMinesTable();
+            openNewMineModal();
+            document.getElementById('mineBuyerName').value = buyerName;
+            const sellerSelect = document.getElementById('mineSeller');
+            if ([...sellerSelect.options].some(option => option.value === seller)) sellerSelect.value = seller;
+            document.getElementById('mineItemDetails').focus();
+            updateMinePaymentStatusFromAmounts();
+            showToast(`Add another item for ${buyerName}`);
         }
 
         function saveNewMineOrder(e) {
             e.preventDefault();
+            const paymentStatus = document.getElementById('mineStatus').value;
+            const paymentReference = document.getElementById('mineRef').value.trim();
+            if (paymentStatus === 'PAID' && !paymentReference) {
+                showToast('Add a payment reference before marking this order paid.', true);
+                document.getElementById('mineRef').focus();
+                return;
+            }
+            const deliveryStatus = document.getElementById('mineDeliveryStatus').value;
+            if (deliveryStatus === 'SHIPPED' && document.getElementById('mineStatus').value !== 'PAID') {
+                showToast('Mark the order fully paid before setting it to SHIPPED.', true);
+                document.getElementById('mineDeliveryStatus').focus();
+                return;
+            }
             // before saving, attempt to decrement stock if linked
             const editId = document.getElementById('modalNewMine').dataset.editId;
             if (!editId && !getActiveLiveSession()) {
                 resumeMineAfterSessionStart = true;
                 startLiveSession();
+                return;
+            }
+            const deliveryNote = document.getElementById('mineDeliveryNote').value.trim();
+            if (deliveryStatus === 'NOT SHIPPED' && !deliveryNote) {
+                showToast('Add a reason or note for an item that is not shipped.', true);
+                document.getElementById('mineDeliveryNote').focus();
                 return;
             }
             // before saving, attempt to decrement stock if linked
@@ -4623,13 +5460,19 @@
                 mine.dp = parseFloat(document.getElementById('mineDp').value) || 0;
                 mine.total = parseFloat(document.getElementById('mineTotal').value) || 0;
                 mine.status = document.getElementById('mineStatus').value;
+                mine.sku = document.getElementById('mineSKU').value.trim();
                 mine.seller = document.getElementById('mineSeller').value;
                 mine.mop = document.getElementById('mineMop').value;
                 mine.ref = document.getElementById('mineRef').value || mine.ref;
+                mine.deliveryStatus = document.getElementById('mineDeliveryStatus').value;
+                mine.deliveryNote = document.getElementById('mineDeliveryNote').value.trim();
+                mine.shippingFeeStatus = document.getElementById('mineShippingFeeStatus').value;
+                mine.updatedBy = getSignedInAdminName();
                 recordAuditEvent('Updated mine order', 'Mine order', mine.id, `${mine.name} · ${mine.item} updated`);
                 delete document.getElementById('modalNewMine').dataset.editId;
                 closeNewMineModal();
                 saveToLocalStorage();
+                refreshAllUI();
                 showToast(`Updated mine for ${mine.name}`);
                 return;
             }
@@ -4644,31 +5487,41 @@
                 dp: parseFloat(document.getElementById('mineDp').value) || 0,
                 total: parseFloat(document.getElementById('mineTotal').value) || 0,
                 status: document.getElementById('mineStatus').value,
+                sku: document.getElementById('mineSKU').value.trim(),
                 seller: document.getElementById('mineSeller').value,
                 mop: document.getElementById('mineMop').value,
                 ref: document.getElementById('mineRef').value || '',
+                deliveryStatus: document.getElementById('mineDeliveryStatus').value,
+                deliveryNote: document.getElementById('mineDeliveryNote').value.trim(),
+                shippingFeeStatus: document.getElementById('mineShippingFeeStatus').value,
+                createdBy: getSignedInAdminName(),
                 sessionId: activeLiveSessionId
             };
             db.mines.unshift(newMine);
             recordAuditEvent('Recorded mine order', 'Mine order', newMine.id, `${newMine.name} · ${newMine.item} · ${formatCurrency(newMine.total)}`);
             closeNewMineModal();
             saveToLocalStorage();
+            refreshAllUI();
             showToast(`Successfully recorded mine for ${newMine.name}!`);
         }
 
         function toggleOrderStatus(id) {
             const mine = db.mines.find(m => m.id === id);
             if (mine) {
-                mine.status = mine.status === 'PAID' ? 'UNPAID' : 'PAID';
+                if (mine.status === 'PAID') mine.status = getMinePaymentStatusFromAmounts(mine.total, mine.dp);
+                else {
+                    mine.dp = Math.max(0, Number(mine.total || mine.price || 0));
+                    mine.status = 'PAID';
+                }
                 recordAuditEvent('Updated payment status', 'Mine order', mine.id, `${mine.name} marked ${mine.status}`);
                 saveToLocalStorage();
                 showToast(`Order status updated to ${mine.status}`);
             }
         }
 
-        function deleteMineOrder(id) {
+        async function deleteMineOrder(id) {
             const mine = (db.mines || []).find(item => item.id === id);
-            if (!mine || !confirm('Move this mine order to Audit Logs trash?')) return;
+            if (!mine || !await showAppConfirm('Move this order to Trash?', 'You can restore this mine order later from Audit Logs.', 'Move to Trash', true)) return;
             moveRecordToTrash('Mine order', mine, `${mine.name || 'Buyer'} · ${mine.item || 'Order'}`);
             db.mines = db.mines.filter(item => item.id !== id);
             saveToLocalStorage();
@@ -4679,19 +5532,45 @@
             const mine = db.mines.find(m => m.id === id);
             if (!mine) return;
             const el = document.getElementById('viewMineContent');
+            const paymentStatus = getMinePaymentStatus(mine);
+            const paymentStyle = paymentStatus === 'PAID'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                : paymentStatus === 'PARTIAL'
+                    ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+                    : 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300';
+            const deliveryStatus = String(mine.deliveryStatus || 'PENDING').toUpperCase();
+            const deliveryStyle = deliveryStatus === 'SHIPPED'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-500/30 dark:bg-emerald-500/10 dark:text-emerald-300'
+                : deliveryStatus === 'NOT SHIPPED'
+                    ? 'border-rose-200 bg-rose-50 text-rose-800 dark:border-rose-500/30 dark:bg-rose-500/10 dark:text-rose-300'
+                    : deliveryStatus === 'PICK UP'
+                        ? 'border-sky-200 bg-sky-50 text-sky-800 dark:border-sky-500/30 dark:bg-sky-500/10 dark:text-sky-300'
+                        : deliveryStatus === 'MAXIM'
+                            ? 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-300'
+                            : 'border-gray-200 bg-gray-100 text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300';
+            const orderDate = reportDateLabel(mine.date, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+            const initials = String(mine.name || '?').trim().split(/\s+/).slice(0, 2).map(part => part.charAt(0)).join('').toUpperCase();
+            document.getElementById('viewMineSubtitle').textContent = `Order ${mine.id}`;
             el.innerHTML = `
-                <div class="grid grid-cols-2 gap-3">
-                    <div><strong>Buyer</strong><div class="text-sm">${escapeHtml(mine.name)}</div></div>
-                    <div><strong>Date / Time</strong><div class="text-sm">${mine.date} ${mine.time}</div></div>
-                    <div class="col-span-2"><strong>Item</strong><div class="text-sm">${escapeHtml(mine.item)}</div></div>
-                    <div><strong>Price</strong><div class="text-sm">${formatCurrency(mine.price)}</div></div>
-                    <div><strong>Downpayment</strong><div class="text-sm">${formatCurrency(mine.dp)}</div></div>
-                    <div><strong>Total</strong><div class="text-sm">${formatCurrency(mine.total)}</div></div>
-                    <div><strong>Ref#</strong><div class="text-sm">${escapeHtml(mine.ref || '')}</div></div>
-                    <div><strong>Status</strong><div class="text-sm">${escapeHtml(mine.status)}</div></div>
-                    <div><strong>MOP</strong><div class="text-sm">${escapeHtml(mine.mop)}</div></div>
-                    <div><strong>Seller</strong><div class="text-sm">${escapeHtml(mine.seller)}</div></div>
-                </div>
+                <section class="rounded-xl border border-gray-200 bg-gray-50/80 p-3.5 dark:border-gray-800 dark:bg-gray-900/60 sm:p-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <div class="flex min-w-0 items-center gap-3"><span class="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-amber-100 text-sm font-bold text-amber-800 dark:bg-amber-500/10 dark:text-amber-300">${escapeHtml(initials)}</span><div class="min-w-0"><p class="truncate text-base font-bold text-gray-950 dark:text-white">${escapeHtml(mine.name || 'Unknown buyer')}</p><p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">${escapeHtml(orderDate)}${mine.time ? ` · ${escapeHtml(mine.time)}` : ''}</p></div></div>
+                        <span class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[10px] font-bold ${paymentStyle}"><i class="fa-solid ${paymentStatus === 'PAID' ? 'fa-circle-check' : paymentStatus === 'PARTIAL' ? 'fa-hourglass-half' : 'fa-clock'}" aria-hidden="true"></i>${escapeHtml(paymentStatus === 'PARTIAL' ? 'PARTIALLY PAID' : paymentStatus)}</span>
+                    </div>
+                    <div class="mt-4 flex items-start gap-3 border-t border-gray-200 pt-3 dark:border-gray-800"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-white text-amber-600 dark:bg-gray-800 dark:text-amber-300"><i class="fa-solid fa-bag-shopping" aria-hidden="true"></i></span><div class="min-w-0 flex-1"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Item</p><p class="mt-1 break-words text-sm font-semibold leading-5 text-gray-900 dark:text-white">${escapeHtml(mine.item || 'Item')}</p><p class="mt-1 text-[11px] text-gray-500 dark:text-gray-400">Item ID: <span class="font-mono text-gray-700 dark:text-gray-300">${escapeHtml(mine.sku || '—')}</span></p></div><span class="shrink-0 rounded-full border px-2 py-1 text-[10px] font-bold ${deliveryStyle}">${escapeHtml(deliveryStatus)}</span></div>
+                </section>
+                <section class="mt-4 grid grid-cols-3 gap-2 sm:gap-3" aria-label="Order amounts">
+                    <div class="rounded-lg border border-gray-200 p-3 dark:border-gray-800"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Price</p><p class="mt-1 text-xs font-semibold tabular-nums text-gray-900 dark:text-white sm:text-sm">${formatCurrency(mine.price)}</p></div>
+                    <div class="rounded-lg border border-gray-200 p-3 dark:border-gray-800"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Downpayment</p><p class="mt-1 text-xs font-semibold tabular-nums text-gray-900 dark:text-white sm:text-sm">${formatCurrency(mine.dp)}</p></div>
+                    <div class="rounded-lg border border-amber-200 bg-amber-50/70 p-3 dark:border-amber-500/20 dark:bg-amber-500/[0.06]"><p class="text-[10px] font-semibold uppercase tracking-wide text-amber-800 dark:text-amber-300">Total</p><p class="mt-1 text-xs font-bold tabular-nums text-gray-950 dark:text-white sm:text-sm">${formatCurrency(mine.total)}</p></div>
+                </section>
+                <section class="mt-4"><h4 class="mb-2 text-xs font-semibold text-gray-900 dark:text-white">Payment & fulfillment</h4><dl class="grid grid-cols-2 gap-x-4 gap-y-3 rounded-xl border border-gray-200 p-3.5 dark:border-gray-800 sm:p-4">
+                    <div><dt class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Reference / Ref #</dt><dd class="mt-1 break-all text-xs font-medium text-gray-900 dark:text-gray-100">${escapeHtml(mine.ref || '—')}</dd></div>
+                    <div><dt class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Mode of payment</dt><dd class="mt-1 text-xs font-medium text-gray-900 dark:text-gray-100">${escapeHtml(mine.mop === 'BPI' ? 'Bank' : mine.mop === 'COD' ? 'Cash' : mine.mop || '—')}</dd></div>
+                    <div><dt class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Shipping fee</dt><dd class="mt-1 text-xs font-medium text-gray-900 dark:text-gray-100">${escapeHtml(getShippingFeeStatusLabel(mine.shippingFeeStatus))}</dd></div>
+                    <div><dt class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Live seller host</dt><dd class="mt-1 text-xs font-medium text-gray-900 dark:text-gray-100">${escapeHtml(liveHostLabel(mine.seller || ''))}</dd></div>
+                    ${mine.deliveryNote ? `<div class="col-span-2 border-t border-gray-100 pt-2.5 dark:border-gray-800"><dt class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Remarks</dt><dd class="mt-1 whitespace-pre-wrap break-words text-xs leading-5 text-gray-800 dark:text-gray-200">${escapeHtml(mine.deliveryNote)}</dd></div>` : ''}
+                </dl></section>
             `;
             document.getElementById('modalViewMine').classList.remove('hidden');
         }
@@ -4704,6 +5583,7 @@
             // populate the new mine modal for editing
             document.getElementById('mineDate').value = mine.date;
             document.getElementById('mineTime').value = mine.time;
+            document.getElementById('mineAdminName').value = getSignedInAdminName();
             document.getElementById('mineBuyerName').value = mine.name;
             document.getElementById('mineItemDetails').value = mine.item;
             document.getElementById('minePrice').value = mine.price;
@@ -4711,9 +5591,16 @@
             document.getElementById('mineTotal').value = mine.total;
             document.getElementById('mineSKU').value = mine.sku || '';
             document.getElementById('mineRef').value = mine.ref || '';
-            document.getElementById('mineStatus').value = mine.status;
+            document.getElementById('mineStatus').value = getMinePaymentStatus(mine);
+            document.getElementById('mineSeller').innerHTML = liveHostOptions(mine.seller, false, true);
             document.getElementById('mineSeller').value = mine.seller;
-            document.getElementById('mineMop').value = mine.mop;
+            document.getElementById('mineMop').value = mine.mop === 'BPI' ? 'Bank' : mine.mop === 'COD' ? 'Cash' : mine.mop;
+            document.getElementById('mineDeliveryStatus').value = mine.deliveryStatus || 'PENDING';
+            updateMinePaymentStatusUI(getMinePaymentStatus(mine));
+            updateMineDeliveryStatusColor(document.getElementById('mineDeliveryStatus').value);
+            document.getElementById('mineDeliveryNote').value = mine.deliveryNote || '';
+            document.getElementById('mineShippingFeeStatus').value = normalizeShippingFeeStatus(mine.shippingFeeStatus);
+            updateMineOrderHeaderDateTime();
             // mark modal for editing
             document.getElementById('modalNewMine').dataset.editId = id;
             document.getElementById('modalNewMine').classList.remove('hidden');
@@ -4752,7 +5639,7 @@
             showToast('Product added to catalog');
         }
 
-        function quickMineShirt(shirtId) {
+        async function quickMineShirt(shirtId) {
             const shirt = db.shirts.find(s => s.id === shirtId);
             if (!shirt || shirt.qty <= 0) {
                 showToast('Product is out of stock!', true);
@@ -4763,14 +5650,10 @@
                 startLiveSession();
                 return;
             }
+            const buyer = await showAppPrompt('Record a quick mine', 'Enter the buyer’s name or Facebook profile.', 'Buyer name / Facebook profile', 'Live Buyer', 'Continue');
+            if (!buyer) return;
             shirt.qty--;
             shirt.soldCount = (shirt.soldCount || 0) + 1;
-            const buyer = prompt("Enter Buyer Name / FB Profile:", "Live Buyer");
-            if (!buyer) {
-                shirt.qty++;
-                shirt.soldCount--;
-                return;
-            }
 
             const newMine = {
                 id: 'm_' + Date.now(),
@@ -4781,13 +5664,18 @@
                 price: shirt.price,
                 dp: 0,
                 total: shirt.price,
-                status: 'PAID',
+                status: 'UNPAID',
+                sku: generateSmartSKU(shirt.name, shirt.color, shirt.size),
                 seller: 'TRICIA',
                 mop: 'GCash',
+                deliveryStatus: 'PENDING',
+                shippingFeeStatus: 'NONE',
+                createdBy: getSignedInAdminName(),
                 sessionId: activeLiveSessionId
             };
             db.mines.unshift(newMine);
             saveToLocalStorage();
+            refreshAllUI();
             showToast(`Quick mined 1x ${shirt.name} to ${buyer}!`);
         }
 
@@ -4824,9 +5712,9 @@
             showToast(`Restocked ${shirt.name} by ${add} units`);
         }
 
-        function deleteShirt(id) {
+        async function deleteShirt(id) {
             const shirt = (db.shirts || []).find(item => item.id === id);
-            if (!shirt || !confirm('Move this product to Audit Logs trash?')) return;
+            if (!shirt || !await showAppConfirm('Move this product to Trash?', 'You can restore this product later from Audit Logs.', 'Move to Trash', true)) return;
             moveRecordToTrash('Product', shirt, `${shirt.name}${formatProductVariant(shirt) ? ` (${formatProductVariant(shirt)})` : ''}`);
             db.shirts = db.shirts.filter(item => item.id !== id);
             saveToLocalStorage();
@@ -4896,15 +5784,26 @@
             showToast('Product added to catalog');
         }
 
-        function exportJSONBackup() {
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(db, null, 2));
-            const dl = document.createElement('a');
-            dl.setAttribute("href", dataStr);
-            dl.setAttribute("download", `clothes_mania_davao_backup_${new Date().toISOString().split('T')[0]}.json`);
-            document.body.appendChild(dl);
-            dl.click();
-            dl.remove();
-            showToast('JSON backup downloaded successfully');
+        async function exportJSONBackup() {
+            try {
+                if (!currentAuthUser || !navigator.onLine) throw new Error('Sign in while online to create a portable encrypted backup.');
+                const client = await getSupabaseClient();
+                const result = await invokeWorkspaceSync(client, { action: 'export', snapshot: db });
+                const backup = { format: 'clothes-mania-pos-encrypted-backup', version: 2, snapshot: result.snapshot };
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const objectUrl = URL.createObjectURL(blob);
+                const dl = document.createElement('a');
+                dl.href = objectUrl;
+                dl.download = `clothes_mania_davao_encrypted_backup_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(dl);
+                dl.click();
+                dl.remove();
+                window.setTimeout(() => URL.revokeObjectURL(objectUrl), 1000);
+                showToast('Server-encrypted JSON backup downloaded successfully');
+            } catch (error) {
+                console.error('Could not create the encrypted workspace backup.', error);
+                showToast('Encrypted backup failed. Your local records were not changed.', true);
+            }
         }
 
         // --- Smart SKU & quick-mine helpers ---
@@ -4917,8 +5816,12 @@
             const brand = 'CM';
             const colorCode = (color || 'GEN').toString().slice(0,3).toUpperCase();
             const sizeCode = (size || 'M').toString().toUpperCase();
-            const rand = Math.floor(100 + Math.random() * 900);
-            return `${brand}-${colorCode}-${sizeCode}-${rand}`;
+            let itemId = '';
+            do {
+                const rand = Math.floor(100 + Math.random() * 900);
+                itemId = `${brand}-${colorCode}-${sizeCode}-${rand}`;
+            } while ((db.mines || []).some(mine => mine.sku === itemId));
+            return itemId;
         }
 
         function generateSKUForModal() {
@@ -4942,13 +5845,25 @@
             matches.forEach(s => {
                 const el = document.createElement('div');
                 el.className = 'px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer flex items-center justify-between';
-                el.innerHTML = `<div><div class="font-bold">${s.name}</div><div class="text-[11px] text-gray-500">${s.color} • ${s.size} • ${s.qty} pcs</div></div><div class="text-xs font-mono text-amber-500">${formatCurrency(s.price)}</div>`;
+                const details = document.createElement('div');
+                const name = document.createElement('div');
+                name.className = 'font-bold';
+                name.textContent = s.name || '';
+                const metadata = document.createElement('div');
+                metadata.className = 'text-[11px] text-gray-500';
+                metadata.textContent = `${s.color || ''} • ${s.size || ''} • ${s.qty} pcs`;
+                details.append(name, metadata);
+                const price = document.createElement('div');
+                price.className = 'text-xs font-mono text-amber-500';
+                price.textContent = formatCurrency(s.price);
+                el.append(details, price);
                 el.onclick = () => {
                     document.getElementById('mineItemDetails').value = `${s.name} (${s.color}, ${s.size})`;
                     document.getElementById('mineShirtId').value = s.id;
                     document.getElementById('minePrice').value = s.price;
                     document.getElementById('mineTotal').value = s.price;
-                    document.getElementById('mineSKU').value = s.id.toUpperCase() + '-' + Math.floor(100 + Math.random()*900);
+                    updateMinePaymentStatusFromAmounts();
+                    document.getElementById('mineSKU').value = generateSmartSKU(s.name, s.color, s.size);
                     suggestions.classList.add('hidden');
                 };
                 suggestions.appendChild(el);
@@ -5009,7 +5924,7 @@
             const recordPayment = (mine, key) => {
                 const orderValue = Math.max(0, Number(mine.total ?? mine.price ?? 0) || 0);
                 const downpayment = Math.min(orderValue, Math.max(0, Number(mine.dp || 0)));
-                const collected = mine.status === 'PAID' ? orderValue : downpayment;
+                const collected = getMinePaymentStatus(mine) === 'PAID' ? orderValue : downpayment;
                 grossByBucket.set(key, (grossByBucket.get(key) || 0) + orderValue);
                 collectedByBucket.set(key, (collectedByBucket.get(key) || 0) + collected);
             };
@@ -5150,11 +6065,33 @@
             startHeaderClock();
             initSidebar();
             passwordRecoveryPending = /(?:^|[&#])type=recovery(?:&|$)/i.test(window.location.hash);
+            let storedSnapshot;
+            try {
+                storedSnapshot = await readPersistedWorkspaceSnapshot();
+            } catch (error) {
+                console.error('Saved workspace data could not be loaded safely.', error);
+                showLocalSessionScreen('signin', `Saved data needs attention: ${error.message || 'could not load safely'}. Restore a known-good backup before continuing.`);
+                registerOfflineAppShell();
+                return;
+            }
+            try {
+                if (!await initializeLocalWorkspace(storedSnapshot)) return;
+            } catch (error) {
+                console.error('Protected local workspace could not be initialized.', error);
+                showLocalSessionScreen('signin', `Saved data needs attention: ${error.message || 'protected records could not be opened safely'}.`);
+                registerOfflineAppShell();
+                return;
+            }
             await loadFromLocalStorage();
             initializeLiveSessionState();
             seedProductsFromShirts();
-            try { localStorage.setItem('clothesManiaDavaoDB_v4', JSON.stringify(db)); } catch(error) { console.error('Could not migrate the local workspace snapshot.', error); }
-            await persistDB();
+            if (!await persistDB()) {
+                showLocalSessionScreen('signin', 'Encrypted local storage failed. Do not record orders until this device can save successfully.');
+                updateLocalSaveStatus('error', 'Encrypted local storage failed');
+                registerOfflineAppShell();
+                return;
+            }
+            localWorkspaceReady = true;
             refreshAllUI();
 
             let cachedOfflineUser = null;
@@ -5274,5 +6211,6 @@
             </footer>
         </section>
     </div>
+    <div id="receiptPrintArea" aria-hidden="true"></div>
 </body>
 </html>

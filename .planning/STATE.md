@@ -4,10 +4,10 @@ current_phase: 7
 current_phase_name: Shared multi-admin workspace and password recovery
 status: planning
 stopped_at: Project initialized; Phase 1 is ready for discussion and planning.
-last_updated: "2026-10-15T09:51:47.244Z"
+last_updated: "2026-10-15T11:14:19.943Z"
 last_activity: 2026-10-14
 last_activity_desc: User approved five full-access shared admins and concurrent edits with safeguards.
-state_head: a928a86b4c5845e18c810f4cea3e813854d4a8e9
+state_head: 9f0b66509aed6953f40c32d6efe3391597e62c00
 progress:
   total_phases: 7
   completed_phases: 0
@@ -99,3 +99,28 @@ Resume file: None
 | 5 | Create circular transparent Clothes Mania favicon | 2026-10-15 | a928a86 | — | — |
 | 6 | Use large transparent Clothes Mania logo in sign-in story panel | 2026-10-15 | a928a86 | — | — |
 | 7 | Use faded cover photo above mobile sign-in form and refine admin copy | 2026-10-15 | a928a86 | — | — |
+| 8 | Personalize dashboard welcome greeting with signed-in admin name | 2026-10-15 | 9f0b665 | — | — |
+| 9 | Replace native browser dialogs with POS overlay dialogs | 2026-10-15 | 9f0b665 | — | — |
+| 10 | Align Add Product modal fields and prevent input and focus-outline clipping | 2026-10-15 | — | Complete | — |
+| 11 | Add mine-order payment, Item ID, shipping-fee, and delivery-status tracking | 2026-10-15 | — | Complete | — |
+| 12 | Add NOT SHIPPED item state and simplify shipping-fee choices | 2026-10-15 | — | Complete | — |
+| 13 | Show order timestamp in modal header and identify admin and seller | 2026-10-15 | — | Complete | — |
+| 14 | Clarify mine-order admin field label | 2026-10-15 | — | Complete | — |
+| 15 | Improve mine-order pricing defaults, ID button, and status colors | 2026-10-15 | — | Complete | — |
+| 16 | Reorder mine table, add Item Status tab, and require a note for NOT SHIPPED | 2026-10-15 | — | Complete | — |
+| 17 | Restore editable order reference column after MOP | 2026-10-15 | — | Complete | — |
+| 18 | Require full payment before an order can be marked SHIPPED | 2026-10-15 | — | Complete | — |
+| 19 | Add a separate not-shipped reason column to the mine orders table | 2026-10-15 | — | Complete | — |
+| 20 | Rename the not-shipped reason column to Remarks | 2026-10-15 | — | Complete | — |
+| 21 | Remove Walk-in from mine-order seller selectors | 2026-10-15 | — | Complete | — |
+| 22 | Add buyer-grouped invoices and printable receipts after full payment | 2026-10-15 | — | Complete | — |
+| 23 | Brand printable receipts and add shop details and thank-you message | 2026-10-15 | — | Complete | — |
+| 24 | Group mine orders by buyer and add another item to an existing buyer | 2026-10-15 | — | Complete | — |
+| 25 | Redesign the View Mine Order dialog for clearer hierarchy and responsive readability | 2026-10-15 | — | Complete | — |
+| 26 | Highlight remarks and add auto-saving per-item fulfillment controls | 2026-10-15 | — | Complete | — |
+| 27 | Remove remark badge styling and use bold blue remark text | 2026-10-15 | — | Complete | — |
+| 28 | Constrain long remarks and open order details from row clicks | 2026-10-15 | — | Complete | — |
+| 29 | Simplify receipt footer and use a thermal-style monospaced print layout | 2026-10-15 | — | Complete | — |
+| 30 | Remove the not-free-shipping choice and require payment references for paid mines | 2026-10-15 | — | Complete | — |
+| 31 | Add seller paid/unpaid performance tracking and open report items in mine history | 2026-10-15 | — | Complete | — |
+| 32 | Restore the last selected POS section after browser refresh | 2026-10-15 | — | Complete | — |
