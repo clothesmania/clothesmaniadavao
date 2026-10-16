@@ -2163,6 +2163,31 @@
             return Boolean(snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot));
         }
 
+        function normalizeWorkspaceSnapshot(snapshot) {
+            if (!isValidWorkspaceSnapshot(snapshot)) throw new Error('Saved local data is invalid. The app stopped to avoid replacing it.');
+            const normalized = { ...snapshot };
+            const collectionNames = ['mines', 'dailyLedger', 'hosts', 'liveSessions', 'auditLogs', 'deletedHosts', 'deletedRecords', 'products'];
+            for (const collectionName of collectionNames) {
+                if (normalized[collectionName] === undefined) normalized[collectionName] = [];
+                else if (!Array.isArray(normalized[collectionName])) throw new Error(`Saved ${collectionName} data is invalid. The app stopped to avoid replacing it.`);
+            }
+            if (normalized.shirts === undefined) {
+                normalized.shirts = normalized.products.map((product, index) => ({
+                    id: product.id || product.sku || `product-${index + 1}`,
+                    name: String(product.name || ''),
+                    size: String(product.size || 'N/A'),
+                    color: String(product.color || ''),
+                    qty: Number(product.qty ?? product.stock ?? 0),
+                    cost: Number(product.cost || 0),
+                    price: Number(product.price || 0),
+                    soldCount: Number(product.soldCount || 0)
+                }));
+            } else if (!Array.isArray(normalized.shirts)) {
+                throw new Error('Saved inventory data is invalid. The app stopped to avoid replacing it.');
+            }
+            return normalized;
+        }
+
         function requestLegacyWorkspacePassphrase(snapshot, applyLocally = false) {
             pendingLocalSnapshot = snapshot;
             pendingWorkspaceEncryptionMode = 'unlock';
@@ -6084,7 +6109,17 @@
                 if (!await initializeLocalWorkspace(storedSnapshot)) return;
             } catch (error) {
                 console.error('Protected local workspace could not be initialized.', error);
+                updateLocalSaveStatus('error', error.message || 'Protected local workspace could not be initialized');
                 showLocalSessionScreen('signin', `Saved data needs attention: ${error.message || 'protected records could not be opened safely'}.`);
+                registerOfflineAppShell();
+                return;
+            }
+            try {
+                db = normalizeWorkspaceSnapshot(db);
+            } catch (error) {
+                console.error('Saved workspace collections could not be initialized safely.', error);
+                updateLocalSaveStatus('error', error.message || 'Saved workspace data is invalid');
+                showLocalSessionScreen('signin', error.message || 'Saved workspace data is invalid. Restore a known-good backup before continuing.');
                 registerOfflineAppShell();
                 return;
             }

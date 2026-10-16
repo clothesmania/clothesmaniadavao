@@ -83,6 +83,22 @@ test('fresh startup initializes device encryption without showing a passphrase p
     assert.match(html, /requestLegacyWorkspacePassphrase\(snapshot, applyLocally = false\)/);
 });
 
+test('workspace startup fills missing collections and preserves product inventory', () => {
+    const start = html.indexOf('function normalizeWorkspaceSnapshot(');
+    const end = html.indexOf('\n        function ', start + 1);
+    const source = html.slice(start, end);
+    const normalize = new Function('isValidWorkspaceSnapshot', `${source}; return normalizeWorkspaceSnapshot;`)(snapshot => Boolean(snapshot && typeof snapshot === 'object' && !Array.isArray(snapshot)));
+    const snapshot = { products: [{ id: 'sku-1', name: 'Jacket', stock: 4, price: 1200 }], mines: [{ id: 'mine-1' }] };
+    const normalized = normalize(snapshot);
+
+    assert.deepEqual(normalized.mines, snapshot.mines);
+    assert.equal(normalized.shirts[0].id, 'sku-1');
+    assert.equal(normalized.shirts[0].qty, 4);
+    assert.deepEqual(normalized.dailyLedger, []);
+    assert.deepEqual(snapshot, { products: [{ id: 'sku-1', name: 'Jacket', stock: 4, price: 1200 }], mines: [{ id: 'mine-1' }] });
+    assert.throws(() => normalize({ shirts: 'not-an-array' }), /inventory data is invalid/);
+});
+
 test('startup migration reads only locally preserved cloud backups', () => {
     assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
     assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);
