@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { decryptWorkspaceSnapshot, encryptWorkspaceSnapshot } from './workspace-crypto.mjs';
+import { encryptWorkspaceRecords } from './workspace-records.mjs';
 
 const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
@@ -54,10 +55,19 @@ Deno.serve(async request => {
             const row = Array.isArray(data) ? data[0] : data;
             if (!row) return jsonResponse(200, { remote: null });
             if (row.snapshot?.format === 'clothes-mania-server-encrypted') {
+                const snapshot = await decryptWorkspaceSnapshot(row.snapshot, encryptionKey);
+                if (row.records_projected_at !== row.updated_at) {
+                    const records = await encryptWorkspaceRecords(snapshot, encryptionKey);
+                    const { error: projectionError } = await client.rpc('project_pos_workspace_records', {
+                        p_records: records,
+                        p_expected_updated_at: row.updated_at
+                    });
+                    if (projectionError) throw projectionError;
+                }
                 return jsonResponse(200, {
                     remote: {
                         workspace_owner_id: row.workspace_owner_id,
-                        snapshot: await decryptWorkspaceSnapshot(row.snapshot, encryptionKey),
+                        snapshot,
                         updated_at: row.updated_at
                     }
                 });
@@ -74,9 +84,13 @@ Deno.serve(async request => {
         if (body.action === 'save') {
             const snapshot = body.snapshot;
             if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) throw new Error('Workspace snapshot must be an object.');
-            const encrypted = await encryptWorkspaceSnapshot(snapshot, encryptionKey);
-            const { data, error } = await client.rpc('save_pos_workspace_snapshot', {
+            const [encrypted, records] = await Promise.all([
+                encryptWorkspaceSnapshot(snapshot, encryptionKey),
+                encryptWorkspaceRecords(snapshot, encryptionKey)
+            ]);
+            const { data, error } = await client.rpc('save_pos_workspace_snapshot_and_records', {
                 p_snapshot: encrypted,
+                p_records: records,
                 p_expected_updated_at: body.expectedUpdatedAt ?? null
             });
             if (error) throw error;

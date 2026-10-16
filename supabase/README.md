@@ -6,7 +6,9 @@ The root `index.html` app remains local-first. It stores the working copy encryp
 
 Apply migrations in filename order to the Supabase project. The shared-admin integration requires `202610140004_shared_admin_workspaces.sql` after migrations `001`–`003`. Migration `202610160001_server_managed_workspace_encryption.sql` then rejects plaintext and old client-encrypted formats on new snapshot writes. Existing v1 passphrase-encrypted snapshots remain readable during migration and are replaced after an authorized admin enters the legacy passphrase once. Snapshot timestamps detect concurrent writes; clean devices refresh automatically, while dirty conflicting copies are preserved and require an admin to choose which snapshot to keep.
 
-The snapshot table stores POS data as JSONB. It does not populate the separate relational sales, order, or inventory tables from migrations `001` and `002`.
+The encrypted snapshot remains the source of truth and recovery copy. Migration `202610160002_encrypted_workspace_records.sql` additionally maintains one encrypted row per mine order, inventory product, live session, host, ledger entry, audit event, and recoverable deleted record in `public.pos_workspace_records`. The payload remains AES-GCM encrypted; database table rows can be counted and managed by type, but customer and payment-reference fields are not readable as plaintext in the Supabase Table Editor. The legacy `sales_orders` and `payments` tables are not populated by this sync path.
+
+Apply the record-projection migration after `202610160001_server_managed_workspace_encryption.sql`, then deploy the matching `workspace-sync` Edge Function and frontend. On the first authenticated read, the Edge Function projects the existing encrypted snapshot into the new table; subsequent saves update the snapshot and encrypted rows atomically. The optimistic timestamp check still rejects concurrent edits. Do not apply this migration by dropping or replacing existing workspace data.
 
 ## Server-managed encryption deployment
 

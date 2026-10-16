@@ -135,12 +135,17 @@ test('startup migration reads only locally preserved cloud backups', () => {
 test('server sync endpoint uses authenticated user RPCs and never includes a service-role secret', () => {
     const endpoint = fs.readFileSync(path.join(root, 'supabase', 'functions', 'workspace-sync', 'index.ts'), 'utf8');
     const migration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '202610160001_server_managed_workspace_encryption.sql'), 'utf8');
+    const recordsMigration = fs.readFileSync(path.join(root, 'supabase', 'migrations', '202610160002_encrypted_workspace_records.sql'), 'utf8');
 
     assert.match(endpoint, /client\.auth\.getUser\(token\)/);
-    assert.match(endpoint, /client\.rpc\('save_pos_workspace_snapshot'/);
+    assert.match(endpoint, /client\.rpc\('save_pos_workspace_snapshot_and_records'/);
+    assert.match(endpoint, /encryptWorkspaceRecords\(snapshot, encryptionKey\)/);
     assert.match(endpoint, /WORKSPACE_ENCRYPTION_KEY/);
     assert.doesNotMatch(endpoint, /SUPABASE_SERVICE_ROLE_KEY/);
     assert.match(migration, /clothes-mania-server-encrypted/);
+    assert.match(recordsMigration, /enable row level security/i);
+    assert.match(recordsMigration, /save_pos_workspace_snapshot_and_records/);
+    assert.match(recordsMigration, /project_pos_workspace_records/);
 });
 
 test('local server serves the app and does not expose repository files', async t => {
