@@ -118,6 +118,7 @@ Resume file: None
 | 24 | Group mine orders by buyer and add another item to an existing buyer | 2026-10-15 | — | Complete | — |
 | 25 | Redesign the View Mine Order dialog for clearer hierarchy and responsive readability | 2026-10-15 | — | Complete | — |
 | 26 | Highlight remarks and add auto-saving per-item fulfillment controls | 2026-10-15 | — | Complete | — |
+| 27 | Clarify shared report data, autosync, and responsive calendar | 2026-10-16 | — | Complete | 261016-sbo-clarify-report-data-source-make-reports- |
 | 27 | Remove remark badge styling and use bold blue remark text | 2026-10-15 | — | Complete | — |
 | 28 | Constrain long remarks and open order details from row clicks | 2026-10-15 | — | Complete | — |
 | 29 | Simplify receipt footer and use a thermal-style monospaced print layout | 2026-10-15 | — | Complete | — |

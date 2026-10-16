@@ -279,6 +279,15 @@
         }
         html, body { max-width: 100%; overflow-x: clip; }
         .overflow-x-auto { -webkit-overflow-scrolling: touch; overscroll-behavior-inline: contain; }
+        @media (max-width: 640px) {
+            #reportCalendarGrid > button, #reportCalendarGrid > div { min-height: 5.5rem; padding: 0.35rem; }
+            #reportCalendarGrid > button > span:first-child { justify-content: center; }
+            #reportCalendarGrid > button > span:first-child > span:last-child { display: none; }
+            #reportCalendarGrid > button > span:last-child { margin-top: 0.35rem; gap: 0.25rem; }
+            #reportCalendarGrid > button > span:last-child > span { padding: 0.2rem 0.25rem; font-size: 9px; line-height: 1.2; }
+            #reportGridView > div { border-radius: 0.75rem; }
+            #reportGridView > div > div:first-child > span { padding-top: 0.55rem; padding-bottom: 0.55rem; font-size: 9px; }
+        }
         @media (max-width: 767px) {
             body { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
             #mainAppContent { min-width: 0; max-width: 100%; }
@@ -904,7 +913,7 @@
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button id="reportImportButton" type="button" onclick="document.getElementById('reportImportFile').click()" class="inline-flex h-9 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-white/10 dark:bg-slate-900 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-import" aria-hidden="true"></i>Import Excel</button>
-                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Local report data</span>
+                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300" title="Reports use the signed-in workspace records. Successful changes autosave to the encrypted Supabase database when online; check Cloud status above for confirmation."><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Workspace report data</span>
                         </div>
                     </header>
 
@@ -934,8 +943,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="reportGridView" class="overflow-x-auto">
-                            <div class="min-w-[840px] overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
+                        <div id="reportGridView">
+                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
                                 <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50/80 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-white/10 dark:bg-white/[0.035] dark:text-gray-400"><span class="py-3">Sun</span><span class="py-3">Mon</span><span class="py-3">Tue</span><span class="py-3">Wed</span><span class="py-3">Thu</span><span class="py-3">Fri</span><span class="py-3">Sat</span></div>
                                 <div id="reportCalendarGrid" class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-white/10"></div>
                             </div>
@@ -1547,7 +1556,7 @@
                     <div><label for="localNewPasswordConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm new password</label><input id="localNewPasswordConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="12" required class="auth-field text-sm" placeholder="Re-enter your password"></div>
                     <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900">Update password</button>
                 </form>
-                <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>First sign-in needs internet. Business records save on this device first and sync securely when online.</p>
+                <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>Sign-in and changes require internet. Successful updates save on this device and sync automatically to the encrypted shared database.</p>
             </div>
             <aside class="auth-story-panel text-foreground">
                 <img src="images/auth-brand.png?v=1" alt="Clothes Mania Davao" class="mb-6 block h-auto w-full max-w-[21rem] self-start object-contain">

@@ -124,6 +124,21 @@ test('offline mode blocks writes while preserving view navigation', () => {
     assert.match(html, /window\.addEventListener\('offline',[\s\S]*?setOfflineViewMode\(true\)/);
 });
 
+test('reports identify shared workspace data and use the autosave-to-cloud path', () => {
+    const saveSource = getFunctionSource(html, 'saveToLocalStorage');
+    const ledgerSaveSource = getFunctionSource(html, 'saveReportLedgerEdit');
+    const sessionSaveSource = getFunctionSource(html, 'saveReportSessionEdit');
+
+    assert.match(html, /Workspace report data/);
+    assert.doesNotMatch(html, /Local report data/);
+    assert.doesNotMatch(html, /id="reportGridView" class="overflow-x-auto"[\s\S]*?min-w-\[840px\]/);
+    assert.match(html, /#reportCalendarGrid > button, #reportCalendarGrid > div/);
+    assert.match(ledgerSaveSource, /saveToLocalStorage\(\)/);
+    assert.match(sessionSaveSource, /saveToLocalStorage\(\)/);
+    assert.match(saveSource, /if \(localSaved\) queueCloudSnapshotSync\(\)/);
+    assert.match(html, /action: 'save', snapshot: syncSnapshot/);
+});
+
 test('startup migration reads only locally preserved cloud backups', () => {
     assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
     assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);
