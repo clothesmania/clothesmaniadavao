@@ -452,6 +452,10 @@
             </div>
         </header>
 
+        <div id="offlineViewModeBanner" class="hidden border-b border-amber-300 bg-amber-50 px-4 py-2 text-center text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200" role="status" aria-live="polite">
+            Offline view only — reconnect to the internet to make changes and sync.
+        </div>
+
         <!-- Main Scrollable Content Container -->
         <main class="flex-1 p-4 lg:p-8 space-y-6 overflow-y-auto max-w-[1600px] w-full mx-auto">
 
@@ -1662,6 +1666,9 @@
         let localDeviceKey = null;
         let legacyMigrationPassphrase = '';
         let localWorkspaceReady = false;
+        let offlineViewModeActive = !navigator.onLine;
+        let offlineReadonlyObserver = null;
+        let lastSavedWorkspaceSnapshot = null;
         let pendingLocalSnapshot = null;
         let pendingWorkspaceUnlockResolver = null;
         let pendingWorkspaceEncryptionMode = 'create';
@@ -1801,6 +1808,11 @@
 
         function persistDB() {
             const saveOperation = persistQueue.catch(() => false).then(async () => {
+                if (localWorkspaceReady && !navigator.onLine && !applyingCloudSnapshot) {
+                    updateLocalSaveStatus('saved');
+                    updateCloudSyncStatus('offline');
+                    return false;
+                }
                 if (!localDeviceKey) {
                     updateLocalSaveStatus('error', 'Protected device storage is not available');
                     return false;
@@ -1831,6 +1843,7 @@
                     updateLocalSaveStatus('error', 'Could not save encrypted data on this device');
                     return false;
                 }
+                lastSavedWorkspaceSnapshot = JSON.parse(JSON.stringify(db));
                 updateLocalSaveStatus(indexedDbSaved ? 'saved' : 'fallback');
                 return true;
             });
@@ -1903,6 +1916,64 @@
             retry.classList.toggle('hidden', state !== 'error');
             container.title = message || status[0];
             container.setAttribute('aria-label', message ? `${status[0]}: ${message}` : status[0]);
+        }
+
+        function isOfflineViewControl(element) {
+            if (element.closest('#localSessionOverlay, #localEncryptionOverlay')) return true;
+            if (element.closest('#sidebar') || element.closest('[role="tablist"]') || element.closest('#minePaymentFilters')) return true;
+            if (element.classList.contains('chart-filter') || element.classList.contains('mine-filter-btn')) return true;
+            if (['mobileSidebarToggle', 'sidebarBrandExpand', 'adminMenuButton', 'cloudSyncRetry', 'adminMenuTheme'].includes(element.id)) return true;
+            const label = `${element.textContent || ''} ${element.getAttribute('aria-label') || ''} ${element.getAttribute('title') || ''}`.trim().toLowerCase();
+            if (/^(view\b.*|close\b.*|back|history|all history|previous|next|search\b.*|filter\b.*|print|export|toggle dark mode|dark mode|open admin account menu|close navigation|open navigation)$/.test(label)) return true;
+            return /^(cancel|stay signed in)$/.test(label) && Boolean(element.closest('[role="dialog"], [aria-modal="true"], .modal-overlay, #appDialog'));
+        }
+
+        function applyOfflineReadonlyControls(root = document) {
+            root.querySelectorAll?.('button, [role="button"], a[onclick], input, textarea, select').forEach(element => {
+                if (!offlineViewModeActive) {
+                    if (element.hasAttribute('data-offline-disabled')) {
+                        element.disabled = element.getAttribute('data-offline-disabled') === 'true';
+                        element.removeAttribute('data-offline-disabled');
+                    }
+                    element.classList.remove('offline-readonly-control');
+                    return;
+                }
+                if (element.matches('input[type="search"]') || element.matches('[data-view-filter="true"]') || isOfflineViewControl(element)) return;
+                if (!element.hasAttribute('data-offline-disabled')) element.setAttribute('data-offline-disabled', String(Boolean(element.disabled)));
+                element.disabled = true;
+                element.classList.add('offline-readonly-control');
+            });
+        }
+
+        function setOfflineViewMode(active) {
+            offlineViewModeActive = Boolean(active);
+            document.getElementById('offlineViewModeBanner')?.classList.toggle('hidden', !offlineViewModeActive);
+            document.body.classList.toggle('offline-view-only', offlineViewModeActive);
+            applyOfflineReadonlyControls();
+        }
+
+        function initializeOfflineViewMode() {
+            if (!offlineReadonlyObserver) {
+                offlineReadonlyObserver = new MutationObserver(records => {
+                    if (records.some(record => record.addedNodes.length)) applyOfflineReadonlyControls();
+                });
+                offlineReadonlyObserver.observe(document.body, { childList: true, subtree: true });
+                document.addEventListener('click', event => {
+                    if (!offlineViewModeActive) return;
+                    const action = event.target.closest?.('button, [role="button"], a[onclick], input[type="submit"]');
+                    if (!action || isOfflineViewControl(action)) return;
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    showToast('Offline view only. Reconnect to make changes.', true);
+                }, true);
+                document.addEventListener('submit', event => {
+                    if (!offlineViewModeActive) return;
+                    event.preventDefault();
+                    event.stopImmediatePropagation();
+                    showToast('Offline view only. Reconnect to make changes.', true);
+                }, true);
+            }
+            setOfflineViewMode(!navigator.onLine);
         }
 
         function queueCloudSnapshotSync() {
@@ -2301,6 +2372,13 @@
         }
 
         function saveToLocalStorage() {
+            if (!navigator.onLine) {
+                if (lastSavedWorkspaceSnapshot) db = JSON.parse(JSON.stringify(lastSavedWorkspaceSnapshot));
+                refreshAllUI();
+                updateCloudSyncStatus('offline');
+                showToast('Offline view only. Reconnect to make changes.', true);
+                return;
+            }
             updateLocalSaveStatus('saving');
             localPersistPromise = persistDB().then(localSaved => {
                 if (localSaved) queueCloudSnapshotSync();
@@ -2713,6 +2791,7 @@
             document.getElementById('dashboardWelcomeTitle').textContent = `Welcome back, ${name} 👋`;
             document.getElementById('adminAccountEmail').textContent = currentAuthUser?.email || email;
             document.getElementById('adminAccountBadge').textContent = navigator.onLine ? 'CLOUD' : 'OFFLINE';
+            setOfflineViewMode(!navigator.onLine);
             updateCloudSyncStatus(navigator.onLine ? 'checking' : 'offline');
             const tabIds = ['dashboard', 'products', 'stock', 'mines', 'reports', 'hosts', 'audit'];
             let lastTab = 'dashboard';
@@ -6093,6 +6172,7 @@
             initTheme();
             startHeaderClock();
             initSidebar();
+            initializeOfflineViewMode();
             passwordRecoveryPending = /(?:^|[&#])type=recovery(?:&|$)/i.test(window.location.hash);
             let storedSnapshot;
             try {
@@ -6133,6 +6213,7 @@
                 registerOfflineAppShell();
                 return;
             }
+            lastSavedWorkspaceSnapshot = JSON.parse(JSON.stringify(db));
             localWorkspaceReady = true;
             refreshAllUI();
             migrateLegacyLocalBackups().catch(error => {
@@ -6202,6 +6283,7 @@
             }
 
             window.addEventListener('online', () => {
+                setOfflineViewMode(false);
                 if (currentAuthUser) {
                     document.getElementById('adminAccountBadge').textContent = 'CLOUD';
                     syncCloudWorkspace();
@@ -6210,6 +6292,7 @@
                 }
             });
             window.addEventListener('offline', () => {
+                setOfflineViewMode(true);
                 if (currentAuthUser) {
                     document.getElementById('adminAccountBadge').textContent = 'OFFLINE';
                     updateCloudSyncStatus('offline');

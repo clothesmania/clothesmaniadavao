@@ -99,6 +99,31 @@ test('workspace startup fills missing collections and preserves product inventor
     assert.throws(() => normalize({ shirts: 'not-an-array' }), /inventory data is invalid/);
 });
 
+test('offline mode blocks writes while preserving view navigation', () => {
+    const viewStart = html.indexOf('function isOfflineViewControl(');
+    const viewEnd = html.indexOf('\n        function ', viewStart + 1);
+    const source = html.slice(viewStart, viewEnd);
+    const isOfflineViewControl = new Function(`${source}; return isOfflineViewControl;`)();
+    const button = (id, text, className = '', parent = '') => ({
+        id,
+        textContent: text,
+        classList: { contains: name => className.split(' ').includes(name) },
+        closest: selector => selector === parent ? {} : null,
+        getAttribute: () => ''
+    });
+
+    assert.equal(isOfflineViewControl(button('nav-products', 'Products & Inventory', '', '#sidebar')), true);
+    assert.equal(isOfflineViewControl(button('viewMine', 'View order')), true);
+    assert.equal(isOfflineViewControl(button('filter-btn-PAID', 'Paid', 'mine-filter-btn')), true);
+    assert.equal(isOfflineViewControl(button('status', 'Paid')), false);
+    assert.equal(isOfflineViewControl(button('saveMine', 'Save Mine Order')), false);
+    assert.match(html, /querySelectorAll\?\.\('button, \[role="button"\], a\[onclick\], input, textarea, select'\)/);
+    assert.match(html, /offlineReadonlyObserver\.observe\(document\.body/);
+    assert.match(html, /if \(!navigator\.onLine\) \{[\s\S]*?Offline view only/);
+    assert.match(html, /document\.addEventListener\('submit',[\s\S]*?stopImmediatePropagation\(\)/);
+    assert.match(html, /window\.addEventListener\('offline',[\s\S]*?setOfflineViewMode\(true\)/);
+});
+
 test('startup migration reads only locally preserved cloud backups', () => {
     assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
     assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);
