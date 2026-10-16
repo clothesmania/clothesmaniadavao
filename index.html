@@ -2266,8 +2266,6 @@
                 localDeviceKey = await ClothesManiaWorkspaceCrypto.createDeviceKey();
                 await dexie.kv.put({ key: 'local-encryption-key-v2', value: localDeviceKey });
             }
-            updateLocalSaveStatus('checking', 'Checking protected local backups');
-            await migrateLegacyLocalBackups();
             return true;
         }
 
@@ -6102,6 +6100,10 @@
             }
             localWorkspaceReady = true;
             refreshAllUI();
+            migrateLegacyLocalBackups().catch(error => {
+                console.error('Legacy local backup encryption failed.', error);
+                showToast('An older local backup could not be protected. Do not restore it until reviewed.', true);
+            });
 
             let cachedOfflineUser = null;
             try {

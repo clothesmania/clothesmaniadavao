@@ -86,6 +86,9 @@ test('fresh startup initializes device encryption without showing a passphrase p
 test('startup migration reads only locally preserved cloud backups', () => {
     assert.match(html, /dexie\.kv\.where\('key'\)\.startsWith\('cloud-backup-'\)\.toArray\(\)/);
     assert.doesNotMatch(html, /dexie\.kv\.toArray\(\)/);
+    const initializeWorkspace = html.match(/async function initializeLocalWorkspace\(storedSnapshot\) \{([\s\S]*?)\n        \}/)?.[1] || '';
+    assert.doesNotMatch(initializeWorkspace, /await migrateLegacyLocalBackups\(\)/);
+    assert.match(html, /migrateLegacyLocalBackups\(\)\.catch\(error => \{/);
 });
 
 test('server sync endpoint uses authenticated user RPCs and never includes a service-role secret', () => {
