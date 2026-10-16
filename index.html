@@ -1844,6 +1844,7 @@
             const container = document.getElementById('localSaveStatus');
             if (!label || !icon || !container) return;
             const status = {
+                checking: [message || 'Checking local save…', 'fa-solid fa-hard-drive', 'border-gray-200 bg-white text-gray-600 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300'],
                 saving: ['Saving on this device…', 'fa-solid fa-floppy-disk', 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'],
                 saved: ['Saved on this device', 'fa-solid fa-hard-drive', 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-300'],
                 fallback: ['Saved in browser storage', 'fa-solid fa-hard-drive', 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-300'],
@@ -6067,6 +6068,7 @@
             passwordRecoveryPending = /(?:^|[&#])type=recovery(?:&|$)/i.test(window.location.hash);
             let storedSnapshot;
             try {
+                updateLocalSaveStatus('checking', 'Reading local workspace data');
                 storedSnapshot = await readPersistedWorkspaceSnapshot();
             } catch (error) {
                 console.error('Saved workspace data could not be loaded safely.', error);
@@ -6075,6 +6077,7 @@
                 return;
             }
             try {
+                updateLocalSaveStatus('checking', 'Unlocking local workspace');
                 if (!await initializeLocalWorkspace(storedSnapshot)) return;
             } catch (error) {
                 console.error('Protected local workspace could not be initialized.', error);
@@ -6085,6 +6088,7 @@
             await loadFromLocalStorage();
             initializeLiveSessionState();
             seedProductsFromShirts();
+            updateLocalSaveStatus('checking', 'Verifying encrypted local save');
             if (!await persistDB()) {
                 showLocalSessionScreen('signin', 'Encrypted local storage failed. Do not record orders until this device can save successfully.');
                 updateLocalSaveStatus('error', 'Encrypted local storage failed');
