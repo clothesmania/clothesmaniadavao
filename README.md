@@ -64,7 +64,7 @@ Use the existing repository connection with these settings:
 
 `vercel.json` sets the framework and build/install commands. Public environment values are embedded at build time, so redeploy after changing them. In Supabase Authentication → URL Configuration, keep the production URL and add `http://127.0.0.1:8000/**` and authorized Vercel callback URLs to Redirect URLs for password recovery and email confirmation. Use specific preview origins where possible.
 
-This migration prepares local code and deployment configuration. It does not change Vercel dashboard settings or publish a deployment. Test sign-in, cloud sync, conflict handling, password recovery, and offline reload on the deployment origin before using production records. Browser storage is origin-specific; a different Vercel domain must recover the authorized workspace from its cloud copy.
+The Next.js app was deployed to [clothesmaniadavao.vercel.app](https://clothesmaniadavao.vercel.app) on October 21, 2026. Vercel uses the repository root, Next.js defaults, Node.js 22, and the production Supabase variables. The live app restored the existing admin session and showed **Cloud: synced**; both routes and all 114 production offline assets passed HTTP checks. No sales/payment test records were submitted. Continue validating transaction flows, conflict handling, password recovery, and offline reload when making changes. Browser storage is origin-specific; a different Vercel domain must recover the authorized workspace from its cloud copy.
 
 ## Source layout
 
