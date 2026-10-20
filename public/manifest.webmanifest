@@ -1,0 +1,9 @@
+{
+  "name": "Clothes Mania Davao POS",
+  "short_name": "Clothes Mania",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f59e0b",
+  "icons": [{ "src": "/images/favicon.png", "sizes": "any", "type": "image/png", "purpose": "any" }]
+}

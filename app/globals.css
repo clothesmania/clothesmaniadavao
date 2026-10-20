@@ -1,0 +1,14 @@
+@import "tailwindcss" source(none);
+@config "../tailwind.config.cjs";
+@source "../src/pos/shell.html";
+@source "../public/pos-runtime.js";
+@source "../report-io.js";
+@source "./";
+
+/* The existing POS owns its DOM below this root; Next owns the outer shell. */
+#pos-root { display: contents; }
+
+@media print {
+  body.printing-receipt > #pos-root { display: contents !important; }
+  body.printing-receipt #pos-root > *:not(#receiptPrintArea) { display: none !important; }
+}

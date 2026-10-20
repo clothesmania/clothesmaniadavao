@@ -4,3 +4,14 @@ client/dist/
 client/.env
 client/.env.local
 client/.env.*.local
+.env
+.env.local
+.env.*.local
+.next/
+.vercel/
+public/vendor.js
+public/vendor.js.map
+public/images/
+public/report-io.js
+public/workspace-crypto.js
+public/sw.js

@@ -1,0 +1,1364 @@
+<!-- Login removed by request -->
+
+    <aside id="sidebar" class="w-64 shrink-0 bg-white dark:bg-[#161922] border-r border-gray-200 dark:border-gray-800 flex flex-col justify-between p-5 hidden md:flex transition-all duration-300 sticky top-0 h-screen z-40">
+        <div class="space-y-6">
+            <!-- Logo Brand -->
+            <div class="sidebar-brand flex items-center space-x-3 px-2">
+                <div class="sidebar-brand-mark w-10 h-10 rounded-full flex items-center justify-center">
+                    <img src="images/profile.jpg" alt="Clothes Mania Davao" class="sidebar-brand-logo h-full w-full rounded-full object-cover">
+                <button type="button" id="sidebarBrandExpand" onclick="toggleSidebar()" aria-label="Collapse sidebar" aria-controls="sidebar" aria-expanded="true" title="Collapse sidebar" class="sidebar-brand-expand h-full w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#161922]"><i id="sidebarBrandIcon" class="fa-solid fa-angles-left text-sm" aria-hidden="true"></i></button>
+                </div>
+                <div class="sidebar-label">
+                    <h1 class="font-display font-extrabold text-base tracking-tight text-gray-900 dark:text-white leading-tight">Clothes Mania</h1>
+                    <p class="text-[11px] text-amber-600 dark:text-amber-400 font-semibold uppercase tracking-wider">Davao POS</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="space-y-1 rounded-xl border border-gray-200 dark:border-gray-800 p-1.5" aria-label="Main navigation">
+                <p class="sidebar-label px-2 pb-1 pt-1 text-[10px] font-bold uppercase tracking-wider text-gray-500 dark:text-gray-400">Workspace</p>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" title="Dashboard" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg border border-amber-500/20 bg-amber-500/10 text-amber-800 dark:text-amber-300 text-sm font-semibold transition">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie text-base"></i><span class="sidebar-label">Dashboard</span>
+                    </div>
+                    <i class="sidebar-chevron fa-solid fa-chevron-right text-xs opacity-70"></i>
+                </button>
+                <button onclick="switchTab('products')" id="nav-products" title="Products & Inventory" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-box-open text-base"></i><span class="sidebar-label">Products & Inventory</span>
+                    </div>
+                </button>
+                <button onclick="switchTab('stock')" id="nav-stock" title="Stock Levels" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-boxes-stacked text-base"></i><span class="sidebar-label">Stock Levels</span>
+                    </div>
+                </button>
+                <button onclick="switchTab('mines')" id="nav-mines" title="Live Mine Orders" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-bolt text-base"></i><span class="sidebar-label">Live "Mine" Orders</span>
+                    </div>
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" title="Sales & Reports" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-file-invoice-dollar text-base"></i><span class="sidebar-label">Sales & Reports</span>
+                    </div>
+                </button>
+                <button onclick="switchTab('hosts')" id="nav-hosts" title="Manage Live Sellers" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-users text-base"></i><span class="sidebar-label">Manage Live Sellers</span>
+                    </div>
+                </button>
+                <button onclick="switchTab('audit')" id="nav-audit" title="Audit Logs" class="nav-btn w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800/60 hover:text-gray-900 dark:hover:text-white">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid fa-clipboard-list text-base"></i><span class="sidebar-label">Audit Logs</span>
+                    </div>
+                </button>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-gray-100 dark:border-gray-800">
+            <div class="sidebar-footer-row flex items-center gap-2 px-1">
+                <span class="sidebar-label text-xs text-gray-500 dark:text-gray-400">Clothes Mania Davao 2026 System</span>
+            </div>
+        </div>
+    </aside>
+    <button id="sidebarBackdrop" onclick="toggleMobileSidebar(false)" aria-label="Close navigation" class="hidden fixed inset-0 z-40"></button>
+
+    <div id="mainAppContent" class="flex-1 flex flex-col min-w-0">
+
+        <!-- Top Header Bar -->
+        <header class="bg-white/80 dark:bg-[#161922]/80 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 sticky top-0 z-30 px-4 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+
+            <div class="flex items-center space-x-3">
+                <button onclick="toggleMobileSidebar()" aria-label="Open navigation" aria-controls="sidebar" aria-expanded="false" id="mobileSidebarToggle" class="md:hidden text-gray-500 hover:text-gray-900 dark:hover:text-white text-lg"><i class="fa-solid fa-bars"></i></button>
+            </div>
+
+            <div class="flex min-w-0 items-center gap-1.5 sm:gap-3">
+                <div id="localSaveStatus" role="status" aria-live="polite" title="Checking local save" class="inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-2 sm:px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <i id="localSaveIcon" class="fa-solid fa-hard-drive" aria-hidden="true"></i>
+                    <span id="localSaveLabel" class="hidden sm:inline">Checking local save…</span>
+                </div>
+                <div id="cloudSyncStatus" role="status" aria-live="polite" title="Cloud sync status" class="inline-flex h-9 min-w-9 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-2 sm:px-2.5 text-xs font-medium text-gray-600 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300">
+                    <i id="cloudSyncIcon" class="fa-solid fa-cloud text-gray-400" aria-hidden="true"></i>
+                    <span id="cloudSyncLabel" class="hidden sm:inline">Cloud: checking</span>
+                    <button id="cloudSyncRetry" type="button" class="hidden font-semibold text-amber-700 underline underline-offset-2 dark:text-amber-300" onclick="retryCloudSync()">Retry</button>
+                </div>
+                <!-- Live date and time -->
+                <div title="Current date and time" class="hidden h-9 lg:inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-2.5 text-xs font-medium text-gray-700 shadow-sm dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200">
+                    <i class="fa-regular fa-calendar text-gray-500 dark:text-gray-400" aria-hidden="true"></i>
+                    <span id="headerDateStr" aria-live="off">Updating date and time…</span>
+                </div>
+
+                <!-- Notifications removed per request -->
+
+                <!-- Dark / Light mode toggle -->
+                <button type="button" onclick="toggleDarkMode()" aria-label="Toggle dark mode" title="Toggle dark mode" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                    <i id="themeIcon" class="fa-solid fa-moon text-sm" aria-hidden="true"></i>
+                </button>
+
+                <div id="adminMenuContainer" class="relative">
+                    <button id="adminMenuButton" type="button" onclick="toggleAdminMenu()" aria-label="Open Admin account menu" aria-haspopup="menu" aria-expanded="false" aria-controls="adminMenu" class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-muted-foreground shadow-sm transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">
+                        <i class="fa-solid fa-user text-sm" aria-hidden="true"></i>
+                    </button>
+                    <div id="adminMenu" role="menu" aria-labelledby="adminMenuButton" class="hidden overflow-hidden rounded-lg border border-border bg-card text-card-foreground">
+                        <div class="flex items-center gap-3 p-4">
+                            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-amber-500/15 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-user-shield"></i></span>
+                            <span class="min-w-0 flex-1">
+                                <span id="adminAccountName" class="block truncate text-sm font-semibold text-gray-900 dark:text-white">Admin</span>
+                                <span id="adminAccountEmail" class="block truncate text-xs text-gray-500 dark:text-gray-400">Clothes Mania Davao</span>
+                            </span>
+                            <span id="adminAccountBadge" class="rounded-full bg-gray-100 px-2 py-1 text-[10px] font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-300">CLOUD</span>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <div class="p-1.5">
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); switchTab('dashboard')" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-chart-pie w-4 text-center text-gray-500"></i> Dashboard</button>
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); switchTab('products')" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-shirt w-4 text-center text-gray-500"></i> Products &amp; Inventory</button>
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); exportJSONBackup()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-download w-4 text-center text-gray-500"></i> Export data backup</button>
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); openAdminAccessModal()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800"><i class="fa-solid fa-user-group w-4 text-center text-gray-500"></i> Manage admins</button>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <div class="p-1.5">
+                            <button id="adminMenuTheme" type="button" role="menuitemcheckbox" aria-checked="false" onclick="toggleAdminMenuTheme()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800">
+                                <i class="fa-solid fa-moon w-4 text-center text-gray-500" aria-hidden="true"></i><span class="flex-1">Dark mode</span><span id="adminMenuThemeSwitch" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                        <div class="menu-divider"></div>
+                        <div class="p-1.5">
+                            <button type="button" role="menuitem" onclick="closeAdminMenu(); signOut()" class="menu-row flex w-full items-center gap-3 px-3 text-left text-sm text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/30"><i class="fa-solid fa-right-from-bracket w-4 text-center"></i> Sign out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div id="offlineViewModeBanner" class="hidden border-b border-amber-300 bg-amber-50 px-4 py-2 text-center text-sm font-semibold text-amber-900 dark:border-amber-800 dark:bg-amber-950/50 dark:text-amber-200" role="status" aria-live="polite">
+            Offline view only — reconnect to the internet to make changes and sync.
+        </div>
+
+        <!-- Main Scrollable Content Container -->
+        <main class="flex-1 p-4 lg:p-8 space-y-6 overflow-y-auto max-w-[1600px] w-full mx-auto">
+
+            <div id="tab-content-dashboard" class="space-y-6">
+
+                <!-- Dashboard Cover Banner -->
+                <div class="relative rounded-3xl overflow-hidden">
+                    <img src="images/coverimage.jpg" alt="Cover Image" class="w-full h-40 object-cover object-center sm:h-56">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                    <div class="absolute inset-0 flex items-center justify-between p-6">
+                        <div class="flex items-center gap-4">
+                            <img src="images/profile.jpg" alt="Profile" class="w-16 h-16 rounded-full object-cover object-center ring-2 ring-amber-500/40">
+                            <div class="text-white" style="text-shadow:0 6px 18px rgba(0,0,0,0.6)">
+                                <h3 class="font-display font-extrabold text-2xl sm:text-3xl leading-tight">Clothes Mania Davao</h3>
+                                <p class="text-sm sm:text-base opacity-90">Inventory & Sales Management</p>
+                            </div>
+                        </div>
+                        <!-- CTA removed from cover as requested -->
+                    </div>
+                </div>
+
+                <!-- Welcome Banner -->
+                <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm">
+                    <div>
+                        <h2 id="dashboardWelcomeTitle" class="font-display font-black text-2xl text-gray-900 dark:text-white tracking-tight">Welcome back, Admin 👋</h2>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Here is your live Clothes Mania Davao sales & inventory overview for today.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="openNewShirtModal()" class="btn-ghost bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 px-4 py-2.5 rounded-xl text-xs font-semibold transition border border-gray-200 dark:border-gray-700 flex items-center gap-2">
+                            <i class="fa-solid fa-box-open text-amber-500"></i> Add Product
+                        </button>
+                        <button onclick="openNewMineModal()" class="btn-primary bg-amber-500 hover:bg-amber-600 text-black font-bold px-4 py-2.5 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-bolt"></i> Quick Live Mine
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                    <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="px-4 py-3 text-xs font-semibold text-gray-800 dark:text-gray-200">Gross Order Value</h3>
+                        <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-800"><span id="statTotalSales" class="font-mono text-2xl font-bold tracking-tight text-gray-950 dark:text-white">₱0.00</span><span class="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-[10px] font-semibold text-gray-600 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">All time</span></div>
+                        <button type="button" onclick="switchTab('mines')" class="flex w-full items-center justify-between border-t border-gray-100 px-4 py-2.5 text-xs text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 dark:hover:text-white"><span>Recorded mine orders</span><span class="inline-flex items-center gap-2">View more <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i></span></button>
+                    </article>
+                    <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="px-4 py-3 text-xs font-semibold text-gray-800 dark:text-gray-200">Pending Receivables</h3>
+                        <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-800"><span id="statUnpaid" class="font-mono text-2xl font-bold tracking-tight text-rose-500">₱0.00</span><span class="rounded-full border border-rose-100 bg-rose-50 px-2.5 py-1 text-[10px] font-semibold text-rose-600 dark:border-rose-900 dark:bg-rose-950/50 dark:text-rose-300">Pending</span></div>
+                        <button type="button" onclick="switchTab('mines'); selectMineSession('__unpaid__')" class="flex w-full items-center justify-between border-t border-gray-100 px-4 py-2.5 text-xs text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 dark:hover:text-white"><span>Unpaid order balance</span><span class="inline-flex items-center gap-2">View more <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i></span></button>
+                    </article>
+                    <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="px-4 py-3 text-xs font-semibold text-gray-800 dark:text-gray-200">Cash Collected</h3>
+                        <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-800"><span id="statCollected" class="font-mono text-2xl font-bold tracking-tight text-gray-950 dark:text-white">₱0.00</span><span class="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-semibold text-blue-600 dark:border-blue-900 dark:bg-blue-950/50 dark:text-blue-300">Order payments</span></div>
+                        <button type="button" onclick="switchTab('reports')" class="flex w-full items-center justify-between border-t border-gray-100 px-4 py-2.5 text-xs text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 dark:hover:text-white"><span>Paid orders + DP</span><span class="inline-flex items-center gap-2">View more <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i></span></button>
+                    </article>
+                    <article class="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-800 dark:bg-gray-900">
+                        <h3 class="px-4 py-3 text-xs font-semibold text-gray-800 dark:text-gray-200">Net Profit</h3>
+                        <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 dark:border-gray-800"><span id="statNetProfit" class="font-mono text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">₱0.00</span><span class="rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/50 dark:text-emerald-300">Estimated</span></div>
+                        <button type="button" onclick="switchTab('reports')" class="flex w-full items-center justify-between border-t border-gray-100 px-4 py-2.5 text-xs text-gray-500 transition hover:bg-gray-50 hover:text-gray-900 dark:border-gray-800 dark:hover:bg-gray-800 dark:hover:text-white"><span>Sales less costs</span><span class="inline-flex items-center gap-2">View more <i class="fa-solid fa-arrow-right text-[10px]" aria-hidden="true"></i></span></button>
+                    </article>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Sales Chart (2 columns wide) -->
+                    <div class="glass-panel bg-white/60 dark:bg-slate-900/40 border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] rounded-2xl lg:col-span-2 p-6 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white">Sales & Live Selling Performance</h3>
+                                <p class="text-xs text-gray-500">Sales totals from your saved daily records</p>
+                            </div>
+                            <div class="glass-segmented flex items-center space-x-1 p-1 text-xs font-semibold">
+                                <button onclick="setChartFilter('1D')" id="chart-btn-1D" aria-pressed="true" class="chart-filter px-3 py-1.5 rounded-full transition bg-amber-500 text-black shadow-sm font-bold">1D</button>
+                                <button onclick="setChartFilter('1W')" id="chart-btn-1W" aria-pressed="false" class="chart-filter px-3 py-1.5 rounded-full transition text-gray-600 dark:text-gray-400">1W</button>
+                                <button onclick="setChartFilter('1M')" id="chart-btn-1M" aria-pressed="false" class="chart-filter px-3 py-1.5 rounded-full transition text-gray-600 dark:text-gray-400">1M</button>
+                                <button onclick="setChartFilter('1Y')" id="chart-btn-1Y" aria-pressed="false" class="chart-filter px-3 py-1.5 rounded-full transition text-gray-600 dark:text-gray-400">1Y</button>
+                            </div>
+                        </div>
+
+                        <!-- Canvas for Chart.js -->
+                        <div class="h-72 w-full relative pt-2">
+                            <canvas id="salesChartCanvas"></canvas>
+                            <div id="chartEmptyState" class="hidden absolute inset-0 flex-col items-center justify-center gap-2 text-center text-sm text-gray-500" role="status" aria-live="polite">
+                                <i class="fa-solid fa-chart-column text-xl text-gray-400"></i>
+                                <span id="chartEmptyMessage">No data for this period yet.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Overall Information Widget -->
+                    <div class="glass-panel bg-white/60 dark:bg-slate-900/40 border border-white/60 dark:border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] rounded-2xl p-6 space-y-5 flex flex-col justify-between">
+                        <div>
+                            <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white mb-1">Overall Information</h3>
+                            <p class="text-xs text-gray-500">Quick summary of Clothes Mania store status</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-3">
+                            <div class="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-box-open"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Products</span>
+                                        <h4 id="infoShirtCount" class="font-display font-bold text-lg text-gray-900 dark:text-white">0 items</h4>
+                                    </div>
+                                </div>
+                                <button onclick="switchTab('products')" class="text-xs text-amber-500 hover:underline font-bold">View <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-bag-shopping"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Total "Mines" Logged</span>
+                                        <h4 id="infoOrderCount" class="font-display font-bold text-lg text-gray-900 dark:text-white">0 orders</h4>
+                                    </div>
+                                </div>
+                                <button onclick="switchTab('mines')" class="text-xs text-blue-500 hover:underline font-bold">View <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+
+                            <div class="bg-gray-50 dark:bg-gray-900/60 p-4 rounded-2xl border border-gray-200 dark:border-gray-800 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center font-bold">
+                                        <i class="fa-solid fa-user-group"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-xs text-gray-500 block">Low-stock products</span>
+                                        <h4 id="infoLowStockCount" class="font-display font-bold text-lg text-gray-900 dark:text-white">0 items</h4>
+                                    </div>
+                                </div>
+                                <button onclick="showLowStockProducts()" class="text-xs text-amber-500 hover:underline font-bold">Review <i class="fa-solid fa-arrow-right"></i></button>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/30 p-3.5 rounded-2xl text-xs text-amber-800 dark:text-amber-300 flex items-center gap-3">
+                            <i class="fa-solid fa-lightbulb text-amber-500 text-base"></i>
+                            <span>Stock at 5 pieces or fewer is flagged in Products. Use the stock filter to review it before your next live.</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    <!-- Top Selling Products -->
+                    <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white">Top Selling Products</h3>
+                            <button onclick="switchTab('products')" class="text-xs text-amber-500 font-bold hover:underline">All Products</button>
+                        </div>
+                        <div id="topSellingShirtsList" class="space-y-3">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+
+                    <!-- Recent Transactions Table (Spreadsheet Automation Style) -->
+                    <div class="lg:col-span-2 bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm space-y-4">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white">Recent "Mine" Transactions</h3>
+                                <p class="text-xs text-gray-500">Spreadsheet-inspired live feed with instant paid/unpaid automation</p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="openNewMineModal()" class="bg-amber-500 hover:bg-amber-600 text-black font-bold px-3.5 py-2 rounded-xl text-xs transition shadow-sm flex items-center gap-1.5">
+                                    <i class="fa-solid fa-plus"></i> Record Mine
+                                </button>
+                                <button onclick="switchTab('mines')" class="bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 px-3.5 py-2 rounded-xl text-xs font-semibold transition border border-gray-200 dark:border-gray-700">
+                                    View All
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Table Wrapper -->
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-xs">
+                                <thead>
+                                    <tr class="border-b border-gray-200 dark:border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
+                                        <th class="py-3 px-3">Time / Date</th>
+                                        <th class="py-3 px-3">Buyer Name</th>
+                                        <th class="py-3 px-3">Item / Details</th>
+                                        <th class="py-3 px-3">Status</th>
+                                        <th class="py-3 px-3 text-right">Amount</th>
+                                        <th class="py-3 px-3 text-center">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="dashboardTransactionsTable" class="divide-y divide-gray-100 dark:divide-gray-800">
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div id="tab-content-products" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-box-open text-sm"></i></span>
+                            <div>
+                                <h2 class="font-display text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Products & Inventory</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Manage apparel, bags, pants, shoes, and other products.</p>
+                            </div>
+                        </div>
+                        <button onclick="openNewShirtModal()" class="btn-primary bg-amber-500 hover:bg-amber-600 text-black font-extrabold px-4 py-2.5 rounded-xl text-xs transition shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-plus"></i> Add Product
+                        </button>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                        <label class="relative sm:col-span-2 lg:col-span-1">
+                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
+                            <input id="productsSearch" type="search" oninput="renderProductsCatalog()" placeholder="Search products, category, or SKU" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500">
+                        </label>
+                        <label>
+                            <span class="sr-only">Filter by product category</span>
+                            <select id="productsCategoryFilter" onchange="renderProductsCatalog()" class="select-shadcn w-full">
+                                <option value="">All categories</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span class="sr-only">Filter by size</span>
+                            <select id="productsSizeFilter" onchange="renderProductsCatalog()" class="select-shadcn w-full">
+                                <option value="">All sizes & variants</option>
+                            </select>
+                        </label>
+                        <label>
+                            <span class="sr-only">Filter by stock status</span>
+                            <select id="productsStockFilter" onchange="renderProductsCatalog()" class="select-shadcn w-full">
+                                <option value="">All stock</option>
+                                <option value="in">In stock</option>
+                                <option value="low">Low stock (1–5)</option>
+                                <option value="out">Out of stock</option>
+                            </select>
+                        </label>
+                    </div>
+                    <p id="productsResultCount" class="text-xs text-gray-500" aria-live="polite"></p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="productsCatalogGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-stock" class="space-y-6 hidden">
+                <header class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div class="flex items-start gap-3">
+                        <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-boxes-stacked text-sm"></i></span>
+                        <div>
+                            <h2 class="font-display text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Warehouse Stock Levels</h2>
+                            <p class="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Inventory status across your products and variants.</p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <span id="stockSummary" role="status" aria-live="polite" class="text-xs px-3 py-1.5 rounded-lg font-medium border">Checking stock…</span>
+                        <button onclick="openNewShirtModal()" class="btn-primary inline-flex items-center gap-2 px-3.5 py-2 text-sm">
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i> Add Product
+                        </button>
+                    </div>
+                </header>
+
+                <div id="stockStatusAnalytics" class="grid grid-cols-1 sm:grid-cols-3 gap-3" aria-label="Inventory status analytics"></div>
+
+                <section class="relative overflow-visible rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#161922]">
+                    <div class="space-y-4 border-b border-gray-200 p-4 dark:border-gray-800 sm:p-5">
+                        <div class="relative flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label class="relative">
+                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
+                                <input id="stockSearch" type="search" oninput="stockPage = 1; renderStockTable()" placeholder="Search product, SKU, size, or color" class="select-shadcn w-full pl-9 pr-3 text-sm">
+                            </label>
+                            <div class="relative shrink-0">
+                                <button id="stockFiltersButton" type="button" onclick="toggleStockFilters()" aria-expanded="false" aria-controls="stockFiltersPanel" class="btn-outline inline-flex items-center justify-center gap-2 px-3 py-2 text-sm">
+                                    <i class="fa-solid fa-sliders" aria-hidden="true"></i> Filters <span id="stockActiveFilterCount" class="hidden rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-semibold leading-none text-white"></span>
+                                </button>
+                                <div id="stockFiltersPanel" class="hidden absolute left-0 top-full z-30 mt-1 w-56 rounded-lg border border-gray-200 bg-white p-1.5 shadow-lg dark:border-gray-700 dark:bg-gray-900" role="group" aria-label="Filter by stock status">
+                                    <button type="button" data-stock-status-filter="" aria-pressed="true" onclick="chooseStockStatusFilter('')" class="stock-status-option flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"><i class="fa-solid fa-list w-4 text-gray-500" aria-hidden="true"></i>All stock statuses</button>
+                                    <button type="button" data-stock-status-filter="in" aria-pressed="false" onclick="chooseStockStatusFilter('in')" class="stock-status-option flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"><i class="fa-solid fa-circle-check w-4 text-emerald-600" aria-hidden="true"></i>In stock</button>
+                                    <button type="button" data-stock-status-filter="low" aria-pressed="false" onclick="chooseStockStatusFilter('low')" class="stock-status-option flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"><i class="fa-solid fa-triangle-exclamation w-4 text-amber-600" aria-hidden="true"></i>Low stock</button>
+                                    <button type="button" data-stock-status-filter="out" aria-pressed="false" onclick="chooseStockStatusFilter('out')" class="stock-status-option flex w-full items-center gap-2 rounded-md px-2.5 py-2 text-left text-xs font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-gray-800"><i class="fa-solid fa-circle-xmark w-4 text-rose-600" aria-hidden="true"></i>Out of stock</button>
+                                </div>
+                            </div>
+                        </div>
+                        <p id="stockResultCount" aria-live="polite" class="text-xs text-gray-500 dark:text-gray-400"></p>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[900px] border-collapse text-left text-xs">
+                            <thead>
+                                <tr class="border-b border-gray-200 bg-gray-50/80 text-gray-500 font-medium dark:border-gray-800 dark:bg-gray-900/60 dark:text-gray-400">
+                                    <th class="w-12 px-4 py-3 text-right font-medium">#</th>
+                                    <th class="px-4 py-3 font-medium">Product</th>
+                                    <th class="px-3 py-3 font-medium">Category · Size · Color</th>
+                                    <th class="px-3 py-3 font-medium">Cost Price</th>
+                                    <th class="px-3 py-3 font-medium">Selling Price</th>
+                                    <th class="px-3 py-3 font-medium">Available Qty</th>
+                                    <th class="px-3 py-3 font-medium">Stock Status</th>
+                                    <th class="px-4 py-3 text-right font-medium">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="stockTableBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                        </table>
+                    </div>
+                    <footer id="stockTablePagination" class="flex flex-col gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800 sm:flex-row sm:items-center sm:justify-between"></footer>
+                </section>
+            </div>
+
+            <div id="tab-content-mines" class="space-y-6 hidden">
+                <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 p-6 rounded-3xl shadow-sm space-y-6">
+                    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                        <div class="flex items-start gap-3">
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-bolt text-sm"></i></span>
+                            <div>
+                                <h2 class="font-display text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Live Selling "Mine" Orders Feed</h2>
+                                <p class="text-xs text-gray-500 mt-0.5">Start a live session before recording mines. Each session gets its own feed; past sessions are filed by month and day in History.</p>
+                                <div id="mineLiveStatus" role="status" aria-live="polite" class="mt-2 inline-flex items-center gap-2 rounded-md border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/60 px-2.5 py-1.5 text-xs text-gray-600 dark:text-gray-300"></div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button id="btnEndLiveSession" onclick="endLiveSession()" class="btn-outline hidden px-3.5 py-2.5 text-xs transition flex items-center gap-2 text-rose-600 border-rose-200 hover:bg-rose-50">
+                                <i class="fa-solid fa-stop"></i> End Live
+                            </button>
+                            <button onclick="startLiveSession()" class="btn-outline px-3.5 py-2.5 text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-plus"></i> New Live Session
+                            </button>
+                            <button onclick="openNewMineModal()" class="btn-primary px-4 py-2.5 text-xs transition flex items-center gap-2">
+                                <i class="fa-solid fa-bolt"></i> Record Mine
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="mineSessionTabs" role="tablist" aria-label="Live selling sessions" class="flex items-center gap-2 overflow-x-auto border-b border-gray-200 dark:border-gray-800"></div>
+
+                    <div id="mineHistoryList" class="hidden flex flex-col gap-3"></div>
+                    <section id="mineUnpaidView" class="hidden space-y-4" aria-labelledby="mineUnpaidTitle">
+                        <header class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h3 id="mineUnpaidTitle" class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">Unpaid sales</h3>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Outstanding balances across every live, day, month, and year.</p>
+                            </div>
+                            <p id="unpaidLedgerCount" class="text-xs font-medium text-gray-500 dark:text-gray-400" aria-live="polite"></p>
+                        </header>
+                        <div class="grid grid-cols-1 gap-2 rounded-lg border border-gray-200 bg-gray-50/70 p-2 dark:border-white/10 dark:bg-white/[0.025] sm:grid-cols-3">
+                            <div class="rounded-md border border-gray-200/80 bg-white px-3 py-2.5 dark:border-white/10 dark:bg-gray-900/50"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Open balance</p><p id="unpaidLedgerBalance" class="mt-1 font-mono text-lg font-bold tabular-nums text-gray-950 dark:text-white">₱0.00</p></div>
+                            <div class="rounded-md border border-gray-200/80 bg-white px-3 py-2.5 dark:border-white/10 dark:bg-gray-900/50"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Needs follow-up · 7+ days</p><p id="unpaidLedgerFollowup" class="mt-1 text-sm font-semibold tabular-nums text-orange-700 dark:text-orange-300">0 orders</p></div>
+                            <div class="rounded-md border border-gray-200/80 bg-white px-3 py-2.5 dark:border-white/10 dark:bg-gray-900/50"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Critical · 14+ days</p><p id="unpaidLedgerCritical" class="mt-1 text-sm font-semibold tabular-nums text-rose-700 dark:text-rose-300">0 orders</p></div>
+                        </div>
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
+                            <label class="relative min-w-48 flex-1">
+                                <span class="sr-only">Search unpaid sales</span>
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="unpaidLedgerSearch" type="search" oninput="updateUnpaidLedgerFilter('search', this.value)" placeholder="Search buyer, item, or seller" class="input-shadcn h-10 w-full pl-9 pr-3 text-xs">
+                            </label>
+                            <label class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span>Year</span><select id="unpaidLedgerYear" onchange="updateUnpaidLedgerFilter('year', this.value)" class="input-shadcn h-10 min-w-28 px-3 text-xs"><option value="all">All years</option></select></label>
+                            <label class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span>Month</span><select id="unpaidLedgerMonth" onchange="updateUnpaidLedgerFilter('month', this.value)" class="input-shadcn h-10 min-w-32 px-3 text-xs"><option value="all">All months</option></select></label>
+                        </div>
+                        <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
+                            <table class="w-full min-w-[1050px] border-collapse text-left text-xs">
+                                <thead class="bg-gray-50/80 text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:bg-white/[0.035] dark:text-gray-400"><tr class="border-b border-gray-200 dark:border-white/10"><th class="px-3 py-3">Order date</th><th class="px-3 py-3">Buyer</th><th class="px-3 py-3">Item</th><th class="px-3 py-3">Live / seller</th><th class="px-3 py-3 text-right">Order total</th><th class="px-3 py-3 text-right">Collected</th><th class="px-3 py-3 text-right">Balance due</th><th class="px-3 py-3">Unpaid for</th><th class="px-3 py-3 text-right">Actions</th></tr></thead>
+                                <tbody id="unpaidLedgerBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                            </table>
+                        </div>
+                    </section>
+                    <section id="mineInvoiceView" class="hidden space-y-4" aria-labelledby="mineInvoiceTitle">
+                        <header class="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                            <div>
+                                <h3 id="mineInvoiceTitle" class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">Buyer invoices</h3>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Orders with the same buyer name in one live session are grouped together. Print the final sales receipt after every item is fully paid.</p>
+                            </div>
+                            <label class="relative w-full sm:max-w-xs">
+                                <span class="sr-only">Search buyer invoices</span>
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="mineInvoiceSearch" type="search" oninput="renderBuyerInvoices()" placeholder="Search buyer or item" class="input-shadcn h-10 w-full pl-9 pr-3 text-xs">
+                            </label>
+                        </header>
+                        <div id="mineInvoiceGroups" class="space-y-3"></div>
+                    </section>
+                    <div id="mineHistoryDetailHeader" class="hidden items-center justify-between gap-3">
+                        <div>
+                            <h3 id="mineHistorySessionTitle" class="font-semibold text-sm text-gray-900 dark:text-white"></h3>
+                            <p id="mineHistorySessionDate" class="mt-0.5 text-xs text-gray-500"></p>
+                        </div>
+                        <button onclick="selectMineSession('__history__')" class="btn-outline px-3 py-2 text-xs"><i class="fa-solid fa-arrow-left mr-1"></i> All history</button>
+                    </div>
+
+                    <div id="mineOrdersTableView" class="space-y-4">
+                    <div class="flex items-center gap-3 flex-wrap bg-gray-50 dark:bg-gray-900/60 p-3 rounded-xl border border-gray-200 dark:border-gray-800 text-xs">
+                        <span class="text-gray-500 font-semibold"><i class="fa-solid fa-filter text-amber-500 mr-1"></i><span id="mineFilterLabel">Status</span></span>
+                        <div id="minePaymentFilters" class="flex items-center gap-2">
+                            <button onclick="filterMines('ALL')" id="filter-btn-ALL" class="mine-filter-btn is-active" aria-pressed="true">All orders</button>
+                            <button onclick="filterMines('PAID')" id="filter-btn-PAID" class="mine-filter-btn" aria-pressed="false">Paid</button>
+                            <button onclick="filterMines('UNPAID')" id="filter-btn-UNPAID" class="mine-filter-btn" aria-pressed="false">Unpaid</button>
+                        </div>
+                        <div id="mineItemStatusFilters" class="hidden flex items-center gap-2 overflow-x-auto">
+                            <button onclick="filterMines('ITEM_STATUS:ALL')" id="filter-btn-ITEM_STATUS-ALL" class="mine-filter-btn is-active" aria-pressed="true">All items</button>
+                            <button onclick="filterMines('ITEM_STATUS:PENDING')" id="filter-btn-ITEM_STATUS-PENDING" class="mine-filter-btn" aria-pressed="false">Pending</button>
+                            <button onclick="filterMines('ITEM_STATUS:NOT SHIPPED')" id="filter-btn-ITEM_STATUS-NOT_SHIPPED" class="mine-filter-btn" aria-pressed="false">Not shipped</button>
+                            <button onclick="filterMines('ITEM_STATUS:SHIPPED')" id="filter-btn-ITEM_STATUS-SHIPPED" class="mine-filter-btn" aria-pressed="false">Shipped</button>
+                            <button onclick="filterMines('ITEM_STATUS:PICK UP')" id="filter-btn-ITEM_STATUS-PICK_UP" class="mine-filter-btn" aria-pressed="false">Pick up</button>
+                            <button onclick="filterMines('ITEM_STATUS:MAXIM')" id="filter-btn-ITEM_STATUS-MAXIM" class="mine-filter-btn" aria-pressed="false">Maxim</button>
+                        </div>
+                        <span id="mineFeedCount" class="ml-auto text-gray-500 tabular-nums" aria-live="polite"></span>
+                    </div>
+
+                    <!-- Full Mines Table -->
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-gray-200 dark:border-gray-800 text-gray-400 font-semibold uppercase tracking-wider">
+                                    <th class="py-3 px-3">Date / Time</th>
+                                    <th class="py-3 px-3">Buyer Name</th>
+                                    <th class="py-3 px-3">Product Details</th>
+                                    <th class="py-3 px-3">Item ID</th>
+                                    <th class="py-3 px-3">Price</th>
+                                    <th class="py-3 px-3">DP</th>
+                                    <th class="py-3 px-3">Total</th>
+                                    <th class="py-3 px-3">Payment Status</th>
+                                    <th class="py-3 px-3">Item status</th>
+                                    <th class="py-3 px-3">Remarks</th>
+                                    <th class="py-3 px-3">Shipping fee</th>
+                                    <th class="py-3 px-3">Live Host</th>
+                                    <th class="py-3 px-3">MOP</th>
+                                    <th class="py-3 px-3">Reference / Ref #</th>
+                                    <th class="py-3 px-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fullMinesTableBody" class="divide-y divide-gray-100 dark:divide-gray-800">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="tab-content-reports" class="space-y-6 hidden">
+                <section class="space-y-6 rounded-2xl border border-gray-200/80 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-slate-950/40 sm:p-6">
+                    <header class="flex flex-col gap-3 border-b border-gray-100 pb-5 dark:border-white/10 sm:flex-row sm:items-end sm:justify-between">
+                        <div class="flex items-start gap-3">
+                            <span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-400" aria-hidden="true"><i class="fa-solid fa-chart-line text-sm"></i></span>
+                            <div>
+                                <h2 class="font-display text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Sales & Reports</h2>
+                                <p class="mt-0.5 max-w-2xl text-xs text-gray-500 dark:text-gray-400">Daily sales sheet, mine orders, collections, and balances at a glance.</p>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button id="reportImportButton" type="button" onclick="document.getElementById('reportImportFile').click()" class="inline-flex h-9 items-center gap-2 rounded-md border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-white/10 dark:bg-slate-900 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-import" aria-hidden="true"></i>Import Excel</button>
+                            <span class="inline-flex w-fit items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300" title="Reports use the signed-in workspace records. Successful changes autosave to the encrypted Supabase database when online; check Cloud status above for confirmation."><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>Workspace report data</span>
+                        </div>
+                    </header>
+
+                    <div id="reportCalendarView" class="space-y-4">
+                        <div class="flex flex-col gap-4 rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 id="reportMonthTitle" class="font-display text-xl font-semibold tracking-tight text-gray-950 dark:text-white"></h3>
+                                <p id="reportMonthSummary" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="inline-flex rounded-lg border border-gray-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900" role="group" aria-label="Report view">
+                                    <button id="reportGridToggle" type="button" onclick="setReportView('grid')" aria-pressed="true" class="rounded-md px-3 py-2 text-xs font-semibold"><i class="fa-solid fa-calendar-days mr-1.5" aria-hidden="true"></i>Calendar</button>
+                                    <button id="reportListToggle" type="button" onclick="setReportView('list')" aria-pressed="false" class="rounded-md px-3 py-2 text-xs font-semibold"><i class="fa-solid fa-list mr-1.5" aria-hidden="true"></i>List</button>
+                                </div>
+                                <div class="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1 shadow-sm dark:border-white/10 dark:bg-slate-900">
+                                    <button onclick="shiftReportMonth(-1)" aria-label="Previous month" class="grid h-8 w-8 place-items-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:bg-white/10 dark:hover:text-white"><i class="fa-solid fa-chevron-left text-xs" aria-hidden="true"></i></button>
+                                    <button onclick="goToCurrentReportMonth()" class="rounded-md px-3 py-2 text-xs font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10">Today</button>
+                                    <button onclick="shiftReportMonth(1)" aria-label="Next month" class="grid h-8 w-8 place-items-center rounded-md text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:bg-white/10 dark:hover:text-white"><i class="fa-solid fa-chevron-right text-xs" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="relative">
+                                    <button type="button" onclick="ReportIO.toggleMenu('reportExportMenu')" aria-haspopup="menu" aria-expanded="false" aria-controls="reportExportMenu" class="inline-flex h-9 items-center gap-2 rounded-md bg-gray-950 px-3 text-xs font-medium text-white shadow-sm transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"><i class="fa-solid fa-download" aria-hidden="true"></i>Export</button>
+                                    <div id="reportExportMenu" role="menu" class="hidden absolute right-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('xlsx')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-excel w-4 text-center text-emerald-600"></i>Excel workbook</button>
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('csv')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-csv w-4 text-center text-gray-500"></i>CSV spreadsheet</button>
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('pdf')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-pdf w-4 text-center text-rose-600"></i>Print / Save PDF</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="reportGridView">
+                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
+                                <div class="grid grid-cols-7 border-b border-gray-200 bg-gray-50/80 text-center text-[11px] font-semibold uppercase tracking-wide text-gray-500 dark:border-white/10 dark:bg-white/[0.035] dark:text-gray-400"><span class="py-3">Sun</span><span class="py-3">Mon</span><span class="py-3">Tue</span><span class="py-3">Wed</span><span class="py-3">Thu</span><span class="py-3">Fri</span><span class="py-3">Sat</span></div>
+                                <div id="reportCalendarGrid" class="grid grid-cols-7 gap-px bg-gray-200 dark:bg-white/10"></div>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-x-4 gap-y-2 text-xs text-gray-600 dark:text-gray-300" aria-label="Mine count color legend">
+                            <span class="font-medium text-gray-900 dark:text-white">Mines this month</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-emerald-200 dark:bg-emerald-400/40"></span>High</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-yellow-200 dark:bg-yellow-300/40"></span>Medium</span>
+                            <span class="inline-flex items-center gap-1.5"><span class="h-3 w-3 rounded-sm bg-orange-200 dark:bg-orange-400/40"></span>Low</span>
+                        </div>
+                        <div id="reportListView" class="hidden overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
+                            <table class="w-full min-w-[1320px] border-collapse text-left text-xs">
+                                <thead><tr class="border-b border-gray-200 bg-gray-50/80 text-gray-500 font-semibold uppercase tracking-wide dark:border-white/10 dark:bg-white/[0.035] dark:text-gray-400">
+                                    <th class="py-3 px-3">Day / Date</th><th class="py-3 px-2">Live seller</th><th class="py-3 px-2">Live name</th><th class="py-3 px-2 text-right">Mine sales</th><th class="py-3 px-2 text-right">Unpaid total</th><th class="py-3 px-2 text-right">Walk-ins</th><th class="py-3 px-2 text-right">Box bundle</th><th class="py-3 px-2 text-right">FB boost</th><th class="py-3 px-3 text-right">Total sales</th><th class="py-3 px-3 text-right">Actions</th>
+                                </tr></thead>
+                                <tbody id="reportDailySheetBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                            </table>
+                        </div>
+                        <p class="rounded-lg border border-blue-200/70 bg-blue-50/60 px-3.5 py-3 text-xs leading-relaxed text-blue-900/80 dark:border-blue-400/15 dark:bg-blue-500/[0.06] dark:text-blue-100/80"><i class="fa-solid fa-circle-info mr-1.5 text-blue-600 dark:text-blue-300" aria-hidden="true"></i>Each date shows one daily total across its live sessions. Mine sales include recorded orders; unpaid balances are separate. Walk-ins and box bundles are added, and FB boost is deducted. Use View to see the day’s breakdown.</p>
+                    </div>
+
+                    <div id="reportDayDetail" class="hidden space-y-4">
+                        <div class="flex flex-col gap-3 rounded-xl border border-gray-200 bg-gray-50/70 p-4 dark:border-white/10 dark:bg-white/[0.025] sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 id="reportDayTitle" class="font-display text-lg font-semibold tracking-tight text-gray-950 dark:text-white"></h3>
+                                <p id="reportDaySubtitle" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div class="relative">
+                                    <button type="button" onclick="ReportIO.toggleMenu('reportDayExportMenu')" aria-haspopup="menu" aria-expanded="false" aria-controls="reportDayExportMenu" class="inline-flex h-9 items-center gap-2 rounded-md bg-gray-950 px-3 text-xs font-medium text-white shadow-sm transition-colors hover:bg-gray-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2 dark:bg-white dark:text-gray-950 dark:hover:bg-gray-200"><i class="fa-solid fa-download" aria-hidden="true"></i>Export</button>
+                                    <div id="reportDayExportMenu" role="menu" class="hidden absolute right-0 top-full z-20 mt-2 w-48 rounded-lg border border-gray-200 bg-white p-1 shadow-lg dark:border-white/10 dark:bg-slate-900">
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('xlsx')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-excel w-4 text-center text-emerald-600"></i>Excel workbook</button>
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('csv')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-csv w-4 text-center text-gray-500"></i>CSV spreadsheet</button>
+                                        <button type="button" role="menuitem" onclick="ReportIO.exportReport('pdf')" class="flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-xs text-gray-700 hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-file-pdf w-4 text-center text-rose-600"></i>Print / Save PDF</button>
+                                    </div>
+                                </div>
+                                <button onclick="closeReportDay()" class="inline-flex min-h-9 items-center gap-2 rounded-lg border border-gray-200 bg-white px-3.5 py-2 text-xs font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-white/10 dark:bg-slate-900 dark:text-gray-200 dark:hover:bg-white/10"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to month</button>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
+                            <table class="w-full min-w-[1260px] border-collapse text-left text-xs">
+                                <thead><tr class="border-b border-gray-200 bg-gray-50/80 text-gray-500 font-semibold uppercase tracking-wide dark:border-white/10 dark:bg-white/[0.035] dark:text-gray-400"><th class="py-3 px-3">Live seller</th><th class="py-3 px-3">Live name</th><th class="py-3 px-3 text-right">Mine sales</th><th class="py-3 px-3 text-right">Unpaid total</th><th class="py-3 px-3 text-right">Walk-ins</th><th class="py-3 px-3 text-right">Box bundle</th><th class="py-3 px-3 text-right">FB boost</th><th class="py-3 px-3 text-right">Total sales</th><th class="py-3 px-3 text-right">Actions</th></tr></thead>
+                                <tbody id="reportDaySheetBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                            </table>
+                        </div>
+                        <p class="-mt-2 text-xs leading-relaxed text-gray-500 dark:text-gray-400">Total sales = mine sales + walk-ins + box bundle − FB boost. Unpaid total is shown separately. Older day-level entries stay in the monthly sheet until assigned to a live.</p>
+                        <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white dark:border-white/10 dark:bg-slate-950/30">
+                            <table class="w-full min-w-[850px] text-left border-collapse text-xs">
+                                <thead><tr class="border-b border-gray-200 bg-gray-50/80 text-gray-500 font-semibold uppercase tracking-wide dark:border-white/10 dark:bg-white/[0.035] dark:text-gray-400">
+                                    <th class="py-3 px-3">Buyer</th><th class="py-3 px-3">Item</th><th class="py-3 px-3">Live session</th><th class="py-3 px-3">Status</th><th class="py-3 px-3 text-right">Order value</th><th class="py-3 px-3 text-right">Collected</th><th class="py-3 px-3 text-right">Balance</th>
+                                </tr></thead>
+                                <tbody id="reportDayTableBody" class="divide-y divide-gray-100 dark:divide-gray-800"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-content-hosts" class="space-y-6 hidden">
+                <section class="glass-panel space-y-5 rounded-2xl border border-white/60 bg-white/60 p-5 shadow-[0_8px_32px_0_rgba(0,0,0,0.15)] dark:border-white/10 dark:bg-slate-900/40 sm:p-7">
+                    <div class="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+                        <div class="space-y-1">
+                            <div class="flex items-center gap-2.5">
+                                <span class="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+                                <h2 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Manage Live Sellers</h2>
+                            </div>
+                            <p class="pl-11 text-sm text-gray-500 dark:text-gray-400">Keep the names used for live orders and daily sales organized.</p>
+                        </div>
+                        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                            <label class="flex items-center gap-2 text-xs font-medium text-gray-600 dark:text-gray-300"><span>Sales period</span><select id="liveHostPerformanceRange" onchange="renderLiveHosts()" class="select-shadcn h-10 min-w-36"><option value="this-week">This week</option><option value="last-week">Last week</option><option value="this-month" selected>This month</option><option value="last-month">Last month</option></select></label>
+                            <button type="button" onclick="openAddLiveHostModal()" class="btn-primary inline-flex min-h-10 items-center justify-center gap-2 px-4 text-sm transition-all duration-300 ease-out hover:scale-[1.02] active:scale-95"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add seller</button>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 border-y border-gray-200/70 py-3 text-xs text-gray-500 dark:border-white/10 dark:text-gray-400 sm:flex-row sm:items-center sm:justify-between"><span>Paid sales by seller · unpaid and partially paid orders are excluded.</span><span id="liveHostPerformancePeriod" class="font-medium text-gray-700 dark:text-gray-300" aria-live="polite"></span></div>
+
+                    <section id="liveHostPerformanceDetail" class="hidden overflow-hidden rounded-xl border border-amber-500/20 bg-amber-50/30 dark:border-amber-400/15 dark:bg-amber-500/[0.035]" aria-labelledby="liveHostPerformanceTitle">
+                        <div class="flex flex-col gap-3 border-b border-gray-200/70 p-4 dark:border-white/10 sm:flex-row sm:items-start sm:justify-between">
+                            <div><h3 id="liveHostPerformanceTitle" class="text-base font-semibold text-gray-900 dark:text-white">Seller performance</h3><p id="liveHostPerformanceSubtitle" class="mt-1 text-xs text-gray-500 dark:text-gray-400"></p></div>
+                            <button type="button" onclick="closeLiveHostPerformance()" class="btn-outline inline-flex min-h-9 items-center justify-center gap-2 px-3 text-xs"><i class="fa-solid fa-xmark" aria-hidden="true"></i> Close details</button>
+                        </div>
+                        <div id="liveHostPerformanceMetrics" class="grid gap-px border-b border-gray-200/70 bg-gray-200/70 sm:grid-cols-2 xl:grid-cols-4 dark:border-white/10 dark:bg-white/10"></div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full min-w-[44rem] border-collapse text-left text-xs">
+                                <thead class="bg-white/70 text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:bg-slate-950/20 dark:text-gray-300"><tr><th class="px-4 py-3 font-semibold">Date</th><th class="px-4 py-3 font-semibold">Buyer</th><th class="px-4 py-3 font-semibold">Item</th><th class="px-4 py-3 font-semibold">Live session</th><th class="px-4 py-3 text-right font-semibold">Paid sale</th></tr></thead>
+                                <tbody id="liveHostPerformanceOrders" class="divide-y divide-gray-200/70 dark:divide-white/10"></tbody>
+                            </table>
+                        </div>
+                        <p id="liveHostPerformanceEmpty" class="hidden px-4 py-8 text-center text-sm text-gray-500 dark:text-gray-400">No paid orders for this seller in this period.</p>
+                        <section class="border-t border-gray-200/70 dark:border-white/10" aria-labelledby="liveHostUnpaidTitle">
+                            <div class="flex flex-wrap items-baseline justify-between gap-2 px-4 py-3"><h4 id="liveHostUnpaidTitle" class="text-sm font-semibold text-gray-900 dark:text-white">Unpaid items to follow up</h4><span id="liveHostUnpaidSummary" class="text-xs font-medium text-rose-700 dark:text-rose-300"></span></div>
+                            <div class="overflow-x-auto">
+                                <table class="w-full min-w-[44rem] border-collapse text-left text-xs">
+                                    <thead class="bg-rose-50/70 text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:bg-rose-500/[0.06] dark:text-gray-300"><tr><th class="px-4 py-3 font-semibold">Date</th><th class="px-4 py-3 font-semibold">Buyer</th><th class="px-4 py-3 font-semibold">Item</th><th class="px-4 py-3 font-semibold">Status</th><th class="px-4 py-3 text-right font-semibold">Balance due</th><th class="px-4 py-3 text-right font-semibold">Track</th></tr></thead>
+                                    <tbody id="liveHostPerformanceUnpaidOrders" class="divide-y divide-gray-200/70 dark:divide-white/10"></tbody>
+                                </table>
+                            </div>
+                            <p id="liveHostPerformanceUnpaidEmpty" class="hidden px-4 py-6 text-center text-sm text-gray-500 dark:text-gray-400">No unpaid or partially paid items for this seller in this period.</p>
+                        </section>
+                    </section>
+
+                    <div id="liveHostDirectory" class="overflow-hidden rounded-xl border border-gray-200/80 bg-white/50 dark:border-white/10 dark:bg-slate-950/20">
+                        <div class="flex flex-col gap-3 border-b border-gray-200/80 p-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+                            <label class="relative w-full sm:max-w-xs">
+                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="liveHostSearch" type="search" oninput="renderLiveHosts()" placeholder="Search sellers…" aria-label="Search live sellers" class="input-shadcn h-9 w-full pl-9 text-sm">
+                            </label>
+                            <div class="flex items-center justify-between gap-3 sm:justify-end">
+                                <label for="liveHostFilter" class="text-xs text-gray-500 dark:text-gray-400">Show</label>
+                                <select id="liveHostFilter" onchange="renderLiveHosts()" class="select-shadcn w-36">
+                                    <option value="">All sellers</option>
+                                    <option value="active">Active</option>
+                                    <option value="disabled">Disabled</option>
+                                    <option value="historical">Historical</option>
+                                </select>
+                                <span id="liveHostCount" class="badge-shadcn whitespace-nowrap">0 sellers</span>
+                            </div>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table id="liveHostTable" class="w-full min-w-[58rem] border-collapse text-left text-sm">
+                                <thead class="bg-gray-50/80 text-xs font-semibold text-gray-600 dark:bg-slate-900/40 dark:text-gray-300">
+                                    <tr>
+                                        <th scope="col" class="px-4 py-3.5 font-semibold uppercase tracking-wide">Name</th>
+                                        <th scope="col" class="px-4 py-3.5 font-semibold uppercase tracking-wide">Role</th>
+                                        <th scope="col" class="px-4 py-3.5 text-right font-semibold uppercase tracking-wide">Paid sales</th>
+                                        <th scope="col" class="px-4 py-3.5 text-right font-semibold uppercase tracking-wide">Paid orders</th>
+                                        <th scope="col" class="px-4 py-3.5 font-semibold uppercase tracking-wide">Status</th>
+                                        <th scope="col" class="px-4 py-3.5 text-right font-semibold uppercase tracking-wide">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="liveHostsList" class="divide-y divide-gray-100 dark:divide-white/10"></tbody>
+                            </table>
+                        </div>
+                        <div id="liveHostEmptyState" class="hidden px-5 py-12 text-center">
+                            <span class="mx-auto grid h-11 w-11 place-items-center rounded-full bg-gray-100 text-gray-500 dark:bg-white/10 dark:text-gray-300"><i class="fa-solid fa-user-slash" aria-hidden="true"></i></span>
+                            <p class="mt-3 text-sm font-medium text-gray-900 dark:text-white">No sellers match</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Try another name or filter.</p>
+                        </div>
+                        <div class="flex items-center justify-between gap-3 border-t border-gray-200/80 px-4 py-3 text-xs text-gray-500 dark:border-white/10 dark:text-gray-400">
+                            <span id="liveHostResultCount" aria-live="polite">Showing 0 sellers</span>
+                            <span>Historical names stay available for orders and reports.</span>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-content-audit" class="space-y-6 hidden">
+                <section class="glass-panel space-y-5 rounded-2xl border border-white/60 bg-white/60 p-5 dark:border-white/10 dark:bg-slate-900/40 sm:p-7">
+                    <header class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                            <div class="flex items-center gap-2.5"><span class="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-clipboard-list" aria-hidden="true"></i></span><h2 class="text-xl font-semibold tracking-tight text-gray-900 dark:text-white">Audit Logs</h2></div>
+                            <p class="mt-2 pl-11 text-sm text-gray-500 dark:text-gray-400">Review activity on this device and restore items moved to trash.</p>
+                        </div>
+                        <p id="auditLogCount" class="text-xs text-gray-500 dark:text-gray-400" aria-live="polite"></p>
+                    </header>
+                    <div class="flex gap-2 border-b border-gray-200 dark:border-white/10" role="tablist" aria-label="Audit log views">
+                        <button id="auditActivityTab" type="button" role="tab" aria-selected="true" onclick="setAuditView('activity')" class="mine-session-tab is-active"><i class="fa-solid fa-clock-rotate-left" aria-hidden="true"></i>Activity</button>
+                        <button id="auditTrashTab" type="button" role="tab" aria-selected="false" onclick="setAuditView('trash')" class="mine-session-tab"><i class="fa-solid fa-trash-can" aria-hidden="true"></i>Trash / Restore<span id="auditTrashCount" class="mine-session-tab-count">0</span></button>
+                    </div>
+                    <div id="auditActivityView" class="overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10">
+                        <table class="w-full min-w-[700px] border-collapse text-left text-xs"><thead class="bg-gray-50 text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:bg-white/[0.035] dark:text-gray-300"><tr><th class="px-4 py-3">When</th><th class="px-4 py-3">Who</th><th class="px-4 py-3">Action</th><th class="px-4 py-3">Details</th></tr></thead><tbody id="auditActivityBody" class="divide-y divide-gray-100 dark:divide-white/10"></tbody></table>
+                    </div>
+                    <div id="auditTrashView" class="hidden overflow-x-auto rounded-xl border border-gray-200 dark:border-white/10">
+                        <table class="w-full min-w-[650px] border-collapse text-left text-xs"><thead class="bg-gray-50 text-[10px] font-semibold uppercase tracking-wide text-gray-600 dark:bg-white/[0.035] dark:text-gray-300"><tr><th class="px-4 py-3">Deleted</th><th class="px-4 py-3">Type</th><th class="px-4 py-3">Record</th><th class="px-4 py-3">Deleted by</th><th class="px-4 py-3 text-right">Action</th></tr></thead><tbody id="auditTrashBody" class="divide-y divide-gray-100 dark:divide-white/10"></tbody></table>
+                    </div>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Tracking starts with this update; earlier activity cannot be reconstructed. Logs and recoverable records stay in this browser profile and are not tamper-proof.</p>
+                </section>
+            </div>
+
+        </main>
+    </div>
+
+    <div id="modalAddLiveHost" class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="addLiveHostTitle" aria-describedby="addLiveHostDescription" onkeydown="if(event.key === 'Escape') closeAddLiveHostModal()" onclick="if(event.target === this) closeAddLiveHostModal()">
+        <section class="glass-panel w-full max-w-md rounded-2xl border border-white/60 bg-white/90 p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900/95 sm:p-6">
+            <div class="mb-5 flex items-start justify-between gap-4">
+                <div>
+                    <h3 id="addLiveHostTitle" class="text-lg font-semibold tracking-tight text-gray-900 dark:text-white">Add live seller</h3>
+                    <p id="addLiveHostDescription" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Add a name to use when recording live orders.</p>
+                </div>
+                <button type="button" onclick="closeAddLiveHostModal()" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-gray-500 transition-colors hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-white/10 dark:hover:text-white" aria-label="Close add seller dialog"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <form id="formLiveHost" onsubmit="saveLiveHost(event)" class="space-y-5">
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="space-y-2">
+                        <label for="liveHostFirstName" class="text-sm font-medium text-gray-800 dark:text-gray-200">First name</label>
+                        <input id="liveHostFirstName" name="firstName" type="text" minlength="1" maxlength="30" required autocomplete="given-name" placeholder="e.g. Maria" class="input-shadcn min-h-10 w-full">
+                    </div>
+                    <div class="space-y-2">
+                        <label for="liveHostLastName" class="text-sm font-medium text-gray-800 dark:text-gray-200">Last name</label>
+                        <input id="liveHostLastName" name="lastName" type="text" minlength="1" maxlength="30" required autocomplete="family-name" placeholder="e.g. Santos" class="input-shadcn min-h-10 w-full">
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <fieldset class="space-y-2">
+                        <legend class="text-sm font-medium text-gray-800 dark:text-gray-200">Role</legend>
+                        <div class="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                            <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="liveHostRoles" value="live-seller" checked onchange="limitLiveHostRoles(this)"><span class="flex min-h-10 items-center justify-center rounded-lg border border-gray-200 bg-white/60 px-3 text-sm text-gray-700 transition peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-800 peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:peer-checked:text-amber-200">Live Seller</span></label>
+                            <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="liveHostRoles" value="host" onchange="limitLiveHostRoles(this)"><span class="flex min-h-10 items-center justify-center rounded-lg border border-gray-200 bg-white/60 px-3 text-sm text-gray-700 transition peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-800 peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:peer-checked:text-amber-200">Host</span></label>
+                            <label class="cursor-pointer"><input class="peer sr-only" type="checkbox" name="liveHostRoles" value="staff" onchange="limitLiveHostRoles(this)"><span class="flex min-h-10 items-center justify-center rounded-lg border border-gray-200 bg-white/60 px-3 text-sm text-gray-700 transition peer-checked:border-amber-500 peer-checked:bg-amber-500/10 peer-checked:text-amber-800 peer-focus-visible:ring-2 peer-focus-visible:ring-amber-500 dark:border-white/10 dark:bg-white/5 dark:text-gray-300 dark:peer-checked:text-amber-200">Staff</span></label>
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="flex justify-end gap-2 border-t border-gray-200/80 pt-4 dark:border-white/10">
+                    <button type="button" onclick="closeAddLiveHostModal()" class="btn-secondary min-h-10 px-4 text-sm">Cancel</button>
+                    <button id="liveHostSubmitButton" type="submit" class="btn-primary inline-flex min-h-10 items-center justify-center gap-2 px-4 text-sm"><i class="fa-solid fa-plus" aria-hidden="true"></i> Add seller</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="modalLiveHostRemoval" class="fixed inset-0 z-[85] hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="liveHostRemovalTitle" aria-describedby="liveHostRemovalDescription" onkeydown="if(event.key === 'Escape') closeLiveHostRemoval()" onclick="if(event.target === this) closeLiveHostRemoval()">
+        <section class="glass-panel w-full max-w-md rounded-2xl border border-white/60 bg-white/95 p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900/95 sm:p-6">
+            <div class="mb-5">
+                <h3 id="liveHostRemovalTitle" class="text-lg font-semibold text-gray-900 dark:text-white">Seller options</h3>
+                <p id="liveHostRemovalDescription" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Disable this seller to keep them in history, or permanently remove them from the seller list.</p>
+            </div>
+            <div class="grid gap-3">
+                <button id="liveHostRemovalStatusButton" type="button" onclick="disableSelectedLiveHost()" class="flex min-h-11 items-center gap-3 rounded-xl border border-amber-500/20 bg-amber-50/60 px-4 text-left text-sm font-medium text-amber-900 transition hover:bg-amber-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:border-amber-400/15 dark:bg-amber-500/[0.07] dark:text-amber-200 dark:hover:bg-amber-500/10"><i class="fa-solid fa-user-slash w-4" aria-hidden="true"></i><span>Disable seller<span class="mt-0.5 block text-xs font-normal text-gray-500 dark:text-gray-400">Keep their record and past order history.</span></span></button>
+                <button type="button" onclick="permanentlyDeleteSelectedLiveHost()" class="flex min-h-11 items-center gap-3 rounded-xl border border-rose-500/20 bg-rose-50/60 px-4 text-left text-sm font-medium text-rose-800 transition hover:bg-rose-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 dark:border-rose-400/15 dark:bg-rose-500/[0.07] dark:text-rose-200 dark:hover:bg-rose-500/10"><i class="fa-solid fa-trash-can w-4" aria-hidden="true"></i><span>Permanently delete<span class="mt-0.5 block text-xs font-normal text-gray-500 dark:text-gray-400">Remove them from the table; past orders stay intact.</span></span></button>
+            </div>
+            <div class="mt-5 flex justify-end"><button type="button" onclick="closeLiveHostRemoval()" class="btn-outline min-h-9 px-4 text-xs">Cancel</button></div>
+        </section>
+    </div>
+
+    <div id="modalLiveSession" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[60] flex items-center justify-center p-4 hidden" role="dialog" aria-modal="true" aria-labelledby="liveSessionTitle" onkeydown="if(event.key === 'Escape') closeLiveSessionModal()" onclick="if(event.target === this) closeLiveSessionModal()">
+        <div class="w-full max-w-md rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-[#161922] p-5 shadow-2xl">
+            <div class="mb-4">
+                <h3 id="liveSessionTitle" class="font-display text-lg font-bold text-gray-900 dark:text-white">Start a live session</h3>
+                <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">Give this stream a name. New mines will appear in its own tab; earlier sessions stay in History.</p>
+            </div>
+            <form id="formLiveSession" onsubmit="saveLiveSession(event)" class="space-y-4">
+                <div>
+                    <label for="liveSessionName" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-300">Session name</label>
+                    <input id="liveSessionName" name="name" type="text" maxlength="60" required placeholder="e.g. Afternoon Live" class="input-shadcn w-full" autocomplete="off">
+                </div>
+                <div class="flex justify-end gap-2 border-t border-gray-100 dark:border-gray-800 pt-4">
+                    <button type="button" onclick="closeLiveSessionModal()" class="btn-outline px-3.5 py-2 text-sm">Cancel</button>
+                    <button type="submit" class="btn-primary px-3.5 py-2 text-sm"><i class="fa-solid fa-play mr-1.5"></i> Start session</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalDeleteLiveSession" class="fixed inset-0 z-[90] hidden items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="deleteLiveSessionTitle" onclick="if(event.target === this) closeDeleteLiveSession()" onkeydown="if(event.key === 'Escape') closeDeleteLiveSession()">
+        <section class="w-full max-w-md rounded-xl border border-gray-200 bg-white p-5 shadow-2xl dark:border-white/10 dark:bg-slate-900">
+            <div class="flex items-start gap-3"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-rose-500/10 text-rose-700 dark:text-rose-300"><i class="fa-solid fa-shield-halved" aria-hidden="true"></i></span><div><h3 id="deleteLiveSessionTitle" class="font-semibold text-gray-900 dark:text-white">Verify admin to delete session</h3><p id="deleteLiveSessionDescription" class="mt-1 text-sm text-gray-500 dark:text-gray-400"></p></div></div>
+            <form class="mt-5 space-y-4" onsubmit="confirmDeleteLiveSession(event)">
+                <label class="block space-y-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Admin email<input id="liveSessionDeleteEmail" type="email" autocomplete="username" required class="input-shadcn mt-1 w-full" placeholder="admin@example.com"></label>
+                <label class="block space-y-1.5 text-sm font-medium text-gray-700 dark:text-gray-300">Admin password<input id="liveSessionDeletePassword" type="password" autocomplete="current-password" required class="input-shadcn mt-1 w-full" placeholder="Re-enter password"></label>
+                <p id="liveSessionDeleteError" class="hidden text-sm text-rose-600 dark:text-rose-300" role="alert"></p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">The session and its linked orders will be moved to Trash, not permanently erased.</p>
+                <div class="flex justify-end gap-2 border-t border-gray-100 pt-4 dark:border-white/10"><button type="button" onclick="closeDeleteLiveSession()" class="btn-outline px-3.5 py-2 text-sm">Cancel</button><button type="submit" class="btn-destructive px-3.5 py-2 text-sm">Verify &amp; delete</button></div>
+            </form>
+        </section>
+    </div>
+
+    <div id="modalNewMine" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-lg w-full p-6 lg:p-7 space-y-5 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center font-bold text-base">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-display font-extrabold text-base text-gray-900 dark:text-white">Record New "Mine" Order</h3>
+                        <p id="mineOrderDateTime" class="text-xs text-gray-500">Fast entry for live selling orders</p>
+                    </div>
+                </div>
+                <button onclick="closeNewMineModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-base"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formMineOrder" onsubmit="saveNewMineOrder(event)" class="space-y-4 text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="mineAdminName" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Admin Name</label>
+                        <input type="text" id="mineAdminName" readonly aria-label="Signed-in admin" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 font-bold">
+                    </div>
+                    <div>
+                        <label for="mineSeller" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Live Seller Host</label>
+                        <select id="mineSeller" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold"></select>
+                    </div>
+                </div>
+                <input type="hidden" id="mineDate">
+                <input type="hidden" id="mineTime">
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Buyer Name / FB Profile</label>
+                    <input type="text" id="mineBuyerName" placeholder="e.g. Maria Santos (Davao City)" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-medium focus:border-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Product / Item Details</label>
+                    <input type="text" id="mineItemDetails" placeholder="e.g. Vintage Heavyweight Tee (Black, Large)" required oninput="handleMineItemInput(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 focus:border-amber-500 focus:outline-none">
+                    <input type="hidden" id="mineShirtId">
+                    <div id="mineItemSuggestions" class="mt-2 bg-white dark:bg-[#0f1117] border border-gray-200 dark:border-gray-800 rounded-xl max-h-40 overflow-auto hidden text-sm"></div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Price (₱)</label>
+                        <input type="number" id="minePrice" step="0.01" required oninput="document.getElementById('mineTotal').value = this.value; updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold font-mono focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Downpayment (₱)</label>
+                        <input type="number" id="mineDp" step="0.01" value="0" oninput="updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Total (₱)</label>
+                        <input type="number" id="mineTotal" step="0.01" required oninput="updateMinePaymentStatusFromAmounts()" class="w-full bg-gray-50 dark:bg-gray-900 border border-amber-500/50 rounded-xl p-3 text-amber-500 font-extrabold font-mono focus:outline-none">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Item ID</label>
+                        <input type="text" id="mineSKU" readonly class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-700 dark:text-gray-300 font-mono">
+                    </div>
+                    <div>
+                        <label for="mineRef" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Reference / Ref # <span id="mineRefRequiredHint" class="hidden text-rose-600">(required when paid)</span></label>
+                        <input type="text" id="mineRef" placeholder="Optional reference" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                    </div>
+                    <div>
+                        <label class="mb-1 block font-semibold text-gray-500 dark:text-gray-400">&nbsp;</label>
+                        <button type="button" onclick="generateSKUForModal()" class="w-full h-[42px] rounded-xl bg-blue-500 px-3 text-xs font-semibold text-white transition-colors hover:bg-blue-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-[#161922]">Generate Item ID</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Payment Status</label>
+                        <select id="mineStatus" onchange="handleMinePaymentStatusSelection(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="UNPAID">UNPAID (PENDING)</option>
+                            <option value="PARTIAL">PARTIALLY PAID</option>
+                            <option value="PAID">PAID</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Mode of Payment</label>
+                        <select id="mineMop" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                            <option value="GCash">GCash</option>
+                            <option value="Bank">Bank</option>
+                            <option value="Maya">Maya</option>
+                            <option value="Cash">Cash</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label for="mineDeliveryStatus" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Item status</label>
+                        <select id="mineDeliveryStatus" onchange="updateMineDeliveryStatusColor(this.value)" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="PENDING">PENDING</option>
+                            <option value="NOT SHIPPED">NOT SHIPPED</option>
+                            <option value="SHIPPED">SHIPPED</option>
+                            <option value="PICK UP">PICK UP</option>
+                            <option value="MAXIM">MAXIM</option>
+                        </select>
+                        <p class="mt-1 text-[10px] text-gray-500 dark:text-gray-400">SHIPPED is available only after full payment.</p>
+                    </div>
+                    <div>
+                        <label for="mineShippingFeeStatus" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Shipping fee</label>
+                        <select id="mineShippingFeeStatus" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-bold">
+                            <option value="NONE">NONE</option>
+                            <option value="FREE">FREE SHIPPING</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="mineDeliveryNoteField" class="hidden">
+                    <label for="mineDeliveryNote" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Reason / note <span class="text-rose-600">(required for NOT SHIPPED)</span></label>
+                    <textarea id="mineDeliveryNote" rows="2" maxlength="500" placeholder="Add a short reason why this item has not shipped" class="w-full resize-y rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 focus:border-amber-500 focus:outline-none dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100"></textarea>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <button type="button" onclick="closeNewMineModal()" class="btn-ghost px-5 py-2.5 bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl font-bold transition">Cancel</button>
+                    <button type="submit" class="btn-primary px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-black font-extrabold rounded-xl shadow-lg shadow-amber-500/20 transition">Save Mine Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalNewShirt" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="box-border min-w-0 w-full max-w-lg rounded-3xl border border-gray-200 bg-white p-5 shadow-2xl space-y-4 dark:border-gray-800 dark:bg-[#161922] sm:p-6">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                <h3 id="productModalTitle" class="font-display font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-box-open text-amber-500"></i> Add Product
+                </h3>
+                <button onclick="closeNewShirtModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formNewShirt" onsubmit="saveNewShirt(event)" class="min-w-0 space-y-3 overflow-y-auto pl-2 pr-3 text-xs max-h-[75vh]">
+                <div class="min-w-0">
+                    <label for="productCategoryInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Category</label>
+                    <select id="productCategoryInput" required class="select-shadcn box-border min-w-0 w-full">
+                        <option value="Clothing & Apparel">Clothing & Apparel</option>
+                        <option value="Pants">Pants</option>
+                        <option value="Bags">Bags</option>
+                        <option value="Shoes">Shoes</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Beauty & Lifestyle">Beauty & Lifestyle</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="min-w-0">
+                    <label for="shirtNameInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Product name</label>
+                    <input type="text" id="shirtNameInput" placeholder="e.g. Vintage Tee, Crossbody Bag, Running Shoes" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                </div>
+                <div class="grid min-w-0 grid-cols-2 gap-3">
+                    <div class="min-w-0">
+                        <label for="shirtSizeInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Size / variant</label>
+                        <input type="text" id="shirtSizeInput" placeholder="e.g. M, 38, One Size" class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="min-w-0">
+                        <label for="shirtColorInput" class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Color / variant</label>
+                        <input type="text" id="shirtColorInput" placeholder="Optional" class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                </div>
+                <div class="grid min-w-0 grid-cols-3 gap-3">
+                    <div class="min-w-0">
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Quantity</label>
+                        <input type="number" id="shirtQtyInput" min="0" value="25" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="min-w-0">
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Cost Price (₱)</label>
+                        <input type="number" id="shirtCostInput" step="0.01" value="180" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono text-gray-900 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-100">
+                    </div>
+                    <div class="min-w-0">
+                        <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Selling Price (₱)</label>
+                        <input type="number" id="shirtPriceInput" step="0.01" value="380" required class="box-border min-w-0 w-full rounded-xl border border-gray-200 bg-gray-50 p-3 font-mono font-bold text-amber-500 dark:border-gray-800 dark:bg-gray-900">
+                    </div>
+                </div>
+                <div class="flex min-w-0 flex-wrap justify-end gap-2 border-t border-gray-100 pt-3 dark:border-gray-800">
+                    <button type="button" onclick="closeNewShirtModal()" class="btn-ghost px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 bg-amber-500 text-black font-extrabold rounded-xl shadow-lg shadow-amber-500/20">Save Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Restock Modal -->
+    <div id="modalRestock" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl modal-shadcn">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                <h3 class="font-display font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-boxes-stacked text-amber-500"></i> Restock Product
+                </h3>
+                <button onclick="closeRestockModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formRestock" onsubmit="(e=>{ e.preventDefault(); confirmRestock(); })(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Product</label>
+                    <div class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                    <div class="text-sm font-bold" id="restockShirtName">-</div>
+                        <div class="text-[11px] text-gray-500 mt-1">Current qty: <span id="restockCurrentQty" class="font-mono font-bold">0</span></div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Add Quantity</label>
+                    <input id="restockQtyInput" type="number" min="1" value="10" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 font-mono">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <button type="button" onclick="closeRestockModal()" class="btn-ghost px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 bg-amber-500 text-black font-extrabold rounded-xl shadow-lg">Confirm Restock</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalStockProduct" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 hidden" onclick="if(event.target===this) closeStockProductModal()">
+        <section role="dialog" aria-modal="true" aria-labelledby="stockProductTitle" class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl modal-shadcn">
+            <header class="flex items-start justify-between gap-4 border-b border-gray-100 dark:border-gray-800 pb-4">
+                <div class="min-w-0">
+                    <h3 id="stockProductTitle" class="font-display font-bold text-lg text-gray-900 dark:text-white truncate">Product details</h3>
+                    <p id="stockProductSku" class="font-mono text-xs text-gray-500 mt-1"></p>
+                </div>
+                <button id="stockProductClose" type="button" onclick="closeStockProductModal()" aria-label="Close product details" class="w-9 h-9 shrink-0 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </header>
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="col-span-2 rounded-xl bg-gray-50 dark:bg-gray-900 p-3">
+                    <span class="block text-xs text-gray-500 mb-1">Category · size · color</span>
+                    <span id="stockProductVariant" class="font-medium text-gray-900 dark:text-white"></span>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-3">
+                    <span class="block text-xs text-gray-500 mb-1">Available quantity</span>
+                    <span id="stockProductQuantity" class="font-mono font-bold text-gray-900 dark:text-white"></span>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-3">
+                    <span class="block text-xs text-gray-500 mb-1">Stock status</span>
+                    <span id="stockProductStatus" class="font-semibold"></span>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-3">
+                    <span class="block text-xs text-gray-500 mb-1">Cost price</span>
+                    <span id="stockProductCost" class="font-mono font-medium text-gray-900 dark:text-white"></span>
+                </div>
+                <div class="rounded-xl border border-gray-200 dark:border-gray-800 p-3">
+                    <span class="block text-xs text-gray-500 mb-1">Selling price</span>
+                    <span id="stockProductPrice" class="font-mono font-bold text-amber-600 dark:text-amber-400"></span>
+                </div>
+            </div>
+            <footer class="flex flex-col-reverse sm:flex-row sm:justify-between gap-2 border-t border-gray-100 dark:border-gray-800 pt-4">
+                <button type="button" onclick="closeStockProductModal()" class="btn-outline px-4 py-2 text-sm">Close</button>
+                <div class="flex gap-2">
+                    <button type="button" onclick="editStockProduct()" class="btn-outline px-4 py-2 text-sm"><i class="fa-solid fa-pen mr-1.5"></i>Edit product</button>
+                    <button type="button" onclick="restockStockProduct()" class="btn-primary px-4 py-2 text-sm"><i class="fa-solid fa-plus mr-1.5"></i>Restock</button>
+                </div>
+            </footer>
+        </section>
+    </div>
+
+    <!-- Notification Toast Popup -->
+    <div id="toastNotification" class="fixed bottom-6 right-6 bg-gray-900 dark:bg-white text-white dark:text-gray-900 px-5 py-3.5 rounded-2xl shadow-2xl flex items-center gap-3 transform translate-y-24 opacity-0 transition-all duration-300 z-50 text-xs font-semibold">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400 text-base"></i>
+        <span id="toastMessage">Action completed successfully</span>
+    </div>
+
+    <!-- Payment Reference Modal -->
+    <div id="modalRef" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white dark:bg-[#161922] border border-gray-200 dark:border-gray-800 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl modal-shadcn">
+            <div class="flex items-center justify-between border-b border-gray-100 dark:border-gray-800 pb-3">
+                <h3 class="font-display font-bold text-base text-gray-900 dark:text-white flex items-center gap-2">
+                    <i class="fa-solid fa-receipt text-amber-500"></i> Add Payment Reference
+                </h3>
+                <button onclick="closeRefModal()" class="text-gray-400 hover:text-gray-900 dark:hover:text-white text-sm"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="formRef" onsubmit="(e=>{ e.preventDefault(); confirmRef(); })(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">Ref for</label>
+                    <div id="refTargetInfo" class="bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100 text-sm">
+                        <!-- filled dynamically -->
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-gray-500 dark:text-gray-400 mb-1 font-semibold">GCash Reference ID</label>
+                    <input id="refInput" type="text" placeholder="e.g. CM-1234567890" required class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-3 text-gray-900 dark:text-gray-100">
+                </div>
+
+                <div class="flex justify-end space-x-2 pt-3 border-t border-gray-100 dark:border-gray-800">
+                    <button type="button" onclick="closeRefModal()" class="btn-ghost px-4 py-2.5 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl font-bold">Cancel</button>
+                    <button type="submit" class="btn-primary px-5 py-2.5 bg-amber-500 text-black font-extrabold rounded-xl shadow-lg">Save Reference</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Mine Modal -->
+    <div id="modalViewMine" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 hidden">
+        <section role="dialog" aria-modal="true" aria-labelledby="viewMineTitle" class="w-full max-w-xl max-h-[min(90vh,48rem)] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-2xl modal-shadcn dark:border-gray-800 dark:bg-[#161922] sm:p-6">
+            <header class="flex items-start justify-between gap-4 border-b border-gray-100 pb-4 dark:border-gray-800">
+                <div class="flex min-w-0 items-center gap-3">
+                    <span class="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-amber-100 text-amber-700 dark:bg-amber-500/10 dark:text-amber-300"><i class="fa-solid fa-receipt" aria-hidden="true"></i></span>
+                    <div class="min-w-0"><h3 id="viewMineTitle" class="text-base font-bold tracking-tight text-gray-950 dark:text-white">Order details</h3><p id="viewMineSubtitle" class="mt-0.5 truncate text-xs text-gray-500 dark:text-gray-400"></p></div>
+                </div>
+                <button type="button" onclick="closeViewMineModal()" aria-label="Close order details" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-gray-500 transition hover:bg-gray-100 hover:text-gray-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 dark:hover:bg-gray-800 dark:hover:text-white"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </header>
+            <div id="viewMineContent" class="pt-4 text-sm text-gray-800 dark:text-gray-100">
+                <!-- Filled dynamically -->
+            </div>
+            <footer class="mt-5 flex justify-end border-t border-gray-100 pt-4 dark:border-gray-800">
+                <button type="button" onclick="closeViewMineModal()" class="btn-outline inline-flex h-10 items-center justify-center rounded-lg px-4 text-xs font-semibold">Close</button>
+            </footer>
+        </section>
+    </div>
+
+    <div id="localSessionOverlay" class="hidden fixed inset-0 z-[100] items-center justify-center overflow-y-auto bg-slate-950/20 p-4 backdrop-blur-xl antialiased sm:p-6" role="dialog" aria-modal="true" aria-labelledby="localSessionTitle" aria-describedby="localSessionDescription">
+        <section class="auth-shell animate-in fade-in zoom-in-95 duration-200">
+            <div class="auth-form-panel text-card-foreground">
+                <p id="localAuthMessage" class="mb-4 hidden rounded-md px-3 py-2 text-sm" role="status" aria-live="polite"></p>
+                <div class="auth-mobile-cover" aria-hidden="true"><img src="images/coverimage.jpg?v=1" alt=""></div>
+                <form id="localSignInForm" class="space-y-5" onsubmit="handleLocalSignIn(event)">
+                    <div class="space-y-1.5">
+                        <h2 id="localSessionTitle" class="text-2xl font-bold tracking-tight text-foreground">Welcome back, Admin</h2>
+                        <p id="localSessionDescription" class="text-sm leading-6 text-muted-foreground">Sign in with your admin account. Your authorized workspace remains available offline on this device.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <label for="localLoginEmail" class="block text-sm font-medium text-foreground">Email</label>
+                        <input id="localLoginEmail" name="email" type="email" autocomplete="username" required class="auth-field text-sm" placeholder="you@example.com">
+                        <div class="flex items-center justify-between gap-3">
+                            <label for="localLoginPassword" class="text-sm font-medium text-foreground">Password</label>
+                            <button type="button" onclick="showLocalSessionScreen('forgot-password')" class="text-xs font-medium text-amber-700 underline underline-offset-2 hover:text-amber-800 dark:text-amber-300">Forgot password?</button>
+                        </div>
+                        <div class="relative">
+                            <input id="localLoginPassword" name="password" type="password" autocomplete="current-password" required class="auth-field pr-12 text-sm" placeholder="Enter your password">
+                            <button type="button" onclick="togglePasswordVisibility('localLoginPassword', this)" aria-controls="localLoginPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button>
+                        </div>
+                        <label class="flex cursor-pointer items-center gap-2 text-xs text-muted-foreground"><input id="localRememberMe" type="checkbox" checked class="h-4 w-4 rounded border-border accent-amber-500">Allow this device to reopen the workspace offline</label>
+                    </div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-arrow-right-to-bracket" aria-hidden="true"></i>Sign in</button>
+                    <p class="text-center text-sm text-muted-foreground">Don’t have a Clothes Mania admin account? <button type="button" onclick="showLocalSessionScreen('signup')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Create an account</button></p>
+                </form>
+                <form id="localSignUpForm" class="hidden space-y-4" onsubmit="handleLocalSignUp(event)">
+                    <div class="space-y-1.5">
+                        <h2 id="localSignUpTitle" class="text-2xl font-bold tracking-tight text-foreground">Create your account</h2>
+                        <p id="localSignUpDescription" class="text-sm leading-6 text-muted-foreground">Enter the invitation code from an existing admin to join the shared workspace.</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div><label for="localSignUpName" class="mb-1.5 block text-sm font-medium text-foreground">Full name</label><input id="localSignUpName" name="name" type="text" autocomplete="name" required maxlength="80" class="auth-field text-sm" placeholder="Your name"></div>
+                        <div><label for="localSignUpEmail" class="mb-1.5 block text-sm font-medium text-foreground">Email</label><input id="localSignUpEmail" name="email" type="email" autocomplete="email" required maxlength="254" class="auth-field text-sm" placeholder="you@example.com"></div>
+                        <div><label for="localSignUpInviteCode" class="mb-1.5 block text-sm font-medium text-foreground">Admin invitation code</label><input id="localSignUpInviteCode" name="inviteCode" type="text" autocomplete="off" required minlength="40" maxlength="40" pattern="[a-fA-F0-9]{40}" class="auth-field font-mono text-sm" placeholder="40-character code"></div>
+                        <div><label for="localSignUpPassword" class="mb-1.5 block text-sm font-medium text-foreground">Password</label><div class="relative"><input id="localSignUpPassword" name="password" type="password" autocomplete="new-password" required minlength="14" class="auth-field pr-12 text-sm" placeholder="Create a strong password"><button type="button" onclick="togglePasswordVisibility('localSignUpPassword', this)" aria-controls="localSignUpPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div><p class="mt-1 text-xs text-muted-foreground">Use 14+ characters, including uppercase, lowercase, a number, and a symbol.</p></div>
+                        <div><label for="localSignUpConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm password</label><div class="relative"><input id="localSignUpConfirm" name="confirmPassword" type="password" autocomplete="new-password" required minlength="14" class="auth-field pr-12 text-sm" placeholder="Re-enter your password"><button type="button" onclick="togglePasswordVisibility('localSignUpConfirm', this)" aria-controls="localSignUpConfirm" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
+                    </div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-neutral-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create account</button>
+                    <p class="text-center text-sm text-muted-foreground">Already have an account? <button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4 hover:text-amber-700 dark:hover:text-amber-300">Sign in</button></p>
+                </form>
+                <form id="localForgotPasswordForm" class="hidden space-y-5" onsubmit="handlePasswordResetRequest(event)">
+                    <div class="space-y-1.5"><h2 id="localForgotPasswordTitle" class="text-2xl font-bold tracking-tight text-foreground">Reset your password</h2><p id="localForgotPasswordDescription" class="text-sm leading-6 text-muted-foreground">We’ll email a secure password-reset link to your account.</p></div>
+                    <div><label for="localResetEmail" class="mb-1.5 block text-sm font-medium text-foreground">Email</label><input id="localResetEmail" name="email" type="email" autocomplete="email" required class="auth-field text-sm" placeholder="you@example.com"></div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900"><i class="fa-solid fa-envelope" aria-hidden="true"></i>Send reset link</button>
+                    <p class="text-center text-sm text-muted-foreground"><button type="button" onclick="showLocalSessionScreen('signin')" class="font-semibold text-foreground underline underline-offset-4">Back to sign in</button></p>
+                </form>
+                <form id="localPasswordRecoveryForm" class="hidden space-y-5" onsubmit="handlePasswordRecovery(event)">
+                    <div class="space-y-1.5"><h2 id="localPasswordRecoveryTitle" class="text-2xl font-bold tracking-tight text-foreground">Choose a new password</h2><p id="localPasswordRecoveryDescription" class="text-sm leading-6 text-muted-foreground">Use 14+ characters, including uppercase, lowercase, a number, and a symbol.</p></div>
+                    <div><label for="localNewPassword" class="mb-1.5 block text-sm font-medium text-foreground">New password</label><div class="relative"><input id="localNewPassword" name="password" type="password" autocomplete="new-password" minlength="14" required class="auth-field pr-12 text-sm" placeholder="Create a strong password"><button type="button" onclick="togglePasswordVisibility('localNewPassword', this)" aria-controls="localNewPassword" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
+                    <div><label for="localNewPasswordConfirm" class="mb-1.5 block text-sm font-medium text-foreground">Confirm new password</label><div class="relative"><input id="localNewPasswordConfirm" name="confirmPassword" type="password" autocomplete="new-password" minlength="14" required class="auth-field pr-12 text-sm" placeholder="Re-enter your password"><button type="button" onclick="togglePasswordVisibility('localNewPasswordConfirm', this)" aria-controls="localNewPasswordConfirm" aria-label="Show password" aria-pressed="false" class="absolute inset-y-0 right-2 inline-flex items-center justify-center px-2 text-muted-foreground hover:text-foreground"><i class="fa-solid fa-eye" aria-hidden="true"></i></button></div></div>
+                    <button type="submit" class="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg bg-neutral-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900">Update password</button>
+                </form>
+                <p class="mt-5 text-center text-xs leading-5 text-muted-foreground"><i class="fa-solid fa-cloud-arrow-up mr-1" aria-hidden="true"></i>Sign-in and changes require internet. Successful updates save on this device and sync automatically to the encrypted shared database.</p>
+            </div>
+            <aside class="auth-story-panel text-foreground">
+                <img src="images/auth-brand.png?v=1" alt="Clothes Mania Davao" class="mb-6 block h-auto w-full max-w-[21rem] self-start object-contain">
+                <h3 class="text-2xl font-bold tracking-tight">Clothes Mania Davao</h3>
+                <p class="mt-2 max-w-sm text-sm leading-6 text-muted-foreground">Your inventory and live-selling workspace, ready when you are.</p>
+                <ul class="mt-8 space-y-5 text-sm">
+                    <li class="flex items-center gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background"><i class="fa-solid fa-boxes-stacked" aria-hidden="true"></i></span>Keep products and stock organized</li>
+                    <li class="flex items-center gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background"><i class="fa-solid fa-bolt" aria-hidden="true"></i></span>Record live-selling orders quickly</li>
+                    <li class="flex items-center gap-3"><span class="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-foreground text-background"><i class="fa-solid fa-chart-column" aria-hidden="true"></i></span>Review sales and daily reports</li>
+                </ul>
+            </aside>
+        </section>
+    </div>
+
+    <div id="localEncryptionOverlay" class="hidden fixed inset-0 z-[130] items-center justify-center overflow-y-auto bg-slate-950/75 p-4 backdrop-blur-xl antialiased sm:p-6" role="dialog" aria-modal="true" aria-labelledby="localEncryptionTitle" aria-describedby="localEncryptionDescription">
+        <section class="auth-shell animate-in fade-in zoom-in-95 duration-200">
+            <div class="auth-form-panel text-card-foreground">
+                <form id="localEncryptionForm" class="space-y-5" onsubmit="submitWorkspacePassphrase(event)">
+                    <div class="space-y-1.5">
+                        <h2 id="localEncryptionTitle" class="text-2xl font-bold tracking-tight text-foreground">Protect this workspace</h2>
+                        <p id="localEncryptionDescription" class="text-sm leading-6 text-muted-foreground"></p>
+                    </div>
+                    <p id="localEncryptionMessage" class="hidden rounded-md px-3 py-2 text-sm" role="status" aria-live="polite"></p>
+                    <div id="workspacePassphraseGroup" class="space-y-2">
+                        <label for="workspacePassphrase" class="block text-sm font-medium text-foreground">Workspace passphrase</label>
+                        <input id="workspacePassphrase" type="password" autocomplete="current-password" required minlength="14" class="auth-field text-sm" placeholder="At least 14 characters">
+                    </div>
+                    <div id="workspacePassphraseConfirmationGroup" class="space-y-2">
+                        <label for="workspacePassphraseConfirmation" class="block text-sm font-medium text-foreground">Confirm passphrase</label>
+                        <input id="workspacePassphraseConfirmation" type="password" autocomplete="new-password" minlength="14" class="auth-field text-sm" placeholder="Enter the same passphrase again">
+                    </div>
+                    <p id="workspacePassphraseRecoveryWarning" class="rounded-lg border border-amber-300 bg-amber-50 p-3 text-xs leading-5 text-amber-900 dark:border-amber-500/30 dark:bg-amber-950/30 dark:text-amber-200"></p>
+                    <button id="workspacePassphraseSubmit" type="submit" class="btn-primary min-h-11 w-full rounded-lg bg-amber-500 px-4 text-sm font-semibold text-black hover:bg-amber-600">Continue securely</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <div id="adminAccessModal" class="hidden fixed inset-0 z-[115] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="adminAccessTitle">
+        <section class="w-full max-w-xl rounded-2xl border border-border bg-background p-5 text-foreground shadow-2xl sm:p-6">
+            <div class="flex items-start justify-between gap-4"><div><h2 id="adminAccessTitle" class="text-lg font-bold">Manage admin access</h2><p class="mt-1 text-sm text-muted-foreground">Share this store with up to five admin accounts, including the owner. Every admin can view and edit all records.</p></div><button type="button" onclick="closeAdminAccessModal()" aria-label="Close" class="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border text-muted-foreground hover:bg-muted"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button></div>
+            <p id="adminAccessMessage" class="mt-4 hidden rounded-lg px-3 py-2 text-sm" role="status" aria-live="polite"></p>
+            <div id="adminAccessList" class="mt-4 divide-y divide-border rounded-xl border border-border"></div>
+            <form class="mt-5 space-y-3" onsubmit="createAdminInvitation(event)"><label for="newAdminEmail" class="block text-sm font-medium">Invite admin by email</label><div class="flex flex-col gap-2 sm:flex-row"><input id="newAdminEmail" type="email" required maxlength="254" class="auth-field text-sm" placeholder="admin@example.com"><button id="createAdminInviteButton" type="submit" class="inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-amber-500 px-4 text-sm font-semibold text-black hover:bg-amber-600"><i class="fa-solid fa-user-plus" aria-hidden="true"></i>Create invite</button></div></form>
+            <div id="adminInviteResult" class="mt-4 hidden rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-900/50 dark:bg-amber-950/20"><p class="text-sm font-semibold">Share this one-time code with the invited admin</p><p class="mt-1 text-xs text-muted-foreground">It expires in 24 hours and only works with the email you invited.</p><div class="mt-3 flex gap-2"><input id="adminInviteCode" readonly class="auth-field font-mono text-xs"><button type="button" onclick="copyAdminInviteCode()" class="btn-outline shrink-0 px-3 text-xs"><i class="fa-regular fa-copy" aria-hidden="true"></i> Copy</button></div></div>
+            <div class="mt-5 flex justify-end"><button type="button" onclick="closeAdminAccessModal()" class="btn-outline px-4 py-2.5 text-sm">Done</button></div>
+        </section>
+    </div>
+
+    <div id="cloudConflictModal" class="hidden fixed inset-0 z-[105] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="cloudConflictTitle" aria-describedby="cloudConflictDescription">
+        <section class="w-full max-w-lg rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300"><i class="fa-solid fa-code-branch" aria-hidden="true"></i></div>
+            <h2 id="cloudConflictTitle" class="text-lg font-bold">Choose which workspace copy to use</h2>
+            <p id="cloudConflictDescription" class="mt-2 text-sm leading-6 text-muted-foreground">This device and the shared store both changed since the last sync. We cannot safely merge these whole-workspace snapshots automatically. Both copies will be backed up on this device before you choose which one to use.</p>
+            <div class="mt-6 grid gap-2 sm:grid-cols-2">
+                <button type="button" class="btn-outline rounded-lg px-4 py-3 text-left text-sm font-semibold" onclick="resolveWorkspaceConflict('local')"><span class="block">Keep this device</span><span class="mt-1 block text-xs font-normal text-muted-foreground">The cloud copy is backed up locally first.</span></button>
+                <button type="button" class="rounded-lg bg-neutral-900 px-4 py-3 text-left text-sm font-semibold text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900" onclick="resolveWorkspaceConflict('remote')"><span class="block">Use shared store</span><span class="mt-1 block text-xs font-normal text-gray-300 dark:text-gray-600">This device is backed up before refresh.</span></button>
+            </div>
+        </section>
+    </div>
+
+    <div id="signOutConfirmModal" class="hidden fixed inset-0 z-[110] items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="signOutConfirmTitle" aria-describedby="signOutConfirmDescription" onclick="if (event.target === this) closeSignOutConfirm()">
+        <section class="w-full max-w-sm rounded-2xl border border-border bg-background p-6 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-rose-50 text-rose-600 dark:bg-rose-950/40 dark:text-rose-300"><i class="fa-solid fa-arrow-right-from-bracket" aria-hidden="true"></i></div>
+            <h2 id="signOutConfirmTitle" class="text-lg font-bold">Sign out of this device?</h2>
+            <p id="signOutConfirmDescription" class="mt-2 text-sm leading-6 text-muted-foreground">Your saved records will remain on this device. You can sign back in whenever you’re ready.</p>
+            <div class="mt-6 flex justify-end gap-2">
+                <button type="button" class="btn-outline rounded-lg px-4 py-2 text-sm font-semibold" onclick="closeSignOutConfirm()">Stay signed in</button>
+                <button id="confirmSignOutButton" type="button" class="rounded-lg bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2" onclick="completeLocalSignOut()">Sign out</button>
+            </div>
+        </section>
+    </div>
+
+    <div id="appDialogOverlay" class="hidden fixed inset-0 z-[130] items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="alertdialog" aria-modal="true" aria-labelledby="appDialogTitle" aria-describedby="appDialogMessage" onclick="if (event.target === this) closeAppDialog()">
+        <section class="w-full max-w-md rounded-2xl border border-border bg-background p-5 text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200 sm:p-6">
+            <div id="appDialogIcon" class="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-amber-500/10 text-amber-700 dark:text-amber-300"><i class="fa-solid fa-circle-exclamation" aria-hidden="true"></i></div>
+            <h2 id="appDialogTitle" class="text-lg font-bold">Confirm action</h2>
+            <p id="appDialogMessage" class="mt-2 text-sm leading-6 text-muted-foreground"></p>
+            <form id="appDialogForm" class="mt-5" onsubmit="submitAppDialog(event)">
+                <div id="appDialogInputWrap" class="hidden">
+                    <label id="appDialogInputLabel" for="appDialogInput" class="mb-1.5 block text-sm font-medium">Buyer name</label>
+                    <input id="appDialogInput" type="text" maxlength="80" autocomplete="off" class="auth-field text-sm" placeholder="Enter a name">
+                </div>
+                <div class="mt-6 flex justify-end gap-2">
+                    <button type="button" class="btn-outline min-h-10 rounded-lg px-4 text-sm font-semibold" onclick="closeAppDialog()">Cancel</button>
+                    <button id="appDialogConfirmButton" type="submit" class="btn-primary min-h-10 rounded-lg px-4 text-sm font-semibold">Confirm</button>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <div id="authTransitionModal" class="hidden fixed inset-0 z-[120] items-center justify-center bg-slate-950/25 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="authTransitionTitle" aria-describedby="authTransitionMessage">
+        <section class="w-full max-w-xs rounded-2xl border border-border bg-background p-7 text-center text-foreground shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-300"><i id="authTransitionIcon" class="fa-solid fa-arrow-right-to-bracket text-lg" aria-hidden="true"></i></div>
+            <h2 id="authTransitionTitle" class="mt-4 text-lg font-bold">Signing in</h2>
+            <p id="authTransitionMessage" class="mt-1 text-sm text-muted-foreground" role="status" aria-live="polite">Preparing your workspace…</p>
+            <div class="mx-auto mt-5 h-1.5 w-full overflow-hidden rounded-full bg-muted" aria-hidden="true"><div id="authTransitionProgress" class="h-full w-1/3 rounded-full bg-amber-500 transition-all duration-500"></div></div>
+        </section>
+    </div>
+
+    <!-- Preview button removed -->
+
+
+
+    <input id="reportImportFile" type="file" accept=".xlsx,.csv,.tsv,text/csv" class="hidden" onchange="ReportIO.handleFile(event)">
+    <div id="reportImportModal" onclick="if(event.target===this) ReportIO.closeImport()" class="hidden fixed inset-0 z-[100] items-center justify-center bg-gray-950/50 p-4" role="dialog" aria-modal="true" aria-labelledby="reportImportTitle">
+        <section class="w-full max-w-2xl overflow-hidden rounded-xl border border-gray-200 bg-white shadow-2xl dark:border-white/10 dark:bg-slate-950">
+            <header class="flex items-start justify-between gap-4 border-b border-gray-100 p-5 dark:border-white/10">
+                <div>
+                    <h2 id="reportImportTitle" tabindex="-1" class="text-lg font-semibold tracking-tight text-gray-950 focus:outline-none dark:text-white">Import historical sales</h2>
+                    <p id="reportImportSummary" class="mt-1 text-sm text-gray-500 dark:text-gray-400">Review the spreadsheet rows before adding them to local records.</p>
+                </div>
+                <button type="button" onclick="ReportIO.closeImport()" aria-label="Close import preview" class="grid h-9 w-9 shrink-0 place-items-center rounded-md border border-gray-200 text-gray-500 hover:bg-gray-100 dark:border-white/10 dark:hover:bg-white/10"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </header>
+            <div class="space-y-4 p-5">
+                <div id="reportImportWarnings" class="hidden rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-900 dark:border-amber-500/20 dark:bg-amber-500/10 dark:text-amber-200"></div>
+                <div class="overflow-x-auto rounded-lg border border-gray-200 dark:border-white/10">
+                    <table class="w-full min-w-[600px] text-left text-xs">
+                        <thead class="bg-gray-50 text-gray-500 dark:bg-white/[0.04] dark:text-gray-400"><tr><th class="px-3 py-2">Date</th><th class="px-3 py-2">Buyer</th><th class="px-3 py-2">Item</th><th class="px-3 py-2 text-right">Total</th><th class="px-3 py-2">Payment / Review</th></tr></thead>
+                        <tbody id="reportImportPreview" class="divide-y divide-gray-100 dark:divide-gray-800"><tr><td colspan="5" class="px-3 py-6 text-center text-gray-500">No file selected.</td></tr></tbody>
+                    </table>
+                </div>
+                <label class="flex items-start gap-2 text-xs text-gray-600 dark:text-gray-300"><input id="includeImportDuplicates" type="checkbox" class="mt-0.5 accent-amber-500"><span>Include rows that look like duplicates</span></label>
+                <p class="text-xs leading-5 text-gray-500 dark:text-gray-400">Imports are added as historical records only. Current inventory is not changed. A JSON backup downloads before import.</p>
+            </div>
+            <footer class="flex justify-end gap-2 border-t border-gray-100 p-4 dark:border-white/10">
+                <button type="button" onclick="ReportIO.closeImport()" class="inline-flex h-9 items-center rounded-md border border-gray-200 bg-white px-3 text-xs font-medium text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-slate-900 dark:text-gray-200 dark:hover:bg-white/10">Cancel</button>
+                <button id="confirmReportImport" type="button" onclick="ReportIO.confirmImport()" disabled class="inline-flex h-9 items-center gap-2 rounded-md bg-gray-950 px-3 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-gray-950"><i class="fa-solid fa-file-import" aria-hidden="true"></i>Import records</button>
+            </footer>
+        </section>
+    </div>
+    <div id="receiptPrintArea" aria-hidden="true"></div>

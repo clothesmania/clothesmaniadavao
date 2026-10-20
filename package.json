@@ -1,0 +1,35 @@
+{
+  "name": "clothesmaniadavao",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/prepare-next-assets.mjs --development",
+    "dev": "next dev --hostname 127.0.0.1 --port 8000",
+    "prebuild": "node scripts/prepare-next-assets.mjs --production",
+    "build": "next build --webpack && node scripts/build-offline-shell.mjs",
+    "start": "next start --hostname 127.0.0.1 --port 8000",
+    "check:build": "node scripts/check-next-build.mjs",
+    "test": "node --test tests/*.test.cjs"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fortawesome/fontawesome-free": "^6.4.0",
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.118.0",
+    "chart.js": "^4.5.1",
+    "dexie": "^4.4.6",
+    "next": "^16.4.2",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "autoprefixer": "^10.6.1",
+    "esbuild": "^0.28.2",
+    "postcss": "^8.5.31",
+    "tailwindcss": "^4.3.3"
+  }
+}

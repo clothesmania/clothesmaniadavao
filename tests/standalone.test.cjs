@@ -1,12 +1,12 @@
 const assert = require('node:assert/strict');
-const { spawn } = require('node:child_process');
 const fs = require('node:fs');
 const path = require('node:path');
 const test = require('node:test');
 
 const root = path.resolve(__dirname, '..');
-const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
-const serviceWorker = fs.readFileSync(path.join(root, 'sw.js'), 'utf8');
+const runtime = fs.readFileSync(path.join(root, 'public/pos-runtime.js'), 'utf8');
+const html = fs.readFileSync(path.join(root, 'src/pos/shell.html'), 'utf8') + '\n<script>' + runtime + '</script>';
+const serviceWorker = require('../scripts/offline-worker.cjs').createOfflineWorker('test', ['/pos-runtime.js', '/workspace-crypto.js', '/report-io.js', '/images/favicon.png']);
 
 function getFunctionSource(source, functionName) {
     const start = source.indexOf(`function ${functionName}(`);
@@ -15,7 +15,7 @@ function getFunctionSource(source, functionName) {
     return source.slice(start, nextFunction === -1 ? undefined : nextFunction);
 }
 
-test('standalone inline scripts parse as JavaScript', () => {
+test('the migrated POS runtime parses as JavaScript', () => {
     const scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/gi)]
         .filter(([, attributes]) => !/\bsrc\s*=/.test(attributes))
         .map(([, , source]) => source)
@@ -28,11 +28,12 @@ test('standalone inline scripts parse as JavaScript', () => {
 test('offline app shell references files present in the deployment root', () => {
     const shellMatch = serviceWorker.match(/const APP_SHELL = \[([\s\S]*?)\];/);
     assert.ok(shellMatch, 'Expected the service worker to define its app shell');
-    const paths = [...shellMatch[1].matchAll(/'([^']+)'/g)].map(([, assetPath]) => assetPath);
+    const paths = [...shellMatch[1].matchAll(/"([^"]+)"/g)].map(([, assetPath]) => assetPath);
 
     assert.ok(paths.length > 0);
     for (const assetPath of paths) {
-        assert.ok(fs.existsSync(path.join(root, assetPath.replace(/^\//, ''))), `${assetPath} must exist`);
+        const directory = assetPath === '/pos-runtime.js' ? path.join(root, 'public') : root;
+        assert.ok(fs.existsSync(path.join(directory, assetPath.replace(/^\//, ''))), `${assetPath} must exist`);
     }
 });
 
@@ -132,7 +133,7 @@ test('reports identify shared workspace data and use the autosave-to-cloud path'
     assert.match(html, /Workspace report data/);
     assert.doesNotMatch(html, /Local report data/);
     assert.doesNotMatch(html, /id="reportGridView" class="overflow-x-auto"[\s\S]*?min-w-\[840px\]/);
-    assert.match(html, /#reportCalendarGrid > button, #reportCalendarGrid > div/);
+    assert.match(fs.readFileSync(path.join(root, 'app/pos.css'), 'utf8'), /#reportCalendarGrid > button, #reportCalendarGrid > div/);
     assert.match(ledgerSaveSource, /saveToLocalStorage\(\)/);
     assert.match(sessionSaveSource, /saveToLocalStorage\(\)/);
     assert.match(saveSource, /if \(localSaved\) queueCloudSnapshotSync\(\)/);
@@ -229,39 +230,4 @@ test('server sync endpoint uses authenticated user RPCs and never includes a ser
     assert.match(recordsMigration, /enable row level security/i);
     assert.match(recordsMigration, /save_pos_workspace_snapshot_and_records/);
     assert.match(recordsMigration, /project_pos_workspace_records/);
-});
-
-test('local server serves the app and does not expose repository files', async t => {
-    const server = spawn(process.execPath, [path.join(root, 'scripts', 'serve.mjs')], {
-        env: { ...process.env, HOST: '127.0.0.1', PORT: '0' },
-        stdio: ['ignore', 'pipe', 'pipe']
-    });
-    t.after(() => server.kill());
-
-    const baseUrl = await new Promise((resolve, reject) => {
-        let output = '';
-        const timeout = setTimeout(() => reject(new Error('Local server did not start')), 5000);
-        server.stdout.on('data', chunk => {
-            output += chunk.toString();
-            const match = output.match(/http:\/\/127\.0\.0\.1:\d+\/index\.html/);
-            if (match) {
-                clearTimeout(timeout);
-                resolve(match[0].replace('/index.html', ''));
-            }
-        });
-        server.once('error', error => {
-            clearTimeout(timeout);
-            reject(error);
-        });
-        server.once('exit', code => {
-            clearTimeout(timeout);
-            reject(new Error(`Local server exited before starting (${code})`));
-        });
-    });
-
-    const page = await fetch(`${baseUrl}/index.html`);
-    assert.equal(page.status, 200);
-    assert.match(page.headers.get('content-type'), /text\/html/);
-    assert.match(await page.text(), /Clothes Mania Davao/);
-    assert.equal((await fetch(`${baseUrl}/.git/config`)).status, 404);
 });

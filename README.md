@@ -1,18 +1,77 @@
-# Clothes Mania Davao — Local Development
+# Clothes Mania Davao POS
 
-Run the standalone POS locally with Node.js (no extra package installation required):
+The complete POS runs as a **Next.js App Router** application from the repository root. Next.js handles the page, routing, local assets, build, and Vercel hosting. The existing business runtime is retained in `public/pos-runtime.js` to preserve all screens and data behavior during this conversion; it mounts once after hydration. It has not yet been rewritten into individual React screen components.
+
+## Run locally
+
+Use Node.js 22 and run from the repository root:
 
 ```bash
-node scripts/serve.mjs
+npm ci
 ```
 
-Then open: http://127.0.0.1:8000/index.html
+Copy `.env.example` to `.env.local` and supply the public project settings:
 
-Notes:
-- The deployed standalone app is `index.html`; `client/` is a separate React scaffold.
-- The service worker caches the app shell and CDN assets after a successful online load. First-time setup still requires internet access for CDN-hosted libraries.
-- Local snapshots use a per-device key stored in IndexedDB. Cloud snapshots and downloaded JSON backups use a key held by the Supabase Edge Function. Supabase can decrypt cloud data; keep the server key backed up securely. Existing passphrase-encrypted records require the legacy passphrase once to migrate. If local IndexedDB is cleared or its device key is lost, do not sign in from the damaged browser; recover the local records from a known-good device/backup first.
-- The local server binds to `127.0.0.1` and only serves the app entry point, app scripts, and images.
-- Run standalone smoke checks with `node --test tests/standalone.test.cjs`.
-- Run client data-layer tests with `npm test` from `client/`.
-- Deploy the Supabase encryption function, secret, and database migration as described in `supabase/README.md` before updating the production frontend.
+```dotenv
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
+
+```bash
+npm run dev
+```
+
+Open [http://127.0.0.1:8000/index.html](http://127.0.0.1:8000/index.html). `/` serves the same POS. Keep using the same origin and browser profile to access existing local records and the device encryption key. The root `.env.local` is already configured locally for the supplied project and is ignored by Git. Restart after changing it.
+
+Supabase, Dexie, Chart.js, Inter, and Font Awesome are bundled locally. Core app assets no longer require a CDN. `client/` is the archived Vite alternate implementation and is not the active application or deployment root.
+
+## Supabase and data preservation
+
+The browser client uses `@supabase/ssr` and the public environment variables. Existing localStorage sign-in tokens transfer to its cookie session only after successful restoration. A conflicting account or failed restoration preserves the previous token. The IndexedDB database, workspace keys, encrypted snapshots, and offline authorization identifiers remain unchanged.
+
+The browser calls the existing authenticated `workspace-sync` Edge Function and listens to its RLS-protected Realtime signal. Products, orders, payments, reports, cancellations, deleted records, and encryption continue through the existing workspace flow. This conversion does not apply SQL migrations, deploy Edge Functions, or replace cloud records. See [Supabase setup](supabase/README.md) for backend provisioning and key recovery.
+
+Only the URL and publishable key belong in `NEXT_PUBLIC_` settings. Keep `WORKSPACE_ENCRYPTION_KEY` in Supabase Edge Function secrets; never include service-role keys or encryption secrets in frontend variables.
+
+Existing offline behavior is retained: a previously authorized device can reopen saved records offline, and editing/sign-in require internet. Production builds cache the public shell, scripts, fonts, icons, and images after the first online load. Authenticated API responses and Supabase traffic are never cached. Development unregisters the old app worker and clears only application-shell caches, preserving IndexedDB records and keys.
+
+## Verify a production build
+
+```bash
+npm test
+npm run build
+npm start
+```
+
+Tests cover encryption, existing POS behavior, session transfer, startup ordering, account isolation, receipt print layout, and offline worker behavior. The build generates Next.js output and its versioned offline shell. `npm start` serves that build at the same local origin; stop the dev server first.
+
+With the production server running, `npm run check:build` verifies both POS routes, every generated offline asset, worker update headers, and private-file protection.
+
+Sign in with an existing admin account and confirm **Cloud: synced** to validate authenticated access, backend encryption configuration, and shared workspace synchronization. Public endpoint reachability alone does not prove authenticated sync.
+
+## Vercel
+
+Use the existing repository connection with these settings:
+
+| Setting | Value |
+| --- | --- |
+| Root Directory | repository root (`.`), not `client/` |
+| Framework Preset | Next.js |
+| Build Command | `npm run build` |
+| Install Command | `npm ci` |
+| Output Directory | framework default; remove any old `dist` override |
+| Environment | set both `NEXT_PUBLIC_SUPABASE_*` values for Production and Preview as needed |
+
+`vercel.json` sets the framework and build/install commands. Public environment values are embedded at build time, so redeploy after changing them. In Supabase Authentication → URL Configuration, keep the production URL and add `http://127.0.0.1:8000/**` and authorized Vercel callback URLs to Redirect URLs for password recovery and email confirmation. Use specific preview origins where possible.
+
+This migration prepares local code and deployment configuration. It does not change Vercel dashboard settings or publish a deployment. Test sign-in, cloud sync, conflict handling, password recovery, and offline reload on the deployment origin before using production records. Browser storage is origin-specific; a different Vercel domain must recover the authorized workspace from its cloud copy.
+
+## Source layout
+
+- `app/`: Next.js page, layout, styles, and startup component.
+- `src/pos/shell.html`: complete POS markup; static application code only.
+- `public/pos-runtime.js`: business actions and encrypted local/cloud synchronization.
+- `lib/supabase/`: browser/server client helpers and legacy session transfer.
+- `scripts/`: local asset bundling and offline-shell generation.
+- `workspace-crypto.js`, `report-io.js`, `images/`: retained source assets copied into `public/` during preparation.
+- `supabase/`: migrations and authenticated encryption Edge Function.

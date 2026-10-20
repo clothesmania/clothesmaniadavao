@@ -1,4 +1,6 @@
-# Clothes Mania Davao POS — Production Client
+# Clothes Mania Davao POS — Archived Vite Client
+
+The active application is now the root Next.js app. Use the repository root for development and Vercel deployment; see `../README.md`. This separate implementation is retained as reference and uses its own storage schema. The instructions below describe its earlier setup.
 
 The client is the production Vite/React path for Products, Inventory, POS/Orders, Collections, and Audit Logs. The root `index.html` remains the reviewed prototype and uses its legacy browser database; the clients have separate storage schemas.
 

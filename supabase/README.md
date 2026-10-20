@@ -1,6 +1,6 @@
 # Supabase setup
 
-The root `index.html` app remains local-first. It stores the working copy encrypted in IndexedDB and synchronizes a server-encrypted shared workspace snapshot to `public.pos_workspaces`. Supabase Auth stores account credentials; the app never stores passwords locally. Up to five separate admin accounts can access the same workspace, and all admins have full edit access. The Supabase Edge Function can decrypt workspace snapshots; this is backend-managed encryption, not end-to-end encryption.
+The root Next.js POS remains local-first. It stores the working copy encrypted in IndexedDB and synchronizes a server-encrypted shared workspace snapshot to `public.pos_workspaces`. Supabase Auth stores account credentials; the app never stores passwords locally. Up to five separate admin accounts can access the same workspace, and all admins have full edit access. The Supabase Edge Function can decrypt workspace snapshots; this is backend-managed encryption, not end-to-end encryption.
 
 ## Database migrations
 
