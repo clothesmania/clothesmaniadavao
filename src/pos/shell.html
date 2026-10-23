@@ -348,9 +348,10 @@
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                        <label class="relative sm:col-span-2 lg:col-span-1">
-                            <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                            <input id="productsSearch" type="search" oninput="renderProductsCatalog()" placeholder="Search products, category, or SKU" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl pl-9 pr-3 py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500">
+                        <label class="search-field sm:col-span-2 lg:col-span-1">
+                            <span class="sr-only">Search products</span>
+                            <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs" aria-hidden="true"></i>
+                            <input id="productsSearch" type="search" oninput="renderProductsCatalog()" placeholder="Search products, category, or SKU" class="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl py-2.5 text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:border-amber-500">
                         </label>
                         <label>
                             <span class="sr-only">Filter by product category</span>
@@ -407,9 +408,10 @@
                 <section class="relative overflow-visible rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-[#161922]">
                     <div class="space-y-4 border-b border-gray-200 p-4 dark:border-gray-800 sm:p-5">
                         <div class="relative flex flex-col gap-3 sm:flex-row sm:items-center">
-                            <label class="relative">
-                                <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-xs" aria-hidden="true"></i>
-                                <input id="stockSearch" type="search" oninput="stockPage = 1; renderStockTable()" placeholder="Search product, SKU, size, or color" class="select-shadcn w-full pl-9 pr-3 text-sm">
+                            <label class="search-field">
+                                <span class="sr-only">Search stock</span>
+                                <i class="fa-solid fa-magnifying-glass text-gray-400 text-xs" aria-hidden="true"></i>
+                                <input id="stockSearch" type="search" oninput="stockPage = 1; renderStockTable()" placeholder="Search product, SKU, size, or color" class="input-shadcn h-9 w-full border text-sm">
                             </label>
                             <div class="relative shrink-0">
                                 <button id="stockFiltersButton" type="button" onclick="toggleStockFilters()" aria-expanded="false" aria-controls="stockFiltersPanel" class="btn-outline inline-flex items-center justify-center gap-2 px-3 py-2 text-sm">
@@ -488,10 +490,10 @@
                             <div class="rounded-md border border-gray-200/80 bg-white px-3 py-2.5 dark:border-white/10 dark:bg-gray-900/50"><p class="text-[10px] font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Critical · 14+ days</p><p id="unpaidLedgerCritical" class="mt-1 text-sm font-semibold tabular-nums text-rose-700 dark:text-rose-300">0 orders</p></div>
                         </div>
                         <div class="flex flex-col gap-2 sm:flex-row sm:items-center">
-                            <label class="relative min-w-48 flex-1">
+                            <label class="search-field min-w-48 flex-1">
                                 <span class="sr-only">Search unpaid sales</span>
-                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
-                                <input id="unpaidLedgerSearch" type="search" oninput="updateUnpaidLedgerFilter('search', this.value)" placeholder="Search buyer, item, or seller" class="input-shadcn h-10 w-full pl-9 pr-3 text-xs">
+                                <i class="fa-solid fa-magnifying-glass text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="unpaidLedgerSearch" type="search" oninput="updateUnpaidLedgerFilter('search', this.value)" placeholder="Search buyer, item, or seller" class="input-shadcn h-10 w-full text-xs">
                             </label>
                             <label class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span>Year</span><select id="unpaidLedgerYear" onchange="updateUnpaidLedgerFilter('year', this.value)" class="input-shadcn h-10 min-w-28 px-3 text-xs"><option value="all">All years</option></select></label>
                             <label class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400"><span>Month</span><select id="unpaidLedgerMonth" onchange="updateUnpaidLedgerFilter('month', this.value)" class="input-shadcn h-10 min-w-32 px-3 text-xs"><option value="all">All months</option></select></label>
@@ -509,10 +511,10 @@
                                 <h3 id="mineInvoiceTitle" class="text-base font-semibold tracking-tight text-gray-950 dark:text-white">Buyer invoices</h3>
                                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Orders with the same buyer name in one live session are grouped together. Print the final sales receipt after every item is fully paid.</p>
                             </div>
-                            <label class="relative w-full sm:max-w-xs">
+                            <label class="search-field w-full sm:max-w-xs">
                                 <span class="sr-only">Search buyer invoices</span>
-                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
-                                <input id="mineInvoiceSearch" type="search" oninput="renderBuyerInvoices()" placeholder="Search buyer or item" class="input-shadcn h-10 w-full pl-9 pr-3 text-xs">
+                                <i class="fa-solid fa-magnifying-glass text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="mineInvoiceSearch" type="search" oninput="renderBuyerInvoices()" placeholder="Search buyer or item" class="input-shadcn h-10 w-full text-xs">
                             </label>
                         </header>
                         <div id="mineInvoiceGroups" class="space-y-3"></div>
@@ -722,9 +724,9 @@
 
                     <div id="liveHostDirectory" class="overflow-hidden rounded-xl border border-gray-200/80 bg-white/50 dark:border-white/10 dark:bg-slate-950/20">
                         <div class="flex flex-col gap-3 border-b border-gray-200/80 p-3 dark:border-white/10 sm:flex-row sm:items-center sm:justify-between sm:px-4">
-                            <label class="relative w-full sm:max-w-xs">
-                                <i class="fa-solid fa-magnifying-glass pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400" aria-hidden="true"></i>
-                                <input id="liveHostSearch" type="search" oninput="renderLiveHosts()" placeholder="Search sellers…" aria-label="Search live sellers" class="input-shadcn h-9 w-full pl-9 text-sm">
+                            <label class="search-field w-full sm:max-w-xs">
+                                <i class="fa-solid fa-magnifying-glass text-xs text-gray-400" aria-hidden="true"></i>
+                                <input id="liveHostSearch" type="search" oninput="renderLiveHosts()" placeholder="Search sellers…" aria-label="Search live sellers" class="input-shadcn h-9 w-full text-sm">
                             </label>
                             <div class="flex items-center justify-between gap-3 sm:justify-end">
                                 <label for="liveHostFilter" class="text-xs text-gray-500 dark:text-gray-400">Show</label>
