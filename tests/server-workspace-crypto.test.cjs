@@ -8,7 +8,7 @@ const { decryptWorkspaceSnapshot, encryptWorkspaceSnapshot } = require('../supab
 
 test('server-managed workspace encryption round-trips using a 32-byte key', async () => {
     const key = Buffer.alloc(32, 7).toString('base64');
-    const snapshot = { mines: [{ buyer: 'Private buyer', ref: 'PAY-12' }] };
+    const snapshot = { mines: [{ buyer: 'Private buyer', ref: 'PAY-12' }], productOptions: { categories: ['Dresses'], sizes: ['XXL'] } };
     const envelope = await encryptWorkspaceSnapshot(snapshot, key);
 
     assert.equal(envelope.format, 'clothes-mania-server-encrypted');

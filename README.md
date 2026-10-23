@@ -35,6 +35,12 @@ Only the URL and publishable key belong in `NEXT_PUBLIC_` settings. Keep `WORKSP
 
 Existing offline behavior is retained: a previously authorized device can reopen saved records offline, and editing/sign-in require internet. Production builds cache the public shell, scripts, fonts, icons, and images after the first online load. Authenticated API responses and Supabase traffic are never cached. Development unregisters the old app worker and clears only application-shell caches, preserving IndexedDB records and keys.
 
+## Product choices
+
+In **Products & Inventory**, use **Manage categories** or **Manage sizes / variants** below the filters to add, rename, or delete choices. Renaming updates current product assignments; deletion is blocked until every product using that choice has been reassigned. Historical sales remain unchanged. The product form uses the same categories and offers saved size suggestions; typing a new size also saves it as a choice.
+
+Choice lists are additive `productOptions.categories` and `productOptions.sizes` arrays in the workspace snapshot. Existing inventory seeds these lists on first use. Unused choices persist through encrypted local storage, cloud snapshots, and encrypted backups; no Supabase table migration is needed. Restoring a product also restores any choices needed for its assignments. Choice edits follow the existing online editing requirement and activity log.
+
 ## Verify a production build
 
 ```bash

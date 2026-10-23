@@ -26,6 +26,8 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
         let appDialogResolver = null;
         let appDialogPreviousFocus = null;
         let appDialogInputMode = false;
+        let productOptionKind = null;
+        let productOptionEditing = null;
 
         async function getSupabaseClient() {
             if (supabaseClient) return supabaseClient;
@@ -628,6 +630,7 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
                 normalized.shirts = normalized.products.map((product, index) => ({
                     id: product.id || product.sku || `product-${index + 1}`,
                     name: String(product.name || ''),
+                    category: String(product.category || ''),
                     size: String(product.size || 'N/A'),
                     color: String(product.color || ''),
                     qty: Number(product.qty ?? product.stock ?? 0),
@@ -2278,6 +2281,8 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
             renderDashboardTransactions();
             renderTopSellingShirts();
             renderProductsCatalog();
+            renderProductOptionInputs();
+            renderProductOptions();
             renderStockTable();
             renderFullMinesTable();
             renderDailyLedger();
@@ -2399,6 +2404,197 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
                 .join(', ');
         }
 
+        function cleanProductOption(value) {
+            return String(value || '').trim().replace(/\s+/g, ' ');
+        }
+
+        function ensureProductOptions(snapshot = db) {
+            const defaults = ['Clothing & Apparel', 'Pants', 'Bags', 'Shoes', 'Accessories', 'Beauty & Lifestyle', 'Other'];
+            const stored = snapshot.productOptions || {};
+            const options = {};
+            for (const kind of ['categories', 'sizes']) {
+                const initial = Array.isArray(stored[kind]) ? stored[kind] : kind === 'categories' ? defaults : [];
+                options[kind] = [];
+                for (const item of initial) {
+                    const value = cleanProductOption(item);
+                    if (value && !(kind === 'sizes' && value.toLowerCase() === 'n/a') && !options[kind].some(choice => choice.toLowerCase() === value.toLowerCase())) options[kind].push(value);
+                }
+            }
+            for (const product of snapshot.shirts || []) {
+                // Materialize inferred legacy categories before any rename changes their label.
+                for (const [kind, field] of [['categories', 'category'], ['sizes', 'size']]) {
+                    const value = cleanProductOption(product[field] || (field === 'category' ? inferProductCategory(product.name) : ''));
+                    if (!value || (kind === 'sizes' && value.toLowerCase() === 'n/a')) continue;
+                    const existing = options[kind].find(choice => choice.toLowerCase() === value.toLowerCase());
+                    if (!existing) options[kind].push(value);
+                    product[field] = existing || value;
+                }
+            }
+            snapshot.productOptions = options;
+            return options;
+        }
+
+        function productOptionUsage(snapshot, kind, value) {
+            const field = kind === 'categories' ? 'category' : 'size';
+            return (snapshot.shirts || []).filter(product => cleanProductOption(product[field]).toLowerCase() === value.toLowerCase()).length;
+        }
+
+        function changeProductOption(snapshot, kind, previous, next) {
+            if (!['categories', 'sizes'].includes(kind)) throw new Error('Choose categories or sizes / variants first.');
+            const options = ensureProductOptions(snapshot)[kind];
+            const index = previous === null ? -1 : options.indexOf(previous);
+            if (previous !== null && index < 0) throw new Error('This choice has changed. Select it again from the list.');
+            const value = next === null ? null : cleanProductOption(next);
+            if (value !== null) {
+                if (!value) throw new Error('Enter a name for this choice.');
+                if (value.length > 80) throw new Error('Use 80 characters or fewer.');
+                if (kind === 'sizes' && value.toLowerCase() === 'n/a') throw new Error('Leave the product size blank for no size. N/A is reserved.');
+                if (options.some((choice, position) => position !== index && choice.toLowerCase() === value.toLowerCase())) throw new Error('That choice already exists. Use a different name.');
+            } else {
+                if (index < 0) throw new Error('Select a saved choice to delete.');
+                if (productOptionUsage(snapshot, kind, previous)) throw new Error('This choice is used by products. Edit their assignments before deleting it.');
+            }
+            if (previous === null) options.push(value);
+            else if (value === null) options.splice(index, 1);
+            else {
+                options[index] = value;
+                const field = kind === 'categories' ? 'category' : 'size';
+                // Keep the older product mirror consistent, but preserve historical order text.
+                for (const product of [...(snapshot.shirts || []), ...(snapshot.products || [])]) {
+                    const assigned = product[field] || (field === 'category' ? inferProductCategory(product.name) : '');
+                    if (cleanProductOption(assigned).toLowerCase() === previous.toLowerCase()) product[field] = value;
+                }
+            }
+            return value;
+        }
+
+        function renderProductOptionInputs() {
+            const options = ensureProductOptions();
+            const category = document.getElementById('productCategoryInput');
+            if (category) {
+                const selected = category.value;
+                category.innerHTML = (options.categories.length ? '' : '<option value="">Add a category in Products first</option>') + options.categories.map(value => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('');
+                if (options.categories.includes(selected)) category.value = selected;
+            }
+            const sizes = document.getElementById('productSizeChoices');
+            if (sizes) sizes.innerHTML = options.sizes.map(value => `<option value="${escapeHtml(value)}"></option>`).join('');
+        }
+
+        function openProductOptions(kind) {
+            productOptionKind = kind === 'sizes' ? 'sizes' : 'categories';
+            document.getElementById('productOptionsPanel').classList.remove('hidden');
+            document.getElementById('manageCategoriesButton').setAttribute('aria-expanded', String(productOptionKind === 'categories'));
+            document.getElementById('manageSizesButton').setAttribute('aria-expanded', String(productOptionKind === 'sizes'));
+            resetProductOptionForm();
+            renderProductOptions();
+            document.getElementById('productOptionName').focus();
+        }
+
+        function closeProductOptions() {
+            const button = document.getElementById(productOptionKind === 'sizes' ? 'manageSizesButton' : 'manageCategoriesButton');
+            productOptionKind = null;
+            productOptionEditing = null;
+            document.getElementById('productOptionsPanel').classList.add('hidden');
+            document.getElementById('manageCategoriesButton').setAttribute('aria-expanded', 'false');
+            document.getElementById('manageSizesButton').setAttribute('aria-expanded', 'false');
+            button.focus();
+        }
+
+        function resetProductOptionForm(value = null) {
+            productOptionEditing = value;
+            const category = productOptionKind === 'categories';
+            document.getElementById('productOptionName').value = value || '';
+            document.getElementById('productOptionName').placeholder = category ? 'e.g. Dresses' : 'e.g. XXL, 100ml, One Size';
+            document.getElementById('productOptionLabel').textContent = value === null ? (category ? 'Category name' : 'Size / variant name') : `Rename ${value}`;
+            document.getElementById('productOptionSave').textContent = value === null ? (category ? 'Add category' : 'Add size / variant') : 'Save name';
+            document.getElementById('productOptionCancel').classList.toggle('hidden', value === null);
+            showProductOptionsMessage('');
+            document.getElementById('productOptionName').focus();
+        }
+
+        function showProductOptionsMessage(message, error = false) {
+            const status = document.getElementById('productOptionsMessage');
+            status.textContent = message;
+            status.className = `mt-2 min-h-5 text-xs ${error ? 'text-rose-700 dark:text-rose-300' : 'text-gray-600 dark:text-gray-400'}`;
+        }
+
+        function renderProductOptions() {
+            if (!productOptionKind) return;
+            const options = ensureProductOptions()[productOptionKind];
+            document.getElementById('productOptionsTitle').textContent = productOptionKind === 'categories' ? 'Manage categories' : 'Manage sizes / variants';
+            const list = document.getElementById('productOptionsList');
+            list.replaceChildren();
+            if (!options.length) {
+                const empty = document.createElement('li');
+                empty.className = 'py-4 text-sm text-gray-600 dark:text-gray-400';
+                empty.textContent = 'No saved choices yet. Add your first choice above.';
+                list.appendChild(empty);
+            }
+            for (const value of options) {
+                const count = productOptionUsage(db, productOptionKind, value);
+                const row = document.createElement('li');
+                row.className = 'flex items-center justify-between gap-3 py-2';
+                row.innerHTML = '<div class="min-w-0"><span class="block break-all text-sm font-medium"></span><small class="text-xs text-gray-600 dark:text-gray-400"></small></div><div class="flex shrink-0 gap-1"><button type="button" class="btn-ghost min-h-9 px-3 text-xs">Edit</button><button type="button" class="btn-ghost min-h-9 px-3 text-xs text-rose-700 dark:text-rose-300 disabled:cursor-not-allowed disabled:opacity-50">Delete</button></div>';
+                row.querySelector('span').textContent = value;
+                row.querySelector('small').textContent = `${count} ${count === 1 ? 'product' : 'products'}${count ? ' · Reassign before deleting' : ''}`;
+                const [edit, remove] = row.querySelectorAll('button');
+                edit.setAttribute('aria-label', `Edit ${value}`);
+                edit.onclick = () => resetProductOptionForm(value);
+                remove.setAttribute('aria-label', `Delete ${value}`);
+                remove.disabled = count > 0;
+                remove.onclick = () => deleteProductOption(productOptionKind, value);
+                list.appendChild(row);
+            }
+        }
+
+        function canManageProductOptions() {
+            const message = !navigator.onLine ? 'Offline view only. Reconnect to change choices.' : !localWorkspaceReady || !currentAuthUser ? 'Sign in and wait for your workspace to load first.' : '';
+            if (message) showProductOptionsMessage(message, true);
+            return !message;
+        }
+
+        async function saveProductOption(event) {
+            event.preventDefault();
+            if (!canManageProductOptions()) return;
+            const kind = productOptionKind;
+            const previous = productOptionEditing;
+            try {
+                const value = changeProductOption(db, kind, previous, document.getElementById('productOptionName').value);
+                const filter = document.getElementById(kind === 'categories' ? 'productsCategoryFilter' : 'productsSizeFilter');
+                if (previous !== null && filter.value === previous) filter.options[filter.selectedIndex].value = value;
+                if (kind === 'categories' && document.getElementById('productCategoryInput').value === previous) {
+                    const select = document.getElementById('productCategoryInput');
+                    select.options[select.selectedIndex].value = value;
+                }
+                if (kind === 'sizes' && document.getElementById('shirtSizeInput').value === previous) document.getElementById('shirtSizeInput').value = value;
+                recordAuditEvent(previous === null ? 'Added choice' : 'Renamed choice', kind === 'categories' ? 'Product category' : 'Product size / variant', value, previous === null ? value : `${previous} → ${value}`);
+                saveToLocalStorage();
+                resetProductOptionForm();
+                showProductOptionsMessage('Saving…');
+                const saved = await localPersistPromise;
+                showProductOptionsMessage(saved ? (previous === null ? 'Choice added.' : 'Name updated on matching products.') : 'Could not save on this device. Keep this page open and retry when storage is available.', !saved);
+            } catch (error) {
+                showProductOptionsMessage(error.message, true);
+            }
+        }
+
+        async function deleteProductOption(kind, value) {
+            if (!canManageProductOptions()) return;
+            if (!await showAppConfirm('Delete this choice?', `Remove “${value}” from the saved choices? Products and previous sales will be kept.`, 'Delete choice', true)) return;
+            if (!canManageProductOptions()) return;
+            try {
+                changeProductOption(db, kind, value, null);
+                recordAuditEvent('Deleted choice', kind === 'categories' ? 'Product category' : 'Product size / variant', value, value);
+                saveToLocalStorage();
+                if (productOptionEditing === value) resetProductOptionForm();
+                showProductOptionsMessage('Saving…');
+                const saved = await localPersistPromise;
+                showProductOptionsMessage(saved ? 'Choice deleted.' : 'Could not save on this device. Keep this page open and retry when storage is available.', !saved);
+            } catch (error) {
+                showProductOptionsMessage(error.message, true);
+            }
+        }
+
         function renderProductsCatalog() {
             const grid = document.getElementById('productsCatalogGrid');
             grid.innerHTML = '';
@@ -2407,13 +2603,13 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
             const previousSize = sizeSelect?.value || '';
             const categorySelect = document.getElementById('productsCategoryFilter');
             const previousCategory = categorySelect?.value || '';
-            const categories = ['Clothing & Apparel', 'Pants', 'Bags', 'Shoes', 'Accessories', 'Beauty & Lifestyle', 'Other'];
+            const { categories, sizes: savedSizes } = ensureProductOptions();
             if (categorySelect) {
                 categorySelect.innerHTML = '<option value="">All categories</option>' + categories.map(category => `<option value="${escapeHtml(category)}">${escapeHtml(category)}</option>`).join('');
                 categorySelect.value = categories.includes(previousCategory) ? previousCategory : '';
             }
             if (sizeSelect) {
-                const sizes = [...new Set(db.shirts.map(s => String(s.size || '').trim()).filter(size => size && size !== 'N/A'))].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
+                const sizes = [...savedSizes].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }));
                 sizeSelect.innerHTML = '<option value="">All sizes & variants</option>' + sizes.map(size => `<option value="${escapeHtml(size)}">${escapeHtml(size)}</option>`).join('');
                 sizeSelect.value = sizes.includes(previousSize) ? previousSize : '';
             }
@@ -4160,6 +4356,7 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
         }
 
         function openNewShirtModal() {
+            renderProductOptionInputs();
             document.getElementById('formNewShirt').reset();
             const modal = document.getElementById('modalNewShirt');
             delete modal.dataset.editId;
@@ -4278,6 +4475,7 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
         function editShirt(id) {
             const shirt = db.shirts.find(s => s.id === id);
             if (!shirt) return;
+            renderProductOptionInputs();
             // populate modal inputs and open
             document.getElementById('productCategoryInput').value = shirt.category || inferProductCategory(shirt.name);
             document.getElementById('shirtNameInput').value = shirt.name;
@@ -4299,6 +4497,15 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
             e.preventDefault();
             const modal = document.getElementById('modalNewShirt');
             const editId = modal.dataset.editId;
+            const options = ensureProductOptions();
+            const category = document.getElementById('productCategoryInput').value;
+            if (!options.categories.includes(category)) {
+                showToast('Add or choose a category in Products before saving.', true);
+                return;
+            }
+            const sizeInput = document.getElementById('shirtSizeInput');
+            const size = cleanProductOption(sizeInput.value);
+            sizeInput.value = size.toLowerCase() === 'n/a' ? '' : options.sizes.find(value => value.toLowerCase() === size.toLowerCase()) || size;
             if (editId) {
                 const shirt = db.shirts.find(s => s.id === editId);
                 if (!shirt) return;
