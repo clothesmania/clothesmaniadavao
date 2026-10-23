@@ -4,10 +4,10 @@ current_phase: 7
 current_phase_name: Shared multi-admin workspace and password recovery
 status: planning
 stopped_at: Project initialized; Phase 1 is ready for discussion and planning.
-last_updated: "2026-10-23T02:17:14.232Z"
+last_updated: "2026-10-23T04:17:15.650Z"
 last_activity: 2026-10-23
-last_activity_desc: Added editable product categories and sizes/variants with persistent choices and safe rename/delete.
-state_head: 88e448aa3b1aebebe07b2cfe46fd8ad08640f858
+last_activity_desc: Converted category and size managers into modal overlays with keyboard and backdrop dismissal.
+state_head: bdb37840c28d78ab95e0d5ce4da50011f0f1bb81
 progress:
   total_phases: 7
   completed_phases: 0
@@ -30,7 +30,7 @@ See: .planning/PROJECT.md (updated 2026-10-10)
 Phase: 7 of 7 (Shared multi-admin workspace and password recovery)
 Plan: Not yet created
 Status: Implementation in progress; database migration, SMTP setup, and deployed verification remain.
-Last activity: 2026-10-23 — Completed quick task 261023-e2z: editable product categories and sizes/variants with safe rename/delete and persistent workspace choices.
+Last activity: 2026-10-23 — Completed quick task 261023-gym: category and size managers in a modal overlay with keyboard and backdrop dismissal.
 
 Progress: ░░░░░░░░░░ [░░░░░░░░░░] 0%
 
@@ -131,3 +131,4 @@ Resume file: None
 | 261021-03m | Deploy Next.js POS to Vercel production and verify live Supabase cloud sync | 2026-10-21 | 08fceae | complete | [261021-03m-deploy-the-migrated-next-js-pos-to-the-e](./quick/261021-03m-deploy-the-migrated-next-js-pos-to-the-e/) |
 | 38 | Add branded workspace loading screen with logo, reduced-motion-aware spinner, and clearer loading text | 2026-10-21 | 9896bd9 | complete | — |
 | 261023-e2z | Add editable product categories and sizes/variants with safe rename/delete and persistent workspace choices | 2026-10-23 | 88e448a | complete | [261023-e2z-add-editable-product-categories-and-size](./quick/261023-e2z-add-editable-product-categories-and-size/) |
+| 261023-gym | Show category and size managers in a modal overlay with keyboard and backdrop dismissal | 2026-10-23 | bdb3784 | complete | [261023-gym-show-category-and-size-managers-in-a-mod](./quick/261023-gym-show-category-and-size-managers-in-a-mod/) |
