@@ -37,7 +37,7 @@ Existing offline behavior is retained: a previously authorized device can reopen
 
 ## Product choices
 
-In **Products & Inventory**, use **Manage categories** or **Manage sizes / variants** below the filters to add, rename, or delete choices. Renaming updates current product assignments; deletion is blocked until every product using that choice has been reassigned. Historical sales remain unchanged. The product form uses the same categories and offers saved size suggestions; typing a new size also saves it as a choice.
+In **Products & Inventory**, use **Manage categories** or **Manage sizes / variants** below the filters to open a popup and add, rename, or delete choices. Close the popup with Close, Escape, or the backdrop. Renaming updates current product assignments; deletion is blocked until every product using that choice has been reassigned. Historical sales remain unchanged. The product form uses the same categories and offers saved size suggestions; typing a new size also saves it as a choice.
 
 Choice lists are additive `productOptions.categories` and `productOptions.sizes` arrays in the workspace snapshot. Existing inventory seeds these lists on first use. Unused choices persist through encrypted local storage, cloud snapshots, and encrypted backups; no Supabase table migration is needed. Restoring a product also restores any choices needed for its assignments. Choice edits follow the existing online editing requirement and activity log.
 

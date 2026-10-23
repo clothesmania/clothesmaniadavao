@@ -28,6 +28,8 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
         let appDialogInputMode = false;
         let productOptionKind = null;
         let productOptionEditing = null;
+        let productOptionsPreviousFocus = null;
+        let productOptionsBackgroundState = null;
 
         async function getSupabaseClient() {
             if (supabaseClient) return supabaseClient;
@@ -1701,6 +1703,25 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
                 }
                 return;
             }
+            const productOptions = document.getElementById('productOptionsPanel');
+            if (!productOptions.classList.contains('hidden')) {
+                if (event.key === 'Escape') {
+                    event.preventDefault();
+                    closeProductOptions();
+                } else if (event.key === 'Tab') {
+                    const focusable = [...productOptions.querySelectorAll('button:not(:disabled), input:not(:disabled)')].filter(element => element.getClientRects().length);
+                    const first = focusable[0];
+                    const last = focusable[focusable.length - 1];
+                    if (event.shiftKey && document.activeElement === first) {
+                        event.preventDefault();
+                        last?.focus();
+                    } else if (!event.shiftKey && document.activeElement === last) {
+                        event.preventDefault();
+                        first?.focus();
+                    }
+                }
+                return;
+            }
             const stockModal = document.getElementById('modalStockProduct');
             if (event.key === 'Tab' && !stockModal.classList.contains('hidden')) {
                 const focusable = [...stockModal.querySelectorAll('button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [href], [tabindex]:not([tabindex="-1"])')];
@@ -2481,6 +2502,17 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
         }
 
         function openProductOptions(kind) {
+            if (!productOptionsBackgroundState) {
+                productOptionsPreviousFocus = document.activeElement;
+                productOptionsBackgroundState = {
+                    sidebar: document.getElementById('sidebar').inert,
+                    content: document.getElementById('mainAppContent').inert,
+                    overflow: document.body.style.overflow
+                };
+            }
+            document.getElementById('sidebar').inert = true;
+            document.getElementById('mainAppContent').inert = true;
+            document.body.style.overflow = 'hidden';
             productOptionKind = kind === 'sizes' ? 'sizes' : 'categories';
             document.getElementById('productOptionsPanel').classList.remove('hidden');
             document.getElementById('manageCategoriesButton').setAttribute('aria-expanded', String(productOptionKind === 'categories'));
@@ -2497,7 +2529,15 @@ const SUPABASE_URL = window.ClothesManiaDependencies.supabaseUrl;
             document.getElementById('productOptionsPanel').classList.add('hidden');
             document.getElementById('manageCategoriesButton').setAttribute('aria-expanded', 'false');
             document.getElementById('manageSizesButton').setAttribute('aria-expanded', 'false');
-            button.focus();
+            if (productOptionsBackgroundState) {
+                document.getElementById('sidebar').inert = productOptionsBackgroundState.sidebar;
+                document.getElementById('mainAppContent').inert = productOptionsBackgroundState.content;
+                document.body.style.overflow = productOptionsBackgroundState.overflow;
+                productOptionsBackgroundState = null;
+            }
+            const previousFocus = productOptionsPreviousFocus;
+            productOptionsPreviousFocus = null;
+            (previousFocus?.isConnected ? previousFocus : button).focus();
         }
 
         function resetProductOptionForm(value = null) {

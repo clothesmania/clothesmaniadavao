@@ -375,28 +375,9 @@
                         </label>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <button id="manageCategoriesButton" type="button" onclick="openProductOptions('categories')" aria-controls="productOptionsPanel" aria-expanded="false" class="btn-outline inline-flex min-h-9 items-center gap-2 px-3 py-2 text-xs font-medium"><i class="fa-solid fa-plus" aria-hidden="true"></i> Manage categories</button>
-                        <button id="manageSizesButton" type="button" onclick="openProductOptions('sizes')" aria-controls="productOptionsPanel" aria-expanded="false" class="btn-outline inline-flex min-h-9 items-center gap-2 px-3 py-2 text-xs font-medium"><i class="fa-solid fa-plus" aria-hidden="true"></i> Manage sizes / variants</button>
+                        <button id="manageCategoriesButton" type="button" onclick="openProductOptions('categories')" aria-controls="productOptionsPanel" aria-haspopup="dialog" aria-expanded="false" class="btn-outline inline-flex min-h-9 items-center gap-2 px-3 py-2 text-xs font-medium"><i class="fa-solid fa-plus" aria-hidden="true"></i> Manage categories</button>
+                        <button id="manageSizesButton" type="button" onclick="openProductOptions('sizes')" aria-controls="productOptionsPanel" aria-haspopup="dialog" aria-expanded="false" class="btn-outline inline-flex min-h-9 items-center gap-2 px-3 py-2 text-xs font-medium"><i class="fa-solid fa-plus" aria-hidden="true"></i> Manage sizes / variants</button>
                     </div>
-                    <section id="productOptionsPanel" class="hidden rounded-xl border border-gray-200 p-4 dark:border-gray-800 sm:p-5" aria-labelledby="productOptionsTitle" onkeydown="if(event.key === 'Escape') closeProductOptions()">
-                        <div class="flex items-start justify-between gap-4">
-                            <div>
-                                <h3 id="productOptionsTitle" class="text-sm font-semibold text-gray-900 dark:text-white">Manage categories</h3>
-                                <p class="mt-1 text-xs text-gray-600 dark:text-gray-400">Renaming updates matching products. To delete a choice in use, reassign those products first.</p>
-                            </div>
-                            <button type="button" onclick="closeProductOptions()" class="btn-ghost shrink-0 text-xs">Close</button>
-                        </div>
-                        <form id="productOptionForm" onsubmit="saveProductOption(event)" class="mt-4 flex flex-wrap items-end gap-2">
-                            <div class="min-w-0 flex-1 basis-48">
-                                <label for="productOptionName" id="productOptionLabel" class="mb-1 block text-xs font-medium">Category name</label>
-                                <input id="productOptionName" class="input-shadcn min-h-10 w-full border text-sm" required maxlength="80" autocomplete="off" aria-describedby="productOptionsMessage" placeholder="e.g. Dresses">
-                            </div>
-                            <button id="productOptionSave" type="submit" class="btn-primary min-h-10 px-4 text-xs font-semibold">Add category</button>
-                            <button id="productOptionCancel" type="button" onclick="resetProductOptionForm()" class="btn-ghost hidden min-h-10 text-xs">Cancel edit</button>
-                        </form>
-                        <p id="productOptionsMessage" class="mt-2 min-h-5 text-xs text-gray-600 dark:text-gray-400" role="status" aria-live="polite"></p>
-                        <ul id="productOptionsList" class="mt-2 max-h-64 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800" aria-label="Saved product choices"></ul>
-                    </section>
                     <p id="productsResultCount" class="text-xs text-gray-500" aria-live="polite"></p>
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" id="productsCatalogGrid">
                         <!-- Populated by JS -->
@@ -808,6 +789,28 @@
             </div>
 
         </main>
+    </div>
+
+    <div id="productOptionsPanel" class="hidden fixed inset-0 z-[80] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="productOptionsTitle" aria-describedby="productOptionsDescription" onclick="if(event.target === this) closeProductOptions()">
+        <section class="max-h-[calc(100dvh-2rem)] w-full max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 shadow-2xl dark:bg-[#161922] sm:p-6">
+            <div class="flex items-start justify-between gap-4">
+                <div>
+                    <h3 id="productOptionsTitle" class="text-lg font-semibold text-gray-900 dark:text-white">Manage categories</h3>
+                    <p id="productOptionsDescription" class="mt-1 text-xs text-gray-600 dark:text-gray-400">Renaming updates matching products. To delete a choice in use, reassign those products first.</p>
+                </div>
+                <button type="button" onclick="closeProductOptions()" class="btn-ghost min-h-9 shrink-0 text-xs">Close</button>
+            </div>
+            <form id="productOptionForm" onsubmit="saveProductOption(event)" class="mt-5 flex flex-wrap items-end gap-2">
+                <div class="min-w-0 flex-1 basis-48">
+                    <label for="productOptionName" id="productOptionLabel" class="mb-1 block break-all text-xs font-medium">Category name</label>
+                    <input id="productOptionName" class="input-shadcn min-h-10 w-full border text-sm" required maxlength="80" autocomplete="off" aria-describedby="productOptionsMessage" placeholder="e.g. Dresses">
+                </div>
+                <button id="productOptionSave" type="submit" class="btn-primary min-h-10 px-4 text-xs font-semibold">Add category</button>
+                <button id="productOptionCancel" type="button" onclick="resetProductOptionForm()" class="btn-ghost hidden min-h-10 text-xs">Cancel edit</button>
+            </form>
+            <p id="productOptionsMessage" class="mt-2 min-h-5 text-xs text-gray-600 dark:text-gray-400" role="status" aria-live="polite"></p>
+            <ul id="productOptionsList" class="mt-2 max-h-64 overflow-y-auto divide-y divide-gray-200 dark:divide-gray-800" aria-label="Saved product choices"></ul>
+        </section>
     </div>
 
     <div id="modalAddLiveHost" class="fixed inset-0 z-[80] hidden items-center justify-center bg-slate-950/45 p-4 backdrop-blur-md" role="dialog" aria-modal="true" aria-labelledby="addLiveHostTitle" aria-describedby="addLiveHostDescription" onkeydown="if(event.key === 'Escape') closeAddLiveHostModal()" onclick="if(event.target === this) closeAddLiveHostModal()">
